@@ -1,11 +1,11 @@
 {
-    "name": "english_mobile_app",
-    "short_name": "english_mobile_app",
+    "name": "FluentTalk AI - English Speaking Coach",
+    "short_name": "FluentTalk",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F5F6FB",
+    "theme_color": "#5048E5",
+    "description": "Ứng dụng luyện phản xạ giao tiếp tiếng Anh 1-1 cùng AI Coach thông minh",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
