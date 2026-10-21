@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/primary_button.dart';
 import 'controllers/auth_controller.dart';
@@ -208,11 +209,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(isSignUp ? 'Tạo tài khoản mới' : 'Đăng nhập FluentTalk'),
+        backgroundColor: Colors.transparent,
+        title: const AppLogoWordmark(logoSize: 28, fontSize: 17),
         centerTitle: true,
       ),
-      body: SafeArea(
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.softBackdrop),
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.pageHorizontal,
@@ -223,56 +228,58 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Welcome Greeting
+                Text(
+                  isSignUp ? 'Tạo tài khoản mới ✨' : 'Chào mừng trở lại 👋',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  isSignUp
+                      ? 'Bắt đầu hành trình nói tiếng Anh — tạo tài khoản để cá nhân hóa lộ trình và lưu trữ lịch sử phản xạ.'
+                      : 'Đăng nhập để tiếp tục các phiên luyện cùng AI Coach của bạn.',
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.45),
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+
                 // Top Tab Switcher: Đăng nhập / Đăng ký
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(AppRadius.inputLarge),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: TabBar(
                     controller: _tabController,
                     onTap: (idx) => setState(() {}),
                     indicator: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(AppRadius.input),
+                      gradient: AppColors.brandGradient,
+                      borderRadius: BorderRadius.circular(AppRadius.input - 2),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          color: AppColors.brandViolet.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
-                    labelColor: AppColors.primary,
+                    labelColor: Colors.white,
                     unselectedLabelColor: AppColors.textMuted,
                     labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                     tabs: const [
-                      Tab(text: 'Đăng nhập'),
-                      Tab(text: 'Đăng ký tài khoản'),
+                      Tab(text: 'Đăng nhập', height: 44),
+                      Tab(text: 'Đăng ký tài khoản', height: 44),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: AppSpacing.lg),
-
-                // Welcome Greeting
-                Text(
-                  isSignUp ? 'Bắt đầu hành trình nói tiếng Anh' : 'Chào mừng bạn quay trở lại!',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isSignUp
-                      ? 'Tạo tài khoản để cá nhân hóa lộ trình và lưu trữ lịch sử phản xạ.'
-                      : 'Đăng nhập để tiếp tục các phiên luyện cùng AI Coach của bạn.',
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
                 ),
 
                 const SizedBox(height: AppSpacing.lg),
@@ -465,6 +472,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
               ],
             ),
           ),
+        ),
         ),
       ),
     );

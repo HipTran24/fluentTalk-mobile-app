@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/primary_button.dart';
 import 'controllers/auth_controller.dart';
 import '../domain/auth_state.dart';
@@ -92,8 +93,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     final authState = ref.watch(authControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
+      backgroundColor: AppColors.brandIndigo,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(gradient: AppColors.brandGradientVivid),
+        child: Stack(
+          children: [
+            // Decorative glowing orbs
+            Positioned(top: -80, right: -60, child: _orb(260, 0.10)),
+            Positioned(bottom: -120, left: -80, child: _orb(320, 0.08)),
+            Positioned(top: 140, left: -40, child: _orb(110, 0.06)),
+            SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
           child: Column(
@@ -105,53 +116,53 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
               ScaleTransition(
                 scale: _scaleAnimation,
                 child: Container(
-                  width: 96,
-                  height: 96,
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.35),
-                        blurRadius: 28,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.12),
+                    border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.record_voice_over_rounded,
-                      size: 52,
+                  child: Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
                       color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.18),
+                          blurRadius: 30,
+                          offset: const Offset(0, 14),
+                        ),
+                      ],
                     ),
+                    child: const AppLogo(size: 76, withShadow: false),
                   ),
                 ),
               ),
 
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.xxl),
 
               // Brand Title & Tagline
               FadeTransition(
                 opacity: _fadeAnimation,
-                child: const Column(
+                child: Column(
                   children: [
-                    Text(
-                      'FluentTalk AI',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -0.5,
-                      ),
+                    const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BrandWordmark(fontSize: 36, onDark: true),
+                        SizedBox(width: 8),
+                        _AiPill(),
+                      ],
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 10),
                     Text(
                       'Speak with confidence',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
-                        letterSpacing: 0.2,
+                        color: Colors.white.withOpacity(0.85),
+                        letterSpacing: 0.4,
                       ),
                     ),
                   ],
@@ -165,30 +176,43 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: AppColors.errorBg,
-                    borderRadius: AppRadius.cardRadius,
-                    border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                    color: AppColors.surface,
+                    borderRadius: AppRadius.cardRadiusLarge,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 30,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.wifi_off_rounded, color: AppColors.error, size: 20),
-                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: AppColors.errorBg,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.wifi_off_rounded, color: AppColors.error, size: 18),
+                          ),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               authState.errorMessage ?? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.',
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: AppColors.error,
+                                color: AppColors.textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: AppSpacing.md),
                       PrimaryButton(
                         text: 'Thử lại',
                         icon: Icons.refresh_rounded,
@@ -205,22 +229,60 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                 const SizedBox(height: AppSpacing.lg),
               ] else ...[
                 const SizedBox(
-                  width: 24,
-                  height: 24,
+                  width: 26,
+                  height: 26,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                const Text(
+                Text(
                   'Đang đồng bộ dữ liệu phiên học...',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.75)),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
               ],
             ],
           ),
+        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _orb(double size, double opacity) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withOpacity(opacity),
+      ),
+    );
+  }
+}
+
+class _AiPill extends StatelessWidget {
+  const _AiPill();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.brandAmber,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Text(
+        'AI',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w900,
+          color: Color(0xFF3B0764),
+          letterSpacing: 0.5,
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:english_mobile_app/core/theme/app_colors.dart';
 import 'package:english_mobile_app/core/theme/app_radius.dart';
 import 'package:english_mobile_app/core/theme/app_spacing.dart';
@@ -35,16 +36,20 @@ class AdminScenariosView extends StatelessWidget {
                   children: [
                     Text(
                       isMobile ? 'Scenario CMS' : 'Quản lý Danh mục Kịch bản (Scenario CMS)',
-                      style: TextStyle(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: isMobile ? 18 : 22,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
+                        letterSpacing: -0.3,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Đang có ${state.scenarios.length} kịch bản trong kho dữ liệu',
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        color: const Color(0xFF94A3B8),
+                      ),
                     ),
                   ],
                 ),
@@ -58,7 +63,10 @@ class AdminScenariosView extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: Text(isMobile ? 'Thêm' : 'Thêm Kịch bản mới'),
+                label: Text(
+                  isMobile ? 'Thêm' : 'Thêm Kịch bản mới',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -100,12 +108,12 @@ class AdminScenariosView extends StatelessWidget {
           // Search Input
           TextField(
             onChanged: (val) => controller.searchScenarios(val),
-            style: const TextStyle(color: Colors.white),
+            style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFF1E293B),
               hintText: 'Tìm kiếm theo tên tình huống, vai trò AI hoặc người dùng...',
-              hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+              hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF64748B), fontSize: 13),
               prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF94A3B8)),
               suffixIcon: state.scenarioQuery.isNotEmpty
                   ? IconButton(
@@ -132,7 +140,7 @@ class AdminScenariosView extends StatelessWidget {
                     selected: isSelected,
                     selectedColor: AppColors.primary.withOpacity(0.35),
                     backgroundColor: const Color(0xFF1E293B),
-                    labelStyle: TextStyle(
+                    labelStyle: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       color: isSelected ? AppColors.primaryLight : const Color(0xFF94A3B8),
@@ -153,6 +161,12 @@ class AdminScenariosView extends StatelessWidget {
       return _buildEmptyState();
     }
 
+    final headerStyle = GoogleFonts.plusJakartaSans(
+      fontWeight: FontWeight.w700,
+      fontSize: 12,
+      color: const Color(0xFFCBD5E1),
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF131B2E),
@@ -165,15 +179,15 @@ class AdminScenariosView extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             headingRowColor: WidgetStateProperty.all(const Color(0xFF0F172A)),
-            columns: const [
-              DataColumn(label: Text('Tiêu đề Kịch bản', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Chủ đề', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('CEFR', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Vai AI / Học viên', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Lượt học', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Điểm TB', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Trạng thái', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Thao tác', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
+            columns: [
+              DataColumn(label: Text('Tiêu đề Kịch bản', style: headerStyle)),
+              DataColumn(label: Text('Chủ đề', style: headerStyle)),
+              DataColumn(label: Text('CEFR', style: headerStyle)),
+              DataColumn(label: Text('Vai AI / Học viên', style: headerStyle)),
+              DataColumn(label: Text('Lượt học', style: headerStyle)),
+              DataColumn(label: Text('Điểm TB', style: headerStyle)),
+              DataColumn(label: Text('Trạng thái', style: headerStyle)),
+              DataColumn(label: Text('Thao tác', style: headerStyle)),
             ],
             rows: state.scenarios.map((sc) {
               return DataRow(
@@ -185,11 +199,11 @@ class AdminScenariosView extends StatelessWidget {
                         sc.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 13),
                       ),
                     ),
                   ),
-                  DataCell(Text(sc.topicName, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)))),
+                  DataCell(Text(sc.topicName, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8)))),
                   DataCell(
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -199,7 +213,7 @@ class AdminScenariosView extends StatelessWidget {
                       ),
                       child: Text(
                         sc.level.name.toUpperCase(),
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight),
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight, letterSpacing: 0.5),
                       ),
                     ),
                   ),
@@ -210,18 +224,21 @@ class AdminScenariosView extends StatelessWidget {
                         '${sc.aiRole} ↔ ${sc.userRole}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF64748B)),
                       ),
                     ),
                   ),
-                  DataCell(Text('${sc.usageCount}', style: const TextStyle(color: Colors.white))),
+                  DataCell(Text('${sc.usageCount}', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600))),
                   DataCell(
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
                         const SizedBox(width: 4),
-                        Text('${sc.avgScore}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                        Text(
+                          '${sc.avgScore}',
+                          style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
                       ],
                     ),
                   ),
@@ -295,7 +312,7 @@ class AdminScenariosView extends StatelessWidget {
                     ),
                     child: Text(
                       sc.level.name.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight),
+                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight, letterSpacing: 0.5),
                     ),
                   ),
                   Switch(
@@ -308,17 +325,17 @@ class AdminScenariosView extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 sc.title,
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.white),
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.white),
               ),
               const SizedBox(height: 4),
               Text(
                 '${sc.topicName} • ${sc.estimatedMinutes} phút',
-                style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8)),
               ),
               const SizedBox(height: 6),
               Text(
                 'AI: ${sc.aiRole} • Học viên: ${sc.userRole}',
-                style: const TextStyle(fontSize: 12, color: Color(0xFFCBD5E1)),
+                style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFFCBD5E1)),
               ),
               const Divider(height: 18, color: Color(0xFF1E293B)),
               Row(
@@ -328,11 +345,14 @@ class AdminScenariosView extends StatelessWidget {
                     children: [
                       const Icon(Icons.people_outline, size: 16, color: Color(0xFF64748B)),
                       const SizedBox(width: 4),
-                      Text('${sc.usageCount} lượt', style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                      Text('${sc.usageCount} lượt', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8))),
                       const SizedBox(width: 12),
                       const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
                       const SizedBox(width: 4),
-                      Text('${sc.avgScore}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text(
+                        '${sc.avgScore}',
+                        style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                      ),
                     ],
                   ),
                   Row(
@@ -371,16 +391,19 @@ class AdminScenariosView extends StatelessWidget {
         borderRadius: AppRadius.cardRadius,
         border: Border.all(color: const Color(0xFF1E293B)),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF64748B)),
-          SizedBox(height: 12),
+          const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF64748B)),
+          const SizedBox(height: 12),
           Text(
             'Không tìm thấy kịch bản phù hợp',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white),
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white),
           ),
-          SizedBox(height: 4),
-          Text('Thử tìm kiếm với từ khóa khác hoặc bỏ chọn bộ lọc', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
+          const SizedBox(height: 4),
+          Text(
+            'Thử tìm kiếm với từ khóa khác hoặc bỏ chọn bộ lọc',
+            style: GoogleFonts.plusJakartaSans(color: const Color(0xFF94A3B8), fontSize: 13),
+          ),
         ],
       ),
     );
@@ -391,12 +414,16 @@ class AdminScenariosView extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF131B2E),
-        title: const Text('Xác nhận xóa kịch bản', style: TextStyle(color: Colors.white)),
-        content: Text('Bạn có chắc chắn muốn xóa kịch bản "$title" khỏi hệ thống? Thao tác này không thể hoàn tác.', style: const TextStyle(color: Color(0xFFCBD5E1))),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF1E293B))),
+        title: Text('Xác nhận xóa kịch bản', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w700)),
+        content: Text(
+          'Bạn có chắc chắn muốn xóa kịch bản "$title" khỏi hệ thống? Thao tác này không thể hoàn tác.',
+          style: GoogleFonts.plusJakartaSans(color: const Color(0xFFCBD5E1), fontSize: 13),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Hủy'),
+            child: Text('Hủy', style: GoogleFonts.plusJakartaSans(color: const Color(0xFF94A3B8))),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
@@ -404,7 +431,7 @@ class AdminScenariosView extends StatelessWidget {
               Navigator.of(context).pop();
               controller.deleteScenario(id);
             },
-            child: const Text('Xác nhận xóa'),
+            child: Text('Xác nhận xóa', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
           ),
         ],
       ),

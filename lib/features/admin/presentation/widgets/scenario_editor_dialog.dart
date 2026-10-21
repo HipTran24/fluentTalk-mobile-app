@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:english_mobile_app/core/models/enums.dart';
 import 'package:english_mobile_app/core/theme/app_colors.dart';
 import 'package:english_mobile_app/core/theme/app_spacing.dart';
@@ -103,7 +104,10 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
   void _submit() {
     if (_titleController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập tiêu đề kịch bản')),
+        SnackBar(
+          content: Text('Vui lòng nhập tiêu đề kịch bản', style: GoogleFonts.plusJakartaSans()),
+          backgroundColor: AppColors.error,
+        ),
       );
       return;
     }
@@ -171,7 +175,7 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                     const SizedBox(width: AppSpacing.sm),
                     Text(
                       isEdit ? 'Chỉnh sửa Kịch bản CMS' : 'Thêm Kịch bản mới',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.3),
                     ),
                   ],
                 ),
@@ -184,16 +188,16 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
             const Divider(height: 24, color: Color(0xFF1E293B)),
 
             // Tiêu đề
-            const Text('Tiêu đề tình huống:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+            Text('Tiêu đề tình huống:', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
             const SizedBox(height: 6),
             TextField(
               controller: _titleController,
-              style: const TextStyle(color: Colors.white),
+              style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF1E293B),
                 hintText: 'VD: Check-in tại khách sạn 5 sao...',
-                hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF64748B), fontSize: 13),
                 prefixIcon: const Icon(Icons.title, size: 20, color: Color(0xFF94A3B8)),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
               ),
@@ -207,12 +211,12 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Chủ đề (Topic):', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+                      Text('Chủ đề (Topic):', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
                         value: _topicId,
                         dropdownColor: const Color(0xFF1E293B),
-                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: const Color(0xFF1E293B),
@@ -220,7 +224,7 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
                         ),
                         items: _topics.entries
-                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, style: const TextStyle(fontSize: 13))))
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, style: GoogleFonts.plusJakartaSans(fontSize: 13))))
                             .toList(),
                         onChanged: (val) {
                           if (val != null) {
@@ -239,12 +243,12 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Trình độ CEFR:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+                      Text('Trình độ CEFR:', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<UserLevel>(
                         value: _level,
                         dropdownColor: const Color(0xFF1E293B),
-                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: const Color(0xFF1E293B),
@@ -252,7 +256,7 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
                         ),
                         items: UserLevel.values
-                            .map((lvl) => DropdownMenuItem(value: lvl, child: Text(lvl.name.toUpperCase(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700))))
+                            .map((lvl) => DropdownMenuItem(value: lvl, child: Text(lvl.name.toUpperCase(), style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700))))
                             .toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _level = val);
@@ -272,16 +276,16 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Vai trò AI:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+                      Text('Vai trò AI:', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
                       const SizedBox(height: 6),
                       TextField(
                         controller: _aiRoleController,
-                        style: const TextStyle(color: Colors.white),
+                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: const Color(0xFF1E293B),
                           hintText: 'VD: Lễ tân khách sạn',
-                          hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                          hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF64748B), fontSize: 13),
                           prefixIcon: const Icon(Icons.smart_toy_outlined, size: 20, color: Color(0xFF94A3B8)),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
                         ),
@@ -294,16 +298,16 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Vai trò Học viên:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+                      Text('Vai trò Học viên:', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
                       const SizedBox(height: 6),
                       TextField(
                         controller: _userRoleController,
-                        style: const TextStyle(color: Colors.white),
+                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: const Color(0xFF1E293B),
                           hintText: 'VD: Khách du lịch',
-                          hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                          hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF64748B), fontSize: 13),
                           prefixIcon: const Icon(Icons.person_outline, size: 20, color: Color(0xFF94A3B8)),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
                         ),
@@ -316,16 +320,16 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
             const SizedBox(height: AppSpacing.md),
 
             // Mẫu câu khóa (Key Phrases)
-            const Text('Từ khóa gợi ý (ngăn cách bởi dấu phẩy):', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+            Text('Từ khóa gợi ý (ngăn cách bởi dấu phẩy):', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
             const SizedBox(height: 6),
             TextField(
               controller: _keyPhrasesController,
-              style: const TextStyle(color: Colors.white),
+              style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF1E293B),
                 hintText: 'reservation under name, room on higher floor, breakfast included',
-                hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF64748B), fontSize: 13),
                 prefixIcon: const Icon(Icons.lightbulb_outline, size: 20, color: Color(0xFF94A3B8)),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
               ),
@@ -341,12 +345,12 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                   child: TextField(
                     controller: _durationController,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white),
+                    style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color(0xFF1E293B),
                       labelText: 'Thời lượng (phút)',
-                      labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                      labelStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF94A3B8), fontSize: 12),
                       prefixIcon: const Icon(Icons.timer_outlined, size: 20, color: Color(0xFF94A3B8)),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
                     ),
@@ -354,7 +358,7 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
                 ),
                 Row(
                   children: [
-                    const Text('Kích hoạt kịch bản:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFFCBD5E1))),
+                    Text('Kích hoạt kịch bản:', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, fontSize: 13, color: const Color(0xFFCBD5E1))),
                     const SizedBox(width: 8),
                     Switch(
                       value: _isActive,
@@ -373,13 +377,13 @@ class _ScenarioEditorDialogState extends State<ScenarioEditorDialog> {
               children: [
                 OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Hủy bỏ'),
+                  child: Text('Hủy bỏ', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 ElevatedButton.icon(
                   onPressed: _submit,
                   icon: const Icon(Icons.save_rounded, size: 18),
-                  label: Text(isEdit ? 'Lưu thay đổi' : 'Tạo kịch bản'),
+                  label: Text(isEdit ? 'Lưu thay đổi' : 'Tạo kịch bản', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
                 ),
               ],
             ),

@@ -92,7 +92,7 @@ class PracticeHubScreen extends StatelessWidget {
                 duration: '5-15 phút',
                 tag: 'Tăng phản xạ tự nhiên',
                 icon: Icons.phone_in_talk_rounded,
-                accentColor: const Color(0xFF9333EA),
+                accentColor: AppColors.purple,
                 onTap: () => context.push('/practice/realtime/quick_call'),
               ),
 
@@ -106,30 +106,45 @@ class PracticeHubScreen extends StatelessWidget {
 
   Widget _buildReadinessBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border.withOpacity(0.7)),
+        boxShadow: AppColors.softShadow,
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.mic, size: 16, color: AppColors.success),
-          SizedBox(width: 6),
-          Text(
-            'Micro: Sẵn sàng',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
-          ),
-          Spacer(),
-          Icon(Icons.wifi, size: 16, color: AppColors.success),
-          SizedBox(width: 6),
-          Text(
-            'Mạng: Tốt (<80ms)',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
-          ),
+          _statusPill(Icons.mic_rounded, 'Micro: Sẵn sàng'),
+          const Spacer(),
+          _statusPill(Icons.wifi_rounded, 'Mạng: Tốt (<80ms)'),
         ],
       ),
     );
+  }
+
+  Widget _statusPill(IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(5),
+          decoration: const BoxDecoration(color: AppColors.successBg, shape: BoxShape.circle),
+          child: Icon(icon, size: 13, color: AppColors.success),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+        ),
+      ],
+    );
+  }
+
+  LinearGradient _gradientFor(Color c) {
+    if (c == AppColors.accent) return AppColors.accentGradient;
+    if (c == AppColors.primary) return AppColors.brandGradient;
+    return AppColors.purpleGradient;
   }
 
   Widget _buildModeHeroCard(
@@ -142,33 +157,37 @@ class PracticeHubScreen extends StatelessWidget {
     required Color accentColor,
     required VoidCallback onTap,
   }) {
+    final gradient = _gradientFor(accentColor);
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
+        borderRadius: AppRadius.cardRadiusLarge,
+        border: Border.all(color: AppColors.border.withOpacity(0.7)),
+        boxShadow: AppColors.softShadow,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: AppRadius.cardRadius,
+          borderRadius: AppRadius.cardRadiusLarge,
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      width: 52,
+                      height: 52,
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        gradient: gradient,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: AppColors.glow(accentColor, opacity: 0.3),
                       ),
-                      child: Icon(icon, color: accentColor, size: 24),
+                      child: Icon(icon, color: Colors.white, size: 26),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,17 +196,25 @@ class PracticeHubScreen extends StatelessWidget {
                             title,
                             style: const TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                               color: AppColors.textPrimary,
+                              letterSpacing: -0.2,
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            tag,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: accentColor,
+                          const SizedBox(height: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: accentColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppRadius.round),
+                            ),
+                            child: Text(
+                              tag,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: accentColor,
+                              ),
                             ),
                           ),
                         ],
@@ -195,42 +222,51 @@ class PracticeHubScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.md),
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.5,
                     color: AppColors.textSecondary,
-                    height: 1.4,
+                    height: 1.45,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
+                const Divider(height: 1),
+                const SizedBox(height: AppSpacing.sm),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.timer_outlined, size: 14, color: AppColors.textMuted),
+                        const Icon(Icons.timer_outlined, size: 15, color: AppColors.textMuted),
                         const SizedBox(width: 4),
                         Text(
                           duration,
-                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          'Bắt đầu',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: accentColor,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        gradient: gradient,
+                        borderRadius: BorderRadius.circular(AppRadius.round),
+                      ),
+                      child: const Row(
+                        children: [
+                          Text(
+                            'Bắt đầu',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(Icons.arrow_forward_rounded, size: 14, color: accentColor),
-                      ],
+                          SizedBox(width: 4),
+                          Icon(Icons.arrow_forward_rounded, size: 15, color: Colors.white),
+                        ],
+                      ),
                     ),
                   ],
                 ),

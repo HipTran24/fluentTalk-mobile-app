@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:english_mobile_app/core/theme/app_colors.dart';
 import 'package:english_mobile_app/core/theme/app_radius.dart';
 import 'package:english_mobile_app/core/theme/app_spacing.dart';
@@ -29,18 +30,19 @@ class AdminUsersView extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Danh bạ Học viên & Tiến độ (User Directory)',
-                style: TextStyle(
-                  fontSize: 22,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: isMobile ? 18 : 22,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 'Theo dõi hoạt động, cấp độ và thời lượng thực hành của ${state.learners.length} học viên',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                style: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF94A3B8)),
               ),
             ],
           ),
@@ -82,12 +84,12 @@ class AdminUsersView extends StatelessWidget {
         children: [
           TextField(
             onChanged: (val) => controller.searchLearners(val),
-            style: const TextStyle(color: Colors.white),
+            style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFF1E293B),
               hintText: 'Tìm kiếm theo tên hoặc email học viên...',
-              hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+              hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF64748B), fontSize: 13),
               prefixIcon: const Icon(Icons.person_search_rounded, color: Color(0xFF94A3B8)),
               suffixIcon: state.userQuery.isNotEmpty
                   ? IconButton(
@@ -112,7 +114,7 @@ class AdminUsersView extends StatelessWidget {
                     selected: isSelected,
                     selectedColor: AppColors.primary.withOpacity(0.35),
                     backgroundColor: const Color(0xFF1E293B),
-                    labelStyle: TextStyle(
+                    labelStyle: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       color: isSelected ? AppColors.primaryLight : const Color(0xFF94A3B8),
@@ -133,6 +135,12 @@ class AdminUsersView extends StatelessWidget {
       return _buildEmptyState();
     }
 
+    final headerStyle = GoogleFonts.plusJakartaSans(
+      fontWeight: FontWeight.w700,
+      fontSize: 12,
+      color: const Color(0xFFCBD5E1),
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF131B2E),
@@ -145,15 +153,15 @@ class AdminUsersView extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             headingRowColor: WidgetStateProperty.all(const Color(0xFF0F172A)),
-            columns: const [
-              DataColumn(label: Text('Học viên', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Cấp độ', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Mục tiêu', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Số buổi học', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Thời lượng nói', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Streak', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Trạng thái', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
-              DataColumn(label: Text('Chi tiết', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)))),
+            columns: [
+              DataColumn(label: Text('Học viên', style: headerStyle)),
+              DataColumn(label: Text('Cấp độ', style: headerStyle)),
+              DataColumn(label: Text('Mục tiêu', style: headerStyle)),
+              DataColumn(label: Text('Số buổi học', style: headerStyle)),
+              DataColumn(label: Text('Thời lượng nói', style: headerStyle)),
+              DataColumn(label: Text('Streak', style: headerStyle)),
+              DataColumn(label: Text('Trạng thái', style: headerStyle)),
+              DataColumn(label: Text('Chi tiết', style: headerStyle)),
             ],
             rows: state.learners.map((u) {
               return DataRow(
@@ -166,7 +174,7 @@ class AdminUsersView extends StatelessWidget {
                           backgroundColor: AppColors.primary.withOpacity(0.2),
                           child: Text(
                             u.name[0].toUpperCase(),
-                            style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.primaryLight, fontSize: 13),
+                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.primaryLight, fontSize: 13),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -174,8 +182,8 @@ class AdminUsersView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(u.name, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
-                            Text(u.email, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                            Text(u.name, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 13)),
+                            Text(u.email, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B))),
                           ],
                         ),
                       ],
@@ -190,20 +198,20 @@ class AdminUsersView extends StatelessWidget {
                       ),
                       child: Text(
                         u.level.name.toUpperCase(),
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight),
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight, letterSpacing: 0.5),
                       ),
                     ),
                   ),
-                  DataCell(Text(u.goal.title, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)))),
-                  DataCell(Text('${u.totalSessions} buổi', style: const TextStyle(color: Colors.white))),
-                  DataCell(Text('${u.voiceMinutes} phút', style: const TextStyle(color: Colors.white))),
+                  DataCell(Text(u.goal.title, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8)))),
+                  DataCell(Text('${u.totalSessions} buổi', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13))),
+                  DataCell(Text('${u.voiceMinutes} phút', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13))),
                   DataCell(
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.local_fire_department_rounded, size: 16, color: Color(0xFFF97316)),
                         const SizedBox(width: 4),
-                        Text('${u.streakDays} ngày', style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                        Text('${u.streakDays} ngày', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 13)),
                       ],
                     ),
                   ),
@@ -257,7 +265,7 @@ class AdminUsersView extends StatelessWidget {
                     backgroundColor: AppColors.primary.withOpacity(0.2),
                     child: Text(
                       u.name[0].toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primaryLight),
+                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.primaryLight),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -265,8 +273,8 @@ class AdminUsersView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(u.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.white)),
-                        Text(u.email, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                        Text(u.name, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.white)),
+                        Text(u.email, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF64748B))),
                       ],
                     ),
                   ),
@@ -278,7 +286,7 @@ class AdminUsersView extends StatelessWidget {
                     ),
                     child: Text(
                       u.level.name.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight),
+                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 11, color: AppColors.primaryLight, letterSpacing: 0.5),
                     ),
                   ),
                 ],
@@ -287,11 +295,17 @@ class AdminUsersView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${u.totalSessions} buổi • ${u.voiceMinutes}p nói', style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                  Text(
+                    '${u.totalSessions} buổi • ${u.voiceMinutes}p nói',
+                    style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8)),
+                  ),
                   Row(
                     children: [
                       const Icon(Icons.local_fire_department_rounded, size: 16, color: Color(0xFFF97316)),
-                      Text('${u.streakDays} ngày', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white)),
+                      Text(
+                        '${u.streakDays} ngày',
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
+                      ),
                       const SizedBox(width: 12),
                       Switch(
                         value: u.isActive,
@@ -326,7 +340,7 @@ class AdminUsersView extends StatelessWidget {
             (state.userQuery.isNotEmpty || state.userLevelFilter != 'all')
                 ? 'Không tìm thấy học viên'
                 : 'Chưa có tài khoản học viên nào đăng ký',
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white),
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white),
           ),
           const SizedBox(height: 4),
           Text(
@@ -334,7 +348,7 @@ class AdminUsersView extends StatelessWidget {
                 ? 'Thử tìm kiếm với từ khóa hoặc cấp độ khác'
                 : 'Dữ liệu học viên sẽ tự động hiển thị tại đây khi người dùng đăng ký tài khoản trong ứng dụng.',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+            style: GoogleFonts.plusJakartaSans(color: const Color(0xFF94A3B8), fontSize: 13),
           ),
         ],
       ),
@@ -352,31 +366,34 @@ class AdminUsersView extends StatelessWidget {
             CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.primary.withOpacity(0.2),
-              child: Text(u.name[0], style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primaryLight)),
+              child: Text(u.name[0], style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.primaryLight)),
             ),
             const SizedBox(width: 10),
-            Text(u.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
+            Text(u.name, style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white)),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Email: ${u.email}', style: const TextStyle(color: Color(0xFFCBD5E1))),
+            Text('Email: ${u.email}', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFCBD5E1), fontSize: 13)),
             const SizedBox(height: 6),
-            Text('Trình độ: ${u.level.name.toUpperCase()} • Mục tiêu: ${u.goal.title}', style: const TextStyle(color: Color(0xFFCBD5E1))),
+            Text('Trình độ: ${u.level.name.toUpperCase()} • Mục tiêu: ${u.goal.title}', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFCBD5E1), fontSize: 13)),
             const SizedBox(height: 6),
-            Text('Tổng buổi luyện tập: ${u.totalSessions} buổi', style: const TextStyle(color: Color(0xFFCBD5E1))),
+            Text('Tổng buổi luyện tập: ${u.totalSessions} buổi', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFCBD5E1), fontSize: 13)),
             const SizedBox(height: 6),
-            Text('Thời lượng nói tích lũy: ${u.voiceMinutes} phút', style: const TextStyle(color: Color(0xFFCBD5E1))),
+            Text('Thời lượng nói tích lũy: ${u.voiceMinutes} phút', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFCBD5E1), fontSize: 13)),
             const SizedBox(height: 6),
-            Text('Chuỗi Streak: ${u.streakDays} ngày liên tiếp', style: const TextStyle(color: Color(0xFFCBD5E1))),
+            Text('Chuỗi Streak: ${u.streakDays} ngày liên tiếp', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFCBD5E1), fontSize: 13)),
             const SizedBox(height: 6),
-            Text('Trạng thái tài khoản: ${u.isActive ? "Hoạt động" : "Tạm khóa"}', style: const TextStyle(color: Color(0xFFCBD5E1))),
+            Text('Trạng thái tài khoản: ${u.isActive ? "Hoạt động" : "Tạm khóa"}', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFCBD5E1), fontSize: 13)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Đóng', style: TextStyle(color: AppColors.primaryLight))),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Đóng', style: GoogleFonts.plusJakartaSans(color: AppColors.primaryLight, fontWeight: FontWeight.w700)),
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:english_mobile_app/core/theme/app_colors.dart';
 import 'package:english_mobile_app/core/theme/app_radius.dart';
 import 'package:english_mobile_app/core/theme/app_spacing.dart';
@@ -43,10 +44,11 @@ class AdminDashboardView extends StatelessWidget {
                   children: [
                     Text(
                       'Trung tâm Điều hành & Đo lường KPI',
-                      style: TextStyle(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: isMobile ? 18 : 22,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
+                        letterSpacing: -0.4,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -54,9 +56,10 @@ class AdminDashboardView extends StatelessWidget {
                       isMobile
                           ? 'Cập nhật thời gian thực từ Gemini Gateway'
                           : 'Cập nhật thời gian thực từ Gemini Live Gateway & Hệ thống học tập',
-                      style: const TextStyle(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 12,
-                        color: Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF94A3B8),
                       ),
                     ),
                   ],
@@ -71,7 +74,7 @@ class AdminDashboardView extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('Thêm Kịch bản mới'),
+                  label: Text('Thêm Kịch bản mới', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
                 ),
             ],
           ),
@@ -110,41 +113,41 @@ class AdminDashboardView extends StatelessWidget {
       AdminKpiCard(
         title: 'Tổng số Học viên',
         value: '${kpi.totalLearners}',
-        subtitle: '184 người dùng đang hoạt động',
+        subtitle: '${kpi.activeSessionsToday} học viên đang hoạt động',
         icon: Icons.people_alt_rounded,
         iconColor: AppColors.primaryLight,
         iconBgColor: AppColors.primary.withOpacity(0.2),
-        growthText: '+${kpi.learnerGrowthPct}% tháng này',
+        growthText: kpi.totalLearners > 0 ? '+${kpi.learnerGrowthPct.toInt()}% MoM' : 'Khởi tạo',
         isPositiveGrowth: true,
       ),
       AdminKpiCard(
         title: 'Thời lượng Nói tích lũy',
         value: '${kpi.totalVoiceMinutes} phút',
-        subtitle: 'Trung bình 14.2 phút/học viên/ngày',
+        subtitle: 'Thời lượng thực hành thực tế',
         icon: Icons.mic_rounded,
         iconColor: AppColors.accent,
         iconBgColor: AppColors.accent.withOpacity(0.2),
-        growthText: '+${kpi.voiceGrowthPct}% MoM',
+        growthText: '+${kpi.voiceGrowthPct.toInt()}%',
         isPositiveGrowth: true,
       ),
       AdminKpiCard(
         title: 'Phiên thực hành hôm nay',
         value: '${kpi.activeSessionsToday}',
-        subtitle: '124 cuộc gọi thoại • 218 lượt Guided',
+        subtitle: 'Cuộc gọi thoại & lượt Guided',
         icon: Icons.headset_mic_rounded,
         iconColor: AppColors.warning,
         iconBgColor: AppColors.warning.withOpacity(0.2),
-        growthText: '+8.4% hôm qua',
+        growthText: 'Thời gian thực',
         isPositiveGrowth: true,
       ),
       AdminKpiCard(
         title: 'Mức tiêu thụ Token Gemini',
         value: kpi.geminiTokensUsed,
-        subtitle: 'Ngân sách tháng: 29.6% đã sử dụng',
+        subtitle: 'Hạn mức tháng: 5.0M Tokens',
         icon: Icons.auto_awesome_rounded,
         iconColor: const Color(0xFFA855F7),
         iconBgColor: const Color(0xFFA855F7).withOpacity(0.2),
-        growthText: 'Ổn định',
+        growthText: 'Tối ưu',
         isPositiveGrowth: true,
       ),
     ];
@@ -191,7 +194,7 @@ class AdminDashboardView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: const Color(0xFF131B2E), // Dark Studio Surface
+        color: const Color(0xFF131B2E),
         borderRadius: AppRadius.cardRadius,
         border: Border.all(color: const Color(0xFF1E293B)),
       ),
@@ -204,14 +207,18 @@ class AdminDashboardView extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              const Row(
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.bar_chart_rounded, color: AppColors.primaryLight, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.bar_chart_rounded, color: AppColors.primaryLight, size: 20),
+                  const SizedBox(width: 8),
                   Text(
                     'Thời lượng Luyện nói 7 ngày',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
@@ -223,7 +230,11 @@ class AdminDashboardView extends StatelessWidget {
                 ),
                 child: Text(
                   'Tổng 7 ngày: ${kpi.totalVoiceMinutes} phút',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryLight),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryLight,
+                  ),
                 ),
               ),
             ],
@@ -241,7 +252,11 @@ class AdminDashboardView extends StatelessWidget {
                   children: [
                     Text(
                       '${metric.voiceMinutes}p',
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8)),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF94A3B8),
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Container(
@@ -259,7 +274,11 @@ class AdminDashboardView extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       metric.dayLabel,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFCBD5E1)),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFCBD5E1),
+                      ),
                     ),
                   ],
                 );
@@ -275,20 +294,24 @@ class AdminDashboardView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: const Color(0xFF131B2E), // Dark Studio Surface
+        color: const Color(0xFF131B2E),
         borderRadius: AppRadius.cardRadius,
         border: Border.all(color: const Color(0xFF1E293B)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.bolt_rounded, color: AppColors.warning, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.bolt_rounded, color: AppColors.warning, size: 20),
+              const SizedBox(width: 8),
               Text(
-                'Nhật ký Sự kiện Trực tiếp (Live Feed)',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                'Nhật ký Hoạt động Trực tiếp',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
@@ -331,19 +354,31 @@ class AdminDashboardView extends StatelessWidget {
                       children: [
                         Text(
                           act.title,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.white),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            color: Colors.white,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           act.description,
-                          style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF94A3B8),
+                          ),
                         ),
                       ],
                     ),
                   ),
                   Text(
                     act.timeAgo,
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF64748B),
+                    ),
                   ),
                 ],
               );
@@ -367,9 +402,13 @@ class AdminDashboardView extends StatelessWidget {
         runSpacing: 12,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          const Text(
+          Text(
             'Thao tác Quản trị nhanh:',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1)),
+            style: GoogleFonts.plusJakartaSans(
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              color: const Color(0xFFCBD5E1),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () {
@@ -379,14 +418,14 @@ class AdminDashboardView extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.add_circle_outline, size: 16),
-            label: const Text('Thêm Kịch bản mới'),
+            label: Text('Thêm Kịch bản mới', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
           ),
           OutlinedButton.icon(
             onPressed: () {
               controller.switchTab(3); // Go to AI Config
             },
             icon: const Icon(Icons.settings_suggest_rounded, size: 16),
-            label: const Text('Điều chỉnh Prompt AI'),
+            label: Text('Điều chỉnh Prompt AI', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
           ),
           OutlinedButton.icon(
             onPressed: () {
@@ -395,7 +434,7 @@ class AdminDashboardView extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.download_rounded, size: 16),
-            label: const Text('Xuất Báo cáo CSV/JSON'),
+            label: Text('Xuất Báo cáo CSV/JSON', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
           ),
         ],
       ),

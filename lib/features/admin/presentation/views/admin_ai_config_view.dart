@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:english_mobile_app/core/theme/app_colors.dart';
 import 'package:english_mobile_app/core/theme/app_radius.dart';
 import 'package:english_mobile_app/core/theme/app_spacing.dart';
@@ -62,8 +63,11 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
       );
       widget.controller.updateAiConfig(updated);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã cập nhật cấu hình AI Gateway thành công!'),
+        SnackBar(
+          content: Text(
+            'Đã cập nhật cấu hình AI Gateway thành công!',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
+          ),
           backgroundColor: AppColors.accent,
         ),
       );
@@ -95,10 +99,11 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
                   children: [
                     Text(
                       isMobile ? 'Cấu hình Mô hình AI' : 'Cấu hình Mô hình AI & Telemetry Gateway',
-                      style: TextStyle(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: isMobile ? 18 : 22,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
+                        letterSpacing: -0.3,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -106,7 +111,7 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
                       isMobile
                           ? 'Gemini 1.5 Live, Deepgram STT & Full-Duplex'
                           : 'Điều phối Gemini 1.5 Live, Deepgram STT và Tham số Đàm thoại Full-Duplex',
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8)),
                     ),
                   ],
                 ),
@@ -115,7 +120,10 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
               ElevatedButton.icon(
                 onPressed: _save,
                 icon: const Icon(Icons.cloud_done_rounded, size: 18),
-                label: Text(isMobile ? 'Lưu' : 'Lưu cấu hình'),
+                label: Text(
+                  isMobile ? 'Lưu' : 'Lưu cấu hình',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -158,13 +166,13 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.hub_rounded, color: AppColors.primaryLight, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.hub_rounded, color: AppColors.primaryLight, size: 20),
+              const SizedBox(width: 8),
               Text(
                 'Giám sát Hạ tầng Trực tiếp (Live Telemetry)',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
               ),
             ],
           ),
@@ -225,8 +233,8 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.white)),
-            Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+            Text(value, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.white)),
+            Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8))),
           ],
         ),
       ],
@@ -244,29 +252,29 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Tham số Mô hình (Model Parameters)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+            style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
           ),
           const SizedBox(height: AppSpacing.md),
 
           // Chọn Model AI
-          const Text('Mô hình Hội thoại Realtime:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+          Text('Mô hình Hội thoại Realtime:', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
           const SizedBox(height: 6),
           DropdownButtonFormField<String>(
             value: _selectedModel,
             dropdownColor: const Color(0xFF1E293B),
-            style: const TextStyle(color: Colors.white, fontSize: 13),
+            style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFF1E293B),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
             ),
-            items: const [
-              DropdownMenuItem(value: 'gemini-1.5-flash-live', child: Text('Gemini 1.5 Flash Live (Siêu tốc, Khuyên dùng)')),
-              DropdownMenuItem(value: 'gemini-1.5-pro', child: Text('Gemini 1.5 Pro (Suy luận sâu, Đánh giá Rubric)')),
-              DropdownMenuItem(value: 'deepgram-elevenlabs', child: Text('Deepgram Nova-2 + ElevenLabs TTS')),
+            items: [
+              DropdownMenuItem(value: 'gemini-1.5-flash-live', child: Text('Gemini 1.5 Flash Live (Siêu tốc, Khuyên dùng)', style: GoogleFonts.plusJakartaSans(fontSize: 13))),
+              DropdownMenuItem(value: 'gemini-1.5-pro', child: Text('Gemini 1.5 Pro (Suy luận sâu, Đánh giá Rubric)', style: GoogleFonts.plusJakartaSans(fontSize: 13))),
+              DropdownMenuItem(value: 'deepgram-elevenlabs', child: Text('Deepgram Nova-2 + ElevenLabs TTS', style: GoogleFonts.plusJakartaSans(fontSize: 13))),
             ],
             onChanged: (val) {
               if (val != null) setState(() => _selectedModel = val);
@@ -278,8 +286,8 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Nhiệt độ sáng tạo (Temperature):', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
-              Text(_temperature.toStringAsFixed(2), style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primaryLight)),
+              Text('Nhiệt độ sáng tạo (Temperature):', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
+              Text(_temperature.toStringAsFixed(2), style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.primaryLight)),
             ],
           ),
           Slider(
@@ -290,9 +298,9 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
             activeColor: AppColors.primaryLight,
             onChanged: (val) => setState(() => _temperature = val),
           ),
-          const Text(
+          Text(
             'Giá trị thấp (0.2–0.5) giúp AI kiên định theo kịch bản; giá trị cao (0.7–0.9) giúp phản xạ đa dạng, tự nhiên.',
-            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+            style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B), height: 1.4),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -300,8 +308,8 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Độ nhạy ngắt lời (Barge-In Sensitivity):', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
-              Text('${(_bargeInSensitivity * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.accent)),
+              Text('Độ nhạy ngắt lời (Barge-In Sensitivity):', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
+              Text('${(_bargeInSensitivity * 100).toInt()}%', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.accent)),
             ],
           ),
           Slider(
@@ -312,29 +320,29 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
             activeColor: AppColors.accent,
             onChanged: (val) => setState(() => _bargeInSensitivity = val),
           ),
-          const Text(
+          Text(
             'Khi học viên phát âm trong lúc AI đang nói, AI lập tức dừng phát âm thanh nếu độ tin cậy vượt ngưỡng này.',
-            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+            style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B), height: 1.4),
           ),
           const SizedBox(height: AppSpacing.md),
 
           // Preferred Voice
-          const Text('Giọng đọc AI (TTS Voice Persona):', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFFCBD5E1))),
+          Text('Giọng đọc AI (TTS Voice Persona):', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: const Color(0xFFCBD5E1))),
           const SizedBox(height: 6),
           DropdownButtonFormField<String>(
             value: _ttsVoice,
             dropdownColor: const Color(0xFF1E293B),
-            style: const TextStyle(color: Colors.white, fontSize: 13),
+            style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 13),
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFF1E293B),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF334155))),
             ),
-            items: const [
-              DropdownMenuItem(value: 'en-US-Journey-F', child: Text('Journey Female (Mỹ - Ấm áp, Tự nhiên)')),
-              DropdownMenuItem(value: 'en-US-Journey-M', child: Text('Journey Male (Mỹ - Trầm ấm, Rõ ràng)')),
-              DropdownMenuItem(value: 'en-GB-Studio-B', child: Text('British Studio (Anh-Anh - Chuẩn RP chuẩn mực)')),
+            items: [
+              DropdownMenuItem(value: 'en-US-Journey-F', child: Text('Journey Female (Mỹ - Ấm áp, Tự nhiên)', style: GoogleFonts.plusJakartaSans(fontSize: 13))),
+              DropdownMenuItem(value: 'en-US-Journey-M', child: Text('Journey Male (Mỹ - Trầm ấm, Rõ ràng)', style: GoogleFonts.plusJakartaSans(fontSize: 13))),
+              DropdownMenuItem(value: 'en-GB-Studio-B', child: Text('British Studio (Anh-Anh - Chuẩn RP chuẩn mực)', style: GoogleFonts.plusJakartaSans(fontSize: 13))),
             ],
             onChanged: (val) {
               if (val != null) setState(() => _ttsVoice = val);
@@ -362,9 +370,9 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
             spacing: 8,
             runSpacing: 6,
             children: [
-              const Text(
+              Text(
                 'Mẫu Chỉ lệnh Hệ thống (System Prompt)',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+                style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -374,15 +382,15 @@ class _AdminAiConfigViewState extends State<AdminAiConfigView> {
                 ),
                 child: Text(
                   '${_promptController.text.length} ký tự (~${_promptController.text.length ~/ 4} tokens)',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryLight),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryLight),
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          const Text(
+          Text(
             'Chỉ lệnh cốt lõi định hình phong cách giao tiếp, sự kiên nhẫn và chiến thuật đàm thoại của AI đối với mọi lượt nói.',
-            style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+            style: GoogleFonts.plusJakartaSans(fontSize: 12, color: const Color(0xFF94A3B8)),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
@@ -414,12 +422,12 @@ Guidelines:
                   });
                 },
                 icon: const Icon(Icons.restore_rounded, size: 16),
-                label: const Text('Đặt lại mặc định'),
+                label: Text('Đặt lại mặc định', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
               ),
               ElevatedButton.icon(
                 onPressed: _save,
                 icon: const Icon(Icons.save_rounded, size: 18),
-                label: const Text('Lưu Thay Đổi'),
+                label: Text('Lưu Thay Đổi', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
               ),
             ],
           ),

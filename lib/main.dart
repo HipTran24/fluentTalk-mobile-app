@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/responsive_content_wrapper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +25,16 @@ class FluentTalkApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      // Screens are designed around light-mode tokens; force light for a consistent look.
+      themeMode: ThemeMode.light,
       routerConfig: appRouter,
+      builder: (context, child) {
+        if (child == null) return const SizedBox.shrink();
+        return ResponsiveContentWrapper(
+          backgroundColor: const Color(0xFF0F172A),
+          child: child,
+        );
+      },
     );
   }
 }
