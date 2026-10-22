@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/admin/presentation/admin_screen.dart';
+import '../../features/auth/domain/auth_state.dart';
 import '../../features/auth/presentation/auth_screen.dart';
+import '../../features/auth/presentation/learning_unavailable_screen.dart';
+import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/coach/presentation/coach_screen.dart';
@@ -23,158 +27,241 @@ import '../../features/scenarios/presentation/scenario_catalog_screen.dart';
 import '../../features/scenarios/presentation/scenario_detail_screen.dart';
 import 'app_shell.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final refresh = ValueNotifier<int>(0);
+  final router = _createRouter(
+    () => ref.read(authControllerProvider),
+    refreshListenable: refresh,
+  );
+  ref.listen<AuthState>(authControllerProvider, (_, __) => refresh.value++);
+  ref.onDispose(() {
+    router.dispose();
+    refresh.dispose();
+  });
+  return router;
+});
+
+GoRouter get appRouter => _createRouter(() => const AuthState());
 
 /// GoRouter Configuration for FluentTalk Mobile App
 /// Compliant with ESP-PLAN-001 Appendix B2 (Sitemap / 5-Tab Navigation)
-final GoRouter appRouter = GoRouter(
-  navigatorKey: _rootNavigatorKey,
-  initialLocation: '/splash',
-  routes: [
-    // Auth & Onboarding Flow (Top-Level)
-    GoRoute(
-      path: '/splash',
-      builder: (context, state) => const SplashScreen(),
-    ),
-    GoRoute(
-      path: '/welcome',
-      builder: (context, state) => const WelcomeScreen(),
-    ),
-    GoRoute(
-      path: '/auth',
-      builder: (context, state) {
-        final mode = state.uri.queryParameters['mode'];
-        return AuthScreen(initialMode: mode);
-      },
-    ),
-    GoRoute(
-      path: '/onboarding/goal',
-      builder: (context, state) => const GoalOnboardingScreen(),
-    ),
-    GoRoute(
-      path: '/onboarding/placement',
-      builder: (context, state) => const PlacementScreen(),
-    ),
+/// Guaranteed role-based access for /admin and auth guards for protected screens
+GoRouter _createRouter(AuthState Function() readAuth,
+        {Listenable? refreshListenable}) =>
+    GoRouter(
+      navigatorKey: GlobalKey<NavigatorState>(debugLabel: 'root'),
+      refreshListenable: refreshListenable,
+      initialLocation: '/splash',
+      redirect: (context, state) {
+        final authState = readAuth();
+        final loc = state.matchedLocation;
+        final status = authState.status;
+        final isAuth = status == AuthStatus.authenticated;
+        final needsOnboarding = status == AuthStatus.needsOnboarding;
+        final isAdmin = authState.isAdmin;
 
-    // Executive Admin Console (Responsive for Web & Mobile)
-    GoRoute(
-      path: '/admin',
-      builder: (context, state) => const AdminScreen(),
-    ),
+        final isSplash = loc == '/splash';
+        final isWelcome = loc == '/welcome';
+        final isAuthScreen = loc == '/auth';
+        final isOnboarding = loc.startsWith('/onboarding');
+        final isAdminScreen = loc == '/admin';
+        final isPublicCatalog = loc == '/practice/scenarios' ||
+            RegExp(r'^/practice/scenario/[^/]+$').hasMatch(loc);
 
-    // Immersive Session & Practice Screens (Full-screen overlay)
-    GoRoute(
-      path: '/practice/scenarios',
-      builder: (context, state) => const ScenarioCatalogScreen(),
-    ),
-    GoRoute(
-      path: '/practice/scenario/:id',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        return ScenarioDetailScreen(scenarioId: id);
-      },
-    ),
-    GoRoute(
-      path: '/practice/text',
-      builder: (context, state) => const TextChatScreen(),
-    ),
-    GoRoute(
-      path: '/practice/guided/:id',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        return GuidedSpeakingScreen(scenarioId: id);
-      },
-    ),
-    GoRoute(
-      path: '/practice/realtime/:id',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        return RealtimeCallScreen(sessionId: id);
-      },
-    ),
-    GoRoute(
-      path: '/practice/session/:id/summary',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        return SessionSummaryScreen(sessionId: id);
-      },
-    ),
-    GoRoute(
-      path: '/progress/history',
-      builder: (context, state) => const HistoryScreen(),
-    ),
-    GoRoute(
-      path: '/coach/drill/:id',
-      builder: (context, state) {
-        final id = state.pathParameters['id'] ?? '';
-        return DrillPlayerScreen(drillId: id);
-      },
-    ),
-    GoRoute(
-      path: '/coach/plan',
-      builder: (context, state) => const WeeklyPlanScreen(),
-    ),
-    GoRoute(
-      path: '/profile/vocabulary',
-      builder: (context, state) => const VocabularyScreen(),
-    ),
+        // ADR-010: active catalog metadata is public. Its repository uses
+        // unauthenticated HTTP; session/AI routes below remain protected.
+        if (isPublicCatalog) return null;
 
-    // Stateful 5-Tab Persistent Navigation Shell
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) {
-        return AppShell(navigationShell: navigationShell);
+        // 1. Initial state -> go to splash
+        if (status == AuthStatus.initial || status == AuthStatus.loading) {
+          if (isSplash || isWelcome || isAuthScreen) return null;
+          if (isOnboarding && authState.user != null) return null;
+          return '/splash';
+        }
+
+        // ESP-S4..S7 are not implemented yet. Real identities must not be shown
+        // synthetic conversations, assessments, progress or privacy operations.
+        if (!authState.isDemo && (isAuth || needsOnboarding)) {
+          return loc == '/unavailable' ? null : '/unavailable';
+        }
+
+        // 2. Unauthenticated, error, or unconfigured
+        if (status == AuthStatus.unauthenticated ||
+            status == AuthStatus.unconfigured ||
+            status == AuthStatus.error) {
+          if (isSplash || isWelcome || isAuthScreen) return null;
+          return '/welcome';
+        }
+
+        // 3. Needs onboarding
+        if (needsOnboarding) {
+          if (isOnboarding) return null;
+          return '/onboarding/goal';
+        }
+
+        // 4. Authenticated
+        if (isAuth) {
+          if (isAdminScreen) {
+            if (!isAdmin) return '/home';
+            return null;
+          }
+          if (isSplash || isWelcome || isAuthScreen) {
+            return '/home';
+          }
+          return null;
+        }
+
+        return null;
       },
-      branches: [
-        // Tab 1: Home
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/home',
-              builder: (context, state) => const HomeScreen(),
-            ),
-          ],
+      routes: [
+        GoRoute(
+          path: '/unavailable',
+          builder: (context, state) => const LearningUnavailableScreen(),
+        ),
+        // Auth & Onboarding Flow (Top-Level)
+        GoRoute(
+          path: '/splash',
+          builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
+          path: '/welcome',
+          builder: (context, state) => const WelcomeScreen(),
+        ),
+        GoRoute(
+          path: '/auth',
+          builder: (context, state) {
+            final mode = state.uri.queryParameters['mode'];
+            return AuthScreen(initialMode: mode);
+          },
+        ),
+        GoRoute(
+          path: '/onboarding/goal',
+          builder: (context, state) => const GoalOnboardingScreen(),
+        ),
+        GoRoute(
+          path: '/onboarding/placement',
+          builder: (context, state) => const PlacementScreen(),
         ),
 
-        // Tab 2: Practice
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/practice',
-              builder: (context, state) => const PracticeHubScreen(),
-            ),
-          ],
+        // Executive Admin Console (Responsive for Web & Mobile)
+        GoRoute(
+          path: '/admin',
+          builder: (context, state) => const AdminScreen(),
         ),
 
-        // Tab 3: Progress
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/progress',
-              builder: (context, state) => const ProgressScreen(),
-            ),
-          ],
+        // Immersive Session & Practice Screens (Full-screen overlay)
+        GoRoute(
+          path: '/practice/scenarios',
+          builder: (context, state) => const ScenarioCatalogScreen(),
+        ),
+        GoRoute(
+          path: '/practice/scenario/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return ScenarioDetailScreen(scenarioId: id);
+          },
+        ),
+        GoRoute(
+          path: '/practice/text',
+          builder: (context, state) => const TextChatScreen(),
+        ),
+        GoRoute(
+          path: '/practice/guided/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return GuidedSpeakingScreen(scenarioId: id);
+          },
+        ),
+        GoRoute(
+          path: '/practice/realtime/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return RealtimeCallScreen(sessionId: id);
+          },
+        ),
+        GoRoute(
+          path: '/practice/session/:id/summary',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return SessionSummaryScreen(sessionId: id);
+          },
+        ),
+        GoRoute(
+          path: '/progress/history',
+          builder: (context, state) => const HistoryScreen(),
+        ),
+        GoRoute(
+          path: '/coach/drill/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return DrillPlayerScreen(drillId: id);
+          },
+        ),
+        GoRoute(
+          path: '/coach/plan',
+          builder: (context, state) => const WeeklyPlanScreen(),
+        ),
+        GoRoute(
+          path: '/profile/vocabulary',
+          builder: (context, state) => const VocabularyScreen(),
         ),
 
-        // Tab 4: Coach
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/coach',
-              builder: (context, state) => const CoachScreen(),
+        // Stateful 5-Tab Persistent Navigation Shell
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return AppShell(navigationShell: navigationShell);
+          },
+          branches: [
+            // Tab 1: Home
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/home',
+                  builder: (context, state) => const HomeScreen(),
+                ),
+              ],
             ),
-          ],
-        ),
 
-        // Tab 5: Profile
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/profile',
-              builder: (context, state) => const ProfileScreen(),
+            // Tab 2: Practice
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/practice',
+                  builder: (context, state) => const PracticeHubScreen(),
+                ),
+              ],
+            ),
+
+            // Tab 3: Progress
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/progress',
+                  builder: (context, state) => const ProgressScreen(),
+                ),
+              ],
+            ),
+
+            // Tab 4: Coach
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/coach',
+                  builder: (context, state) => const CoachScreen(),
+                ),
+              ],
+            ),
+
+            // Tab 5: Profile
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/profile',
+                  builder: (context, state) => const ProfileScreen(),
+                ),
+              ],
             ),
           ],
         ),
       ],
-    ),
-  ],
-);
+    );
