@@ -18,7 +18,8 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -105,147 +106,157 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
             Positioned(bottom: -120, left: -80, child: _orb(320, 0.08)),
             Positioned(top: 140, left: -40, child: _orb(110, 0.06)),
             SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-
-              // Animated Brand Logo
-              ScaleTransition(
-                scale: _scaleAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.12),
-                    border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.18),
-                          blurRadius: 30,
-                          offset: const Offset(0, 14),
-                        ),
-                      ],
-                    ),
-                    child: const AppLogo(size: 76, withShadow: false),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.xxl),
-
-              // Brand Title & Tagline
-              FadeTransition(
-                opacity: _fadeAnimation,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.pageHorizontal),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        BrandWordmark(fontSize: 36, onDark: true),
-                        SizedBox(width: 8),
-                        _AiPill(),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Speak with confidence',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withOpacity(0.85),
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                    const Spacer(),
 
-              const Spacer(),
-
-              // Bottom State Indicators: Loading vs Network Error / Timeout
-              if (_hasTimeoutError || authState.status == AuthStatus.error) ...[
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: AppRadius.cardRadiusLarge,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 30,
-                        offset: const Offset(0, 12),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: AppColors.errorBg,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.wifi_off_rounded, color: AppColors.error, size: 18),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              authState.errorMessage ?? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w500,
+                    // Animated Brand Logo
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.12),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              width: 1.5),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.18),
+                                blurRadius: 30,
+                                offset: const Offset(0, 14),
                               ),
+                            ],
+                          ),
+                          child: const AppLogo(size: 76, withShadow: false),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSpacing.xxl),
+
+                    // Brand Title & Tagline
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        children: [
+                          const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              BrandWordmark(fontSize: 36, onDark: true),
+                              SizedBox(width: 8),
+                              _AiPill(),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Speak with confidence',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.85),
+                              letterSpacing: 0.4,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: AppSpacing.md),
-                      PrimaryButton(
-                        text: 'Thử lại',
-                        icon: Icons.refresh_rounded,
-                        onPressed: _initSessionCheck,
+                    ),
+
+                    const Spacer(),
+
+                    // Bottom State Indicators: Loading vs Network Error / Timeout
+                    if (_hasTimeoutError ||
+                        authState.status == AuthStatus.error) ...[
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: AppRadius.cardRadiusLarge,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 30,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.errorBg,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.wifi_off_rounded,
+                                      color: AppColors.error, size: 18),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    authState.errorMessage ??
+                                        'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            PrimaryButton(
+                              text: 'Thử lại',
+                              icon: Icons.refresh_rounded,
+                              onPressed: _initSessionCheck,
+                            ),
+                            const SizedBox(height: 4),
+                            TextButton(
+                              onPressed: () => context.go('/welcome'),
+                              child:
+                                  const Text('Bỏ qua & Tiếp tục ngoại tuyến'),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      TextButton(
-                        onPressed: () => context.go('/welcome'),
-                        child: const Text('Bỏ qua & Tiếp tục ngoại tuyến'),
+                      const SizedBox(height: AppSpacing.lg),
+                    ] else ...[
+                      const SizedBox(
+                        width: 26,
+                        height: 26,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
                       ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'Đang đồng bộ dữ liệu phiên học...',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.75)),
+                      ),
+                      const SizedBox(height: AppSpacing.xxl),
                     ],
-                  ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.lg),
-              ] else ...[
-                const SizedBox(
-                  width: 26,
-                  height: 26,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Đang đồng bộ dữ liệu phiên học...',
-                  style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.75)),
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-              ],
-            ],
-          ),
-        ),
+              ),
             ),
           ],
         ),
@@ -259,7 +270,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(opacity),
+        color: Colors.white.withValues(alpha: opacity),
       ),
     );
   }
@@ -277,7 +288,7 @@ class _AiPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Text(
-        'AI',
+        'Tom',
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w900,

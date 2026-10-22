@@ -103,7 +103,9 @@ class PracticeSession {
         orElse: () => SessionStatus.active,
       ),
       startedAt: DateTime.parse(json['started_at'] as String),
-      endedAt: json['ended_at'] != null ? DateTime.parse(json['ended_at'] as String) : null,
+      endedAt: json['ended_at'] != null
+          ? DateTime.parse(json['ended_at'] as String)
+          : null,
       durationSeconds: json['duration_seconds'] as int? ?? 0,
       turnsCount: json['turns_count'] as int? ?? 0,
       estimatedScore: (json['estimated_score'] as num?)?.toDouble(),

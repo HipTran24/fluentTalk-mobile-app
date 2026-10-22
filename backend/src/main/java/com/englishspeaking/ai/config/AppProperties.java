@@ -88,6 +88,9 @@ public class AppProperties {
     public static class Gemini {
         private String apiKey = "";
         private String model = "";
+        private String liveModel = "gemini-3.8-live";
+        public String getLiveModel() { return liveModel; }
+        public void setLiveModel(String liveModel) { this.liveModel = liveModel; }
 
         public String getApiKey() {
             return apiKey;

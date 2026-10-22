@@ -24,7 +24,8 @@ class AppColors {
   static const Color purple = Color(0xFF9333EA);
 
   // Surface & Backgrounds (Light Mode)
-  static const Color background = Color(0xFFF8FAFC); // Plan surface background (#F8FAFC)
+  static const Color background =
+      Color(0xFFF8FAFC); // Plan surface background (#F8FAFC)
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceVariant = Color(0xFFF0F2F8);
   static const Color border = Color(0xFFE5E7F0);
@@ -107,7 +108,7 @@ class AppColors {
   // ---------------------------------------------------------------------------
   static List<BoxShadow> softShadow = [
     BoxShadow(
-      color: const Color(0xFF1E1B4B).withOpacity(0.06),
+      color: const Color(0xFF1E1B4B).withValues(alpha: 0.06),
       blurRadius: 18,
       offset: const Offset(0, 6),
     ),
@@ -115,7 +116,7 @@ class AppColors {
 
   static List<BoxShadow> glow(Color color, {double opacity = 0.35}) => [
         BoxShadow(
-          color: color.withOpacity(opacity),
+          color: color.withValues(alpha: opacity),
           blurRadius: 22,
           offset: const Offset(0, 10),
         ),

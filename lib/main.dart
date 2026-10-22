@@ -16,7 +16,7 @@ Future<void> main() async {
     try {
       await Supabase.initialize(
         url: config.supabaseUrl,
-        anonKey: config.supabaseAnonKey,
+        publishableKey: config.supabaseAnonKey,
       );
     } catch (_) {
       supabaseInitError =
@@ -45,7 +45,7 @@ class FluentTalkApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final demoMode = ref.watch(appConfigProvider).demoMode;
     return MaterialApp.router(
-      title: 'FluentTalk AI',
+      title: 'FluentTalk Tom',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -54,19 +54,18 @@ class FluentTalkApp extends ConsumerWidget {
       routerConfig: router,
       builder: (context, child) {
         if (child == null) return const SizedBox.shrink();
+        if (!demoMode) return child;
         return ResponsiveContentWrapper(
           backgroundColor: const Color(0xFF0F172A),
-          child: demoMode
-              ? Semantics(
-                  container: true,
-                  label: 'Chế độ demo, dữ liệu minh họa',
-                  child: Banner(
-                    message: 'DEMO',
-                    location: BannerLocation.topEnd,
-                    child: child,
-                  ),
-                )
-              : child,
+          child: Semantics(
+            container: true,
+            label: 'Chế độ demo, dữ liệu minh họa',
+            child: Banner(
+              message: 'DEMO',
+              location: BannerLocation.topEnd,
+              child: child,
+            ),
+          ),
         );
       },
     );

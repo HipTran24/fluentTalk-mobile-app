@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
@@ -71,7 +70,8 @@ class AdminScreen extends ConsumerWidget {
                     const SizedBox(width: 10),
                     Text(
                       _getTitleForTab(state.currentTabIndex),
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -105,29 +105,37 @@ class AdminScreen extends ConsumerWidget {
                 child: NavigationBar(
                   backgroundColor: const Color(0xFF0F172A),
                   surfaceTintColor: Colors.transparent,
-                  indicatorColor: AppColors.primary.withOpacity(0.22),
+                  indicatorColor: AppColors.primary.withValues(alpha: 0.22),
                   selectedIndex: state.currentTabIndex,
                   onDestinationSelected: (idx) => controller.switchTab(idx),
                   destinations: const [
                     NavigationDestination(
-                      icon: Icon(Icons.dashboard_outlined, color: Color(0xFF94A3B8)),
-                      selectedIcon: Icon(Icons.dashboard_rounded, color: AppColors.primaryLight),
+                      icon: Icon(Icons.dashboard_outlined,
+                          color: Color(0xFF94A3B8)),
+                      selectedIcon: Icon(Icons.dashboard_rounded,
+                          color: AppColors.primaryLight),
                       label: 'Dashboard',
                     ),
                     NavigationDestination(
-                      icon: Icon(Icons.movie_outlined, color: Color(0xFF94A3B8)),
-                      selectedIcon: Icon(Icons.movie_rounded, color: AppColors.primaryLight),
+                      icon:
+                          Icon(Icons.movie_outlined, color: Color(0xFF94A3B8)),
+                      selectedIcon: Icon(Icons.movie_rounded,
+                          color: AppColors.primaryLight),
                       label: 'Kịch bản',
                     ),
                     NavigationDestination(
-                      icon: Icon(Icons.people_alt_outlined, color: Color(0xFF94A3B8)),
-                      selectedIcon: Icon(Icons.people_alt_rounded, color: AppColors.primaryLight),
+                      icon: Icon(Icons.people_alt_outlined,
+                          color: Color(0xFF94A3B8)),
+                      selectedIcon: Icon(Icons.people_alt_rounded,
+                          color: AppColors.primaryLight),
                       label: 'Học viên',
                     ),
                     NavigationDestination(
-                      icon: Icon(Icons.psychology_outlined, color: Color(0xFF94A3B8)),
-                      selectedIcon: Icon(Icons.psychology_rounded, color: AppColors.primaryLight),
-                      label: 'Cấu hình AI',
+                      icon: Icon(Icons.psychology_outlined,
+                          color: Color(0xFF94A3B8)),
+                      selectedIcon: Icon(Icons.psychology_rounded,
+                          color: AppColors.primaryLight),
+                      label: 'Cấu hình Tom',
                     ),
                   ],
                 ),
@@ -145,25 +153,29 @@ class AdminScreen extends ConsumerWidget {
       case 2:
         return 'Danh bạ Học viên';
       case 3:
-        return 'Cấu hình AI Gateway';
+        return 'Cấu hình Tom Gateway';
       default:
         return 'Admin Studio';
     }
   }
 
-  Widget _buildDesktopSidebar(BuildContext context, dynamic state, AdminController controller) {
+  Widget _buildDesktopSidebar(
+      BuildContext context, dynamic state, AdminController controller) {
     return Container(
       width: 270,
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A),
-        border: Border(right: BorderSide(color: const Color(0xFF1E293B).withOpacity(0.8))),
+        border: Border(
+            right: BorderSide(
+                color: const Color(0xFF1E293B).withValues(alpha: 0.8))),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Brand Logo Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
             child: Row(
               children: [
                 const AppLogo(size: 36, withShadow: false),
@@ -171,9 +183,10 @@ class AdminScreen extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'FluentTalk',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -184,14 +197,16 @@ class AdminScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 1.5),
                           decoration: BoxDecoration(
                             gradient: AppColors.brandGradient,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
+                          child: const Text(
                             'ADMIN PRO',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
@@ -200,12 +215,13 @@ class AdminScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Text(
+                        const Text(
                           'v2.0',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF64748B),
+                            color: Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -219,14 +235,16 @@ class AdminScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
 
           // Menu Section Label
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 4),
+          const Padding(
+            padding:
+                EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 4),
             child: Text(
               'ĐIỀU HÀNH HỆ THỐNG',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF64748B),
+                color: Color(0xFF64748B),
                 letterSpacing: 0.8,
               ),
             ),
@@ -261,7 +279,7 @@ class AdminScreen extends ConsumerWidget {
           _buildSidebarNavItem(
             index: 3,
             icon: Icons.tune_rounded,
-            title: 'Cấu hình Mô hình AI',
+            title: 'Cấu hình Mô hình Tom',
             subtitle: 'Gemini Live & Prompts',
             currentIndex: state.currentTabIndex,
             onTap: () => controller.switchTab(3),
@@ -291,16 +309,18 @@ class AdminScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF10B981).withOpacity(0.5),
+                            color:
+                                const Color(0xFF10B981).withValues(alpha: 0.5),
                             blurRadius: 6,
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
+                    const Text(
                       'Gateway Online (42 WS)',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -309,12 +329,13 @@ class AdminScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(
+                const Text(
                   'Uptime 99.98% • Latency 420ms',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF94A3B8),
+                    color: Color(0xFF94A3B8),
                   ),
                 ),
               ],
@@ -328,19 +349,22 @@ class AdminScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               onTap: () => context.go('/home'),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
                 decoration: BoxDecoration(
                   color: const Color(0xFF131B2E),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFF1E293B)),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.arrow_back_rounded, color: AppColors.primaryLight, size: 18),
-                    const SizedBox(width: 10),
+                    Icon(Icons.arrow_back_rounded,
+                        color: AppColors.primaryLight, size: 18),
+                    SizedBox(width: 10),
                     Text(
                       'Về App Học viên',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -398,18 +422,25 @@ class AdminScreen extends ConsumerWidget {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 13,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                          color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFFCBD5E1),
                         ),
                       ),
                       Text(
                         subtitle,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
-                          color: isSelected ? Colors.white.withOpacity(0.85) : const Color(0xFF64748B),
+                          color: isSelected
+                              ? Colors.white.withValues(alpha: 0.85)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -432,7 +463,8 @@ class AdminScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDesktopTopBar(BuildContext context, dynamic state, AdminController controller) {
+  Widget _buildDesktopTopBar(
+      BuildContext context, dynamic state, AdminController controller) {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
@@ -445,21 +477,24 @@ class AdminScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text(
+              const Text(
                 'FluentTalk Admin',
-                style: GoogleFonts.plusJakartaSans(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF94A3B8),
+                  color: Color(0xFF94A3B8),
                 ),
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(Icons.chevron_right_rounded, size: 16, color: Color(0xFF64748B)),
+                child: Icon(Icons.chevron_right_rounded,
+                    size: 16, color: Color(0xFF64748B)),
               ),
               Text(
                 _getTitleForTab(state.currentTabIndex),
-                style: GoogleFonts.plusJakartaSans(
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -470,7 +505,8 @@ class AdminScreen extends ConsumerWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: const Color(0xFF131B2E),
                   borderRadius: BorderRadius.circular(20),
@@ -487,12 +523,13 @@ class AdminScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Text(
+                    const Text(
                       'Live Gateway',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF94A3B8),
+                        color: Color(0xFF94A3B8),
                       ),
                     ),
                   ],
@@ -501,7 +538,8 @@ class AdminScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               IconButton(
                 tooltip: 'Làm mới dữ liệu',
-                icon: const Icon(Icons.refresh_rounded, size: 20, color: Colors.white),
+                icon: const Icon(Icons.refresh_rounded,
+                    size: 20, color: Colors.white),
                 onPressed: () => controller.loadAll(),
               ),
               const SizedBox(width: 8),
@@ -520,21 +558,32 @@ class AdminScreen extends ConsumerWidget {
                 child: const CircleAvatar(
                   radius: 14,
                   backgroundColor: Color(0xFF0F172A),
-                  child: Text('AD', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                  child: Text('AD',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white)),
                 ),
               ),
               const SizedBox(width: 10),
-              Column(
+              const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'System Administrator',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white),
                   ),
                   Text(
                     'admin@fluenttalk.ai',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF94A3B8)),
+                    style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontSize: 10,
+                        color: Color(0xFF94A3B8)),
                   ),
                 ],
               ),
@@ -545,7 +594,8 @@ class AdminScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMobileDrawer(BuildContext context, dynamic state, AdminController controller) {
+  Widget _buildMobileDrawer(
+      BuildContext context, dynamic state, AdminController controller) {
     return Drawer(
       backgroundColor: const Color(0xFF0F172A),
       child: SafeArea(
@@ -555,20 +605,27 @@ class AdminScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(AppSpacing.lg),
               color: const Color(0xFF131B2E),
               width: double.infinity,
-              child: Row(
+              child: const Row(
                 children: [
-                  const AppLogo(size: 38, withShadow: false),
-                  const SizedBox(width: 12),
+                  AppLogo(size: 38, withShadow: false),
+                  SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'FluentTalk Admin',
-                        style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17),
+                        style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 17),
                       ),
                       Text(
                         'Bảng Điều hành Hệ thống',
-                        style: GoogleFonts.plusJakartaSans(color: const Color(0xFF94A3B8), fontSize: 12),
+                        style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            color: Color(0xFF94A3B8),
+                            fontSize: 12),
                       ),
                     ],
                   ),
@@ -578,18 +635,25 @@ class AdminScreen extends ConsumerWidget {
             ListTile(
               leading: Icon(
                 Icons.dashboard_rounded,
-                color: state.currentTabIndex == 0 ? AppColors.primaryLight : const Color(0xFF94A3B8),
+                color: state.currentTabIndex == 0
+                    ? AppColors.primaryLight
+                    : const Color(0xFF94A3B8),
               ),
               title: Text(
                 'Tổng quan & KPI',
-                style: GoogleFonts.plusJakartaSans(
-                  color: state.currentTabIndex == 0 ? Colors.white : const Color(0xFFCBD5E1),
-                  fontWeight: state.currentTabIndex == 0 ? FontWeight.w700 : FontWeight.w500,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  color: state.currentTabIndex == 0
+                      ? Colors.white
+                      : const Color(0xFFCBD5E1),
+                  fontWeight: state.currentTabIndex == 0
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
               selected: state.currentTabIndex == 0,
-              selectedTileColor: AppColors.primary.withOpacity(0.15),
+              selectedTileColor: AppColors.primary.withValues(alpha: 0.15),
               onTap: () {
                 controller.switchTab(0);
                 Navigator.of(context).pop();
@@ -598,18 +662,25 @@ class AdminScreen extends ConsumerWidget {
             ListTile(
               leading: Icon(
                 Icons.movie_edit,
-                color: state.currentTabIndex == 1 ? AppColors.primaryLight : const Color(0xFF94A3B8),
+                color: state.currentTabIndex == 1
+                    ? AppColors.primaryLight
+                    : const Color(0xFF94A3B8),
               ),
               title: Text(
                 'Quản lý Kịch bản CMS',
-                style: GoogleFonts.plusJakartaSans(
-                  color: state.currentTabIndex == 1 ? Colors.white : const Color(0xFFCBD5E1),
-                  fontWeight: state.currentTabIndex == 1 ? FontWeight.w700 : FontWeight.w500,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  color: state.currentTabIndex == 1
+                      ? Colors.white
+                      : const Color(0xFFCBD5E1),
+                  fontWeight: state.currentTabIndex == 1
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
               selected: state.currentTabIndex == 1,
-              selectedTileColor: AppColors.primary.withOpacity(0.15),
+              selectedTileColor: AppColors.primary.withValues(alpha: 0.15),
               onTap: () {
                 controller.switchTab(1);
                 Navigator.of(context).pop();
@@ -618,18 +689,25 @@ class AdminScreen extends ConsumerWidget {
             ListTile(
               leading: Icon(
                 Icons.people_alt_rounded,
-                color: state.currentTabIndex == 2 ? AppColors.primaryLight : const Color(0xFF94A3B8),
+                color: state.currentTabIndex == 2
+                    ? AppColors.primaryLight
+                    : const Color(0xFF94A3B8),
               ),
               title: Text(
                 'Danh bạ Học viên',
-                style: GoogleFonts.plusJakartaSans(
-                  color: state.currentTabIndex == 2 ? Colors.white : const Color(0xFFCBD5E1),
-                  fontWeight: state.currentTabIndex == 2 ? FontWeight.w700 : FontWeight.w500,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  color: state.currentTabIndex == 2
+                      ? Colors.white
+                      : const Color(0xFFCBD5E1),
+                  fontWeight: state.currentTabIndex == 2
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
               selected: state.currentTabIndex == 2,
-              selectedTileColor: AppColors.primary.withOpacity(0.15),
+              selectedTileColor: AppColors.primary.withValues(alpha: 0.15),
               onTap: () {
                 controller.switchTab(2);
                 Navigator.of(context).pop();
@@ -638,18 +716,25 @@ class AdminScreen extends ConsumerWidget {
             ListTile(
               leading: Icon(
                 Icons.tune_rounded,
-                color: state.currentTabIndex == 3 ? AppColors.primaryLight : const Color(0xFF94A3B8),
+                color: state.currentTabIndex == 3
+                    ? AppColors.primaryLight
+                    : const Color(0xFF94A3B8),
               ),
               title: Text(
-                'Cấu hình Mô hình AI',
-                style: GoogleFonts.plusJakartaSans(
-                  color: state.currentTabIndex == 3 ? Colors.white : const Color(0xFFCBD5E1),
-                  fontWeight: state.currentTabIndex == 3 ? FontWeight.w700 : FontWeight.w500,
+                'Cấu hình Mô hình Tom',
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  color: state.currentTabIndex == 3
+                      ? Colors.white
+                      : const Color(0xFFCBD5E1),
+                  fontWeight: state.currentTabIndex == 3
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
               selected: state.currentTabIndex == 3,
-              selectedTileColor: AppColors.primary.withOpacity(0.15),
+              selectedTileColor: AppColors.primary.withValues(alpha: 0.15),
               onTap: () {
                 controller.switchTab(3);
                 Navigator.of(context).pop();
@@ -658,8 +743,14 @@ class AdminScreen extends ConsumerWidget {
             const Spacer(),
             const Divider(color: Color(0xFF1E293B)),
             ListTile(
-              leading: const Icon(Icons.arrow_back_rounded, color: AppColors.primaryLight),
-              title: Text('Về ứng dụng học viên', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, color: AppColors.primaryLight, fontSize: 14)),
+              leading: const Icon(Icons.arrow_back_rounded,
+                  color: AppColors.primaryLight),
+              title: const Text('Về ứng dụng học viên',
+                  style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primaryLight,
+                      fontSize: 14)),
               onTap: () {
                 Navigator.of(context).pop();
                 context.go('/home');

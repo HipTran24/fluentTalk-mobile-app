@@ -56,6 +56,7 @@ app:
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model: ${GEMINI_MODEL:}
+    live-model: ${GEMINI_LIVE_MODEL:gemini-3.8-live}
   quota:
     default-daily-minutes: 15
     max-daily-turns: 100

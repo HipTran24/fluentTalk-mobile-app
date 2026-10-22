@@ -1,8 +1,9 @@
+import '../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 /// FluentTalk brand mark — a gradient squircle holding a speech bubble
-/// with a voice waveform and an "AI" sparkle. Drawn in code so it stays
+/// with a voice waveform and an "Tom" sparkle. Drawn in code so it stays
 /// crisp at any size and needs no image assets.
 class AppLogo extends StatelessWidget {
   final double size;
@@ -33,7 +34,7 @@ class AppLogo extends StatelessWidget {
         boxShadow: withShadow && !inverted
             ? [
                 BoxShadow(
-                  color: AppColors.brandViolet.withOpacity(0.35),
+                  color: AppColors.brandViolet.withValues(alpha: 0.35),
                   blurRadius: size * 0.35,
                   offset: Offset(0, size * 0.14),
                 ),
@@ -58,17 +59,19 @@ class _LogoPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final s = size.width;
     final rect = Offset.zero & size;
-    final bgRRect = RRect.fromRectAndRadius(rect, Radius.circular(s * cornerFactor));
+    final bgRRect =
+        RRect.fromRectAndRadius(rect, Radius.circular(s * cornerFactor));
 
     // 1. Background squircle
     if (inverted) {
-      canvas.drawRRect(bgRRect, Paint()..color = Colors.white.withOpacity(0.18));
+      canvas.drawRRect(
+          bgRRect, Paint()..color = Colors.white.withValues(alpha: 0.18));
       canvas.drawRRect(
         bgRRect.deflate(0.5),
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1
-          ..color = Colors.white.withOpacity(0.35),
+          ..color = Colors.white.withValues(alpha: 0.35),
       );
     } else {
       canvas.drawRRect(
@@ -83,8 +86,12 @@ class _LogoPainter extends CustomPainter {
         s * 0.62,
         Paint()
           ..shader = RadialGradient(
-            colors: [Colors.white.withOpacity(0.28), Colors.white.withOpacity(0)],
-          ).createShader(Rect.fromCircle(center: Offset(s * 0.12, s * 0.05), radius: s * 0.62)),
+            colors: [
+              Colors.white.withValues(alpha: 0.28),
+              Colors.white.withValues(alpha: 0)
+            ],
+          ).createShader(Rect.fromCircle(
+              center: Offset(s * 0.12, s * 0.05), radius: s * 0.62)),
       );
       canvas.restore();
     }
@@ -94,7 +101,8 @@ class _LogoPainter extends CustomPainter {
       ..color = Colors.white
       ..isAntiAlias = true;
     canvas.drawRRect(
-      RRect.fromLTRBR(s * 0.19, s * 0.22, s * 0.81, s * 0.68, Radius.circular(s * 0.17)),
+      RRect.fromLTRBR(
+          s * 0.19, s * 0.22, s * 0.81, s * 0.68, Radius.circular(s * 0.17)),
       bubblePaint,
     );
     final tail = Path()
@@ -127,25 +135,33 @@ class _LogoPainter extends CustomPainter {
       );
     }
 
-    // 4. AI sparkle (4-point star) at top-right
-    _drawSparkle(canvas, Offset(s * 0.80, s * 0.21), s * 0.11, AppColors.brandAmber);
-    _drawSparkle(canvas, Offset(s * 0.90, s * 0.36), s * 0.05, Colors.white.withOpacity(0.9));
+    // 4. Tom sparkle (4-point star) at top-right
+    _drawSparkle(
+        canvas, Offset(s * 0.80, s * 0.21), s * 0.11, AppColors.brandAmber);
+    _drawSparkle(canvas, Offset(s * 0.90, s * 0.36), s * 0.05,
+        Colors.white.withValues(alpha: 0.9));
   }
 
   void _drawSparkle(Canvas canvas, Offset c, double r, Color color) {
     final inner = r * 0.28;
     final path = Path()
       ..moveTo(c.dx, c.dy - r)
-      ..quadraticBezierTo(c.dx + inner * 0.3, c.dy - inner * 0.3, c.dx + r, c.dy)
-      ..quadraticBezierTo(c.dx + inner * 0.3, c.dy + inner * 0.3, c.dx, c.dy + r)
-      ..quadraticBezierTo(c.dx - inner * 0.3, c.dy + inner * 0.3, c.dx - r, c.dy)
-      ..quadraticBezierTo(c.dx - inner * 0.3, c.dy - inner * 0.3, c.dx, c.dy - r)
+      ..quadraticBezierTo(
+          c.dx + inner * 0.3, c.dy - inner * 0.3, c.dx + r, c.dy)
+      ..quadraticBezierTo(
+          c.dx + inner * 0.3, c.dy + inner * 0.3, c.dx, c.dy + r)
+      ..quadraticBezierTo(
+          c.dx - inner * 0.3, c.dy + inner * 0.3, c.dx - r, c.dy)
+      ..quadraticBezierTo(
+          c.dx - inner * 0.3, c.dy - inner * 0.3, c.dx, c.dy - r)
       ..close();
     canvas.drawPath(path, Paint()..color = color);
   }
 
   @override
-  bool shouldRepaint(covariant _LogoPainter oldDelegate) => oldDelegate.inverted != inverted || oldDelegate.cornerFactor != cornerFactor;
+  bool shouldRepaint(covariant _LogoPainter oldDelegate) =>
+      oldDelegate.inverted != inverted ||
+      oldDelegate.cornerFactor != cornerFactor;
 }
 
 /// Logo mark + "FluentTalk" wordmark.
@@ -165,7 +181,7 @@ class AppLogoWordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return AdaptiveRow(
       mainAxisSize: MainAxisSize.min,
       children: [
         AppLogo(size: logoSize, withShadow: !onDark, inverted: onDark),
@@ -177,11 +193,11 @@ class AppLogoWordmark extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               gradient: onDark ? null : AppColors.brandGradient,
-              color: onDark ? Colors.white.withOpacity(0.2) : null,
+              color: onDark ? Colors.white.withValues(alpha: 0.2) : null,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              'AI',
+              'Tom',
               style: TextStyle(
                 fontSize: fontSize * 0.55,
                 fontWeight: FontWeight.w800,
@@ -211,16 +227,20 @@ class BrandWordmark extends StatelessWidget {
       letterSpacing: -0.6,
       height: 1.1,
     );
-    return Row(
+    return AdaptiveRow(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Fluent', style: base.copyWith(color: onDark ? Colors.white : AppColors.textPrimary)),
+        Text('Fluent',
+            style: base.copyWith(
+                color: onDark ? Colors.white : AppColors.textPrimary)),
         if (onDark)
-          Text('Talk', style: base.copyWith(color: Colors.white.withOpacity(0.85)))
+          Text('Talk',
+              style: base.copyWith(color: Colors.white.withValues(alpha: 0.85)))
         else
           ShaderMask(
             blendMode: BlendMode.srcIn,
-            shaderCallback: (bounds) => AppColors.brandGradientVivid.createShader(bounds),
+            shaderCallback: (bounds) =>
+                AppColors.brandGradientVivid.createShader(bounds),
             child: Text('Talk', style: base.copyWith(color: Colors.white)),
           ),
       ],

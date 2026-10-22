@@ -17,14 +17,16 @@ enum UserLevel {
 
   static UserLevel fromString(String? val) {
     return UserLevel.values.firstWhere(
-      (e) => e.code.toUpperCase() == val?.toUpperCase() || e.name.toUpperCase() == val?.toUpperCase(),
+      (e) =>
+          e.code.toUpperCase() == val?.toUpperCase() ||
+          e.name.toUpperCase() == val?.toUpperCase(),
       orElse: () => UserLevel.a1,
     );
   }
 }
 
 enum SessionMode {
-  text('Ask & Listen', 'Gõ câu hỏi text, nghe AI phát âm phản hồi'),
+  text('Ask & Listen', 'Gõ câu hỏi text, nghe Tom phát âm phản hồi'),
   guided('Guided Speaking', 'Luyện nói từng lượt theo kịch bản định hướng'),
   realtime('Realtime Call', 'Cuộc gọi đàm thoại 2 chiều thời gian thực');
 

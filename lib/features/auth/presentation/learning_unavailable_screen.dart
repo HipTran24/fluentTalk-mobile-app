@@ -22,16 +22,22 @@ class LearningUnavailableScreen extends ConsumerWidget {
                 Icon(Icons.school_outlined,
                     size: 56, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 24),
-                Text('Chế độ học chưa sẵn sàng',
+                Text('Khu vực luyện tập',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 12),
                 const Text(
-                  'Phiên bản này chưa hỗ trợ luyện tập trực tuyến. '
-                  'Bạn có thể đăng xuất và quay lại khi tính năng sẵn sàng.',
+                  'Chat văn bản kết nối máy chủ và lưu hội thoại theo tài khoản. '
+                  'Các chế độ luyện nói và coach đang được hoàn thiện.',
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: () => context.push('/practice/text'),
+                  icon: const Icon(Icons.chat_outlined),
+                  label: const Text('Luyện chat với Tom'),
+                ),
+                const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: () => context.push('/practice/scenarios'),
                   icon: const Icon(Icons.explore_outlined),

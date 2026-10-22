@@ -32,11 +32,13 @@ class MeProfileDto {
     return MeProfileDto(
       id: json['id'] as String,
       email: json['email'] as String? ?? '',
-      displayName: (json['displayName'] ?? json['display_name']) as String? ?? 'Learner',
+      displayName:
+          (json['displayName'] ?? json['display_name']) as String? ?? 'Learner',
       avatarUrl: (json['avatarUrl'] ?? json['avatar_url']) as String?,
       level: json['level'] as String? ?? 'A1',
       goal: json['goal'] as String?,
-      dailyMinutes: (json['dailyMinutes'] ?? json['daily_minutes']) as int? ?? 15,
+      dailyMinutes:
+          (json['dailyMinutes'] ?? json['daily_minutes']) as int? ?? 15,
       onboarded: json['onboarded'] as bool?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)

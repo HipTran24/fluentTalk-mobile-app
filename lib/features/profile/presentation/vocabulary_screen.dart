@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/vocabulary_item.dart';
@@ -32,7 +33,7 @@ class VocabularyScreen extends ConsumerWidget {
                 horizontal: AppSpacing.pageHorizontal,
                 vertical: AppSpacing.sm,
               ),
-              child: Row(
+              child: AdaptiveRow(
                 children: [
                   _buildFilterChip(ref, 'Tất cả', 'all', filter),
                   const SizedBox(width: 8),
@@ -63,10 +64,13 @@ class VocabularyScreen extends ConsumerWidget {
                     return Center(
                       child: EmptyStateWidget(
                         title: 'Chưa có từ vựng nào',
-                        description: 'Các từ vựng và mẫu câu hay bạn bắt gặp trong các buổi luyện nói sẽ được lưu tại đây.',
+                        description:
+                            'Các từ vựng và mẫu câu hay bạn bắt gặp trong các buổi luyện nói sẽ được lưu tại đây.',
                         icon: Icons.book_outlined,
                         actionText: 'Xem tất cả',
-                        onAction: () => ref.read(vocabularyFilterProvider.notifier).state = 'all',
+                        onAction: () => ref
+                            .read(vocabularyFilterProvider.notifier)
+                            .state = 'all',
                       ),
                     );
                   }
@@ -77,7 +81,8 @@ class VocabularyScreen extends ConsumerWidget {
                       vertical: AppSpacing.sm,
                     ),
                     itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, index) {
                       final item = filtered[index];
                       return _buildWordCard(context, item, notifier);
@@ -92,7 +97,8 @@ class VocabularyScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFilterChip(WidgetRef ref, String label, String value, String activeFilter) {
+  Widget _buildFilterChip(
+      WidgetRef ref, String label, String value, String activeFilter) {
     final isSelected = activeFilter == value;
     return ChoiceChip(
       label: Text(label),
@@ -104,7 +110,8 @@ class VocabularyScreen extends ConsumerWidget {
         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
         color: isSelected ? Colors.white : AppColors.textPrimary,
       ),
-      side: BorderSide(color: isSelected ? AppColors.primary : AppColors.border),
+      side:
+          BorderSide(color: isSelected ? AppColors.primary : AppColors.border),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       onSelected: (selected) {
         if (selected) {
@@ -114,7 +121,8 @@ class VocabularyScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWordCard(BuildContext context, VocabularyItem item, VocabularyNotifier notifier) {
+  Widget _buildWordCard(
+      BuildContext context, VocabularyItem item, VocabularyNotifier notifier) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -123,7 +131,7 @@ class VocabularyScreen extends ConsumerWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -147,11 +155,15 @@ class VocabularyScreen extends ConsumerWidget {
               ),
               IconButton(
                 icon: Icon(
-                  item.isMastered ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
-                  color: item.isMastered ? AppColors.success : AppColors.textMuted,
+                  item.isMastered
+                      ? Icons.check_circle_rounded
+                      : Icons.check_circle_outline_rounded,
+                  color:
+                      item.isMastered ? AppColors.success : AppColors.textMuted,
                   size: 22,
                 ),
-                tooltip: item.isMastered ? 'Đã thành thạo' : 'Đánh dấu đã thuộc',
+                tooltip:
+                    item.isMastered ? 'Đã thành thạo' : 'Đánh dấu đã thuộc',
                 onPressed: () => notifier.toggleMastered(item.id),
               ),
             ],
@@ -196,21 +208,25 @@ class VocabularyScreen extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: 8),
-          Row(
+          AdaptiveRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Nguồn: ${item.sourceScenarioTitle ?? "Phiên luyện nói"}',
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                style:
+                    const TextStyle(fontSize: 11, color: AppColors.textMuted),
               ),
               TextButton.icon(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Phát âm chuẩn: "${item.phrase}"'), duration: const Duration(seconds: 1)),
+                    SnackBar(
+                        content: Text('Phát âm chuẩn: "${item.phrase}"'),
+                        duration: const Duration(seconds: 1)),
                   );
                 },
                 icon: const Icon(Icons.volume_up_rounded, size: 16),
-                label: const Text('Nghe phát âm', style: TextStyle(fontSize: 12)),
+                label:
+                    const Text('Nghe phát âm', style: TextStyle(fontSize: 12)),
               ),
             ],
           ),

@@ -1,9 +1,22 @@
+import 'dart:async';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_failure.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../data/remote_chat_repository.dart';
+import '../../data/speech_player.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/chat_repository.dart';
 import '../../domain/models/chat_models.dart';
 
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
-  return MockChatRepository();
+  if (ref.watch(appConfigProvider).demoMode) return MockChatRepository();
+  final accountId =
+      ref.watch(authControllerProvider.select((s) => s.user?.id)) ?? '';
+  return RemoteChatRepository(ref.watch(apiClientProvider),
+      accountId: accountId,
+      level:
+          ref.watch(authControllerProvider.select((s) => s.user?.level.code)) ??
+              'A1');
 });
 
 class ChatState {
@@ -38,108 +51,209 @@ class ChatState {
   }
 }
 
-final chatControllerProvider = StateNotifierProvider<ChatController, ChatState>((ref) {
+final chatControllerProvider =
+    StateNotifierProvider<ChatController, ChatState>((ref) {
   final repo = ref.watch(chatRepositoryProvider);
-  return ChatController(repo);
+  return ChatController(repo, isDemo: ref.watch(appConfigProvider).demoMode);
 });
 
 class ChatController extends StateNotifier<ChatState> {
   final ChatRepository _repository;
+  final bool isDemo;
+  final SpeechPlayer _speech = SpeechPlayer();
+  final Map<String, String> _retryKeys = {};
+  int _epoch = 0;
+  int _audioEpoch = 0;
+  bool _loading = false;
+  bool _historyFailed = false;
 
-  ChatController(this._repository)
-      : super(ChatState(
-          messages: [
-            ChatMessage(
-              id: 'init_welcome_01',
-              role: 'ai',
-              text:
-                  'Hello! Tôi là Coach Emma. Bạn có thể gõ bất kỳ câu hỏi hoặc mẫu câu nào bằng tiếng Anh hoặc tiếng Việt, tôi sẽ giải thích và phát âm chuẩn bản xứ cho bạn nghe.',
-              audioUrl: 'welcome_audio.mp3',
-              usefulPhrases: const ['How should I say...', 'Could you explain...', 'Give me an example...'],
-              suggestedFollowUps: const [
-                'Cách chào hỏi tự nhiên khi gặp người lạ?',
-                'Mẫu câu gọi món nhà hàng hay dùng?',
-                'Cách nói về sở thích bản thân?',
-              ],
-              deliveryStatus: MessageDeliveryStatus.sent,
-              timestamp: DateTime.now(),
-            ),
-          ],
-        ));
+  ChatController(this._repository, {this.isDemo = true})
+      : super(ChatState(messages: [
+          ChatMessage(
+            id: 'welcome',
+            role: 'ai',
+            text:
+                'Chào bạn! Hãy nhập câu hỏi hoặc câu tiếng Anh bạn muốn luyện tập.',
+            timestamp: DateTime.now(),
+          )
+        ])) {
+    if (_repository is RemoteChatRepository) unawaited(loadHistory());
+  }
+
+  Future<void> loadHistory() async {
+    final repo = _repository;
+    if (repo is! RemoteChatRepository || _loading) return;
+    _loading = true;
+    final epoch = _epoch;
+    state = state.copyWith(isAiThinking: true);
+    try {
+      final messages = await repo.loadMessages();
+      _historyFailed = false;
+      if (!mounted || epoch != _epoch) return;
+      state = state.copyWith(
+          messages: messages.isEmpty ? state.messages : messages,
+          isAiThinking: false);
+    } catch (_) {
+      _historyFailed = true;
+      if (mounted && epoch == _epoch) {
+        state = state.copyWith(
+            isAiThinking: false,
+            errorMessage:
+                'Không tải được hội thoại. Hãy thử tải lại trước khi gửi.');
+      }
+      // Do not let a failed restore silently create a different session.
+      return;
+    } finally {
+      _loading = false;
+    }
+  }
 
   Future<void> sendTextMessage(String text) async {
     final trimmed = text.trim();
-    if (trimmed.isEmpty) return;
-
-    final userMessageId = 'user_msg_${DateTime.now().millisecondsSinceEpoch}';
-    final idempotencyKey = 'idemp_${DateTime.now().millisecondsSinceEpoch}_${trimmed.hashCode}';
-
+    if (trimmed.isEmpty ||
+        state.isAiThinking ||
+        _loading ||
+        _historyFailed ||
+        _retryKeys.isNotEmpty) {
+      return;
+    }
+    if (trimmed.length > 4000) {
+      state = state.copyWith(errorMessage: 'Mỗi tin nhắn tối đa 4000 ký tự.');
+      return;
+    }
+    final key = ApiClient.newIdempotencyKey();
     final userMessage = ChatMessage(
-      id: userMessageId,
-      role: 'user',
-      text: trimmed,
-      deliveryStatus: MessageDeliveryStatus.sent,
-      timestamp: DateTime.now(),
-    );
-
-    // Append user message immediately
-    state = state.copyWith(
-      messages: [...state.messages, userMessage],
-      isAiThinking: true,
-      errorMessage: null,
-    );
-
-    try {
-      final aiResponse = await _repository.sendTextMessage(
+        id: key,
+        role: 'user',
         text: trimmed,
-        idempotencyKey: idempotencyKey,
-      );
+        deliveryStatus: MessageDeliveryStatus.sending,
+        timestamp: DateTime.now());
+    _retryKeys[userMessage.id] = key;
+    state = state.copyWith(messages: [...state.messages, userMessage]);
+    await _send(userMessage, key);
+  }
 
-      state = state.copyWith(
-        messages: [...state.messages, aiResponse],
-        isAiThinking: false,
-      );
+  Future<void> retryMessage(String messageId) async {
+    if (state.isAiThinking) return;
+    final key = _retryKeys[messageId];
+    if (key == null) return;
+    final message = state.messages.where((m) => m.id == messageId).firstOrNull;
+    if (message == null) return;
+    await _send(message, key);
+  }
+
+  Future<void> _send(ChatMessage message, String key) async {
+    final epoch = _epoch;
+    state = state.copyWith(
+        isAiThinking: true,
+        messages: state.messages
+            .map((m) => m.id == message.id
+                ? m.copyWith(deliveryStatus: MessageDeliveryStatus.sending)
+                : m)
+            .toList());
+    try {
+      final response = await _repository.sendTextMessage(
+          text: message.text, idempotencyKey: key);
+      if (!mounted || epoch != _epoch) return;
+      _retryKeys.remove(message.id);
+      state = state.copyWith(messages: [
+        ...state.messages.map((m) => m.id == message.id
+            ? m.copyWith(deliveryStatus: MessageDeliveryStatus.sent)
+            : m),
+        response,
+      ], isAiThinking: false);
     } catch (e) {
-      // Mark user message as failed if upstream error occurs
-      final updatedMessages = state.messages.map((m) {
-        if (m.id == userMessageId) {
-          return m.copyWith(deliveryStatus: MessageDeliveryStatus.failed);
-        }
-        return m;
-      }).toList();
-
+      if (!mounted || epoch != _epoch) return;
       state = state.copyWith(
-        messages: updatedMessages,
-        isAiThinking: false,
-        errorMessage: 'Không thể kết nối đến gia sư AI. Vui lòng bấm thử lại.',
-      );
+          messages: state.messages
+              .map((m) => m.id == message.id
+                  ? m.copyWith(deliveryStatus: MessageDeliveryStatus.failed)
+                  : m)
+              .toList(),
+          isAiThinking: false,
+          errorMessage: e is ApiFailure
+              ? e.message
+              : 'Không kết nối được Tom. Hãy thử gửi lại tin nhắn.');
     }
   }
 
-  void toggleAudioPlayback(String messageId) {
+  Future<void> toggleAudioPlayback(String messageId) async {
     if (state.currentlyPlayingMessageId == messageId) {
-      // Pause
-      state = state.copyWith(currentlyPlayingMessageId: null);
-    } else {
-      // Play new
-      state = state.copyWith(currentlyPlayingMessageId: messageId);
+      await stopAudio();
+      return;
     }
+    final message =
+        state.messages.where((m) => m.id == messageId && m.isAi).firstOrNull;
+    if (message == null) return;
+    final epoch = ++_audioEpoch;
+    state = state.copyWith(currentlyPlayingMessageId: messageId);
+    try {
+      await _speech.speak(message.text, state.globalPlaybackSpeed);
+      if (mounted && epoch == _audioEpoch) {
+        state = state.copyWith(currentlyPlayingMessageId: null);
+      }
+    } catch (_) {
+      if (mounted && epoch == _audioEpoch) {
+        state = state.copyWith(
+            currentlyPlayingMessageId: null,
+            errorMessage:
+                'Không phát được giọng đọc trên thiết bị. Bạn vẫn có thể đọc nội dung.');
+      }
+    }
+  }
+
+  Future<void> stopAudio({bool updateState = true}) async {
+    _audioEpoch++;
+    if (mounted && updateState) {
+      state = state.copyWith(currentlyPlayingMessageId: null);
+    }
+    try {
+      await _speech.stop();
+    } catch (_) {}
   }
 
   void setPlaybackSpeed(double speed) {
+    if (![0.75, 1.0, 1.25].contains(speed)) return;
+    final playing = state.currentlyPlayingMessageId;
     state = state.copyWith(globalPlaybackSpeed: speed);
+    if (playing != null) unawaited(toggleAudioPlayback(playing));
   }
 
-  void clearChat() {
-    state = ChatState(
-      messages: [
-        ChatMessage(
-          id: 'new_welcome_${DateTime.now().millisecondsSinceEpoch}',
-          role: 'ai',
-          text: 'Cuộc trò chuyện mới đã bắt đầu! Hãy gõ câu hỏi bạn muốn luyện nói nhé.',
-          timestamp: DateTime.now(),
-        ),
-      ],
-    );
+  Future<bool> beginScenario(String id, String level) async {
+    if (state.isAiThinking || _retryKeys.isNotEmpty) return false;
+    await clearChat();
+    if (!mounted || state.errorMessage != null) return false;
+    final repo = _repository;
+    if (repo is RemoteChatRepository) {
+      repo.scenarioId = id;
+      repo.level = level;
+    }
+    return true;
+  }
+
+  Future<void> clearChat() async {
+    if (state.isAiThinking) return;
+    try {
+      final repo = _repository;
+      if (repo is RemoteChatRepository) await repo.completeSession();
+      if (!mounted) return;
+      _epoch++;
+      _retryKeys.clear();
+      await stopAudio();
+      if (mounted) state = const ChatState();
+    } catch (_) {
+      if (mounted) {
+        state = state.copyWith(
+            errorMessage:
+                'Chưa kết thúc được phiên. Hội thoại vẫn được giữ lại.');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _epoch++;
+    unawaited(stopAudio(updateState: false));
+    super.dispose();
   }
 }

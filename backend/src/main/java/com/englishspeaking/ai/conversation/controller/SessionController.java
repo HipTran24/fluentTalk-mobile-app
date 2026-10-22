@@ -25,10 +25,10 @@ public class SessionController {
     @PostMapping("/sessions")
     public ResponseEntity<SessionResponse> createSession(
             @AuthenticationPrincipal AuthenticatedUser user,
-            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(name = "Idempotency-Key") String idempotencyKey,
             @RequestBody(required = false) SessionCreateRequest request
     ) {
-        String key = idempotencyKey != null ? idempotencyKey : UUID.randomUUID().toString();
+        String key = idempotencyKey;
         SessionResponse response = sessionService.createSession(user.id(), key, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -56,10 +56,10 @@ public class SessionController {
     public ResponseEntity<TurnResultResponse> sendMessage(
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("id") UUID id,
-            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(name = "Idempotency-Key") String idempotencyKey,
             @Valid @RequestBody MessageCreateRequest request
     ) {
-        String key = idempotencyKey != null ? idempotencyKey : UUID.randomUUID().toString();
+        String key = idempotencyKey;
         TurnResultResponse response = sessionService.sendMessage(user.id(), id, key, request);
         return ResponseEntity.ok(response);
     }
@@ -77,9 +77,9 @@ public class SessionController {
     public ResponseEntity<SessionCompleteResponse> completeSession(
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("id") UUID id,
-            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey
+            @RequestHeader(name = "Idempotency-Key") String idempotencyKey
     ) {
-        String key = idempotencyKey != null ? idempotencyKey : UUID.randomUUID().toString();
+        String key = idempotencyKey;
         SessionCompleteResponse response = sessionService.completeSession(user.id(), id, key);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
@@ -96,7 +96,7 @@ public class SessionController {
     @PostMapping("/voice-sessions")
     public ResponseEntity<SessionResponse> createVoiceSession(
             @AuthenticationPrincipal AuthenticatedUser user,
-            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(name = "Idempotency-Key") String idempotencyKey,
             @RequestBody(required = false) SessionCreateRequest request
     ) {
         SessionCreateRequest voiceReq = new SessionCreateRequest(
@@ -104,7 +104,7 @@ public class SessionController {
                 "realtime",
                 request != null ? request.level() : "B1"
         );
-        String key = idempotencyKey != null ? idempotencyKey : UUID.randomUUID().toString();
+        String key = idempotencyKey;
         SessionResponse response = sessionService.createSession(user.id(), key, voiceReq);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -113,9 +113,9 @@ public class SessionController {
     public ResponseEntity<SessionCompleteResponse> completeVoiceSession(
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable("id") UUID id,
-            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey
+            @RequestHeader(name = "Idempotency-Key") String idempotencyKey
     ) {
-        String key = idempotencyKey != null ? idempotencyKey : UUID.randomUUID().toString();
+        String key = idempotencyKey;
         SessionCompleteResponse response = sessionService.completeSession(user.id(), id, key);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }

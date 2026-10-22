@@ -167,7 +167,7 @@ class AdminScenarioItem {
   }
 }
 
-/// AI Engine & Telemetry Parameters
+/// Tom Engine & Telemetry Parameters
 class AdminAiConfig {
   final String modelName;
   final double temperature;
@@ -211,7 +211,8 @@ class AdminAiConfig {
       preferredTtsVoice: preferredTtsVoice ?? this.preferredTtsVoice,
       monthlyTokenQuota: monthlyTokenQuota ?? this.monthlyTokenQuota,
       monthlyTokensUsed: monthlyTokensUsed ?? this.monthlyTokensUsed,
-      activeWebSocketConnections: activeWebSocketConnections ?? this.activeWebSocketConnections,
+      activeWebSocketConnections:
+          activeWebSocketConnections ?? this.activeWebSocketConnections,
     );
   }
 }

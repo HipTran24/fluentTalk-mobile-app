@@ -31,15 +31,18 @@ class UserProfile {
     return UserProfile(
       id: json['id'] as String,
       email: json['email'] as String? ?? '',
-      displayName: (json['display_name'] ?? json['displayName']) as String? ?? 'Learner',
+      displayName:
+          (json['display_name'] ?? json['displayName']) as String? ?? 'Learner',
       avatarUrl: (json['avatar_url'] ?? json['avatarUrl']) as String?,
       level: UserLevel.fromString(json['level'] as String?),
       goal: LearningGoalType.values.firstWhere(
         (g) => g.name == (json['goal'] ?? json['goalType']),
         orElse: () => LearningGoalType.daily,
       ),
-      dailyMinutes: (json['daily_minutes'] ?? json['dailyMinutes']) as int? ?? 15,
-      currentStreak: (json['current_streak'] ?? json['currentStreak']) as int? ?? 0,
+      dailyMinutes:
+          (json['daily_minutes'] ?? json['dailyMinutes']) as int? ?? 15,
+      currentStreak:
+          (json['current_streak'] ?? json['currentStreak']) as int? ?? 0,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : (json['createdAt'] != null

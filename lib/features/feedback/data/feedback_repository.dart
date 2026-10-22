@@ -6,7 +6,8 @@ import '../domain/models/feedback_models.dart';
 abstract class FeedbackRepository {
   Future<SessionReport> getSessionReport(String sessionId);
   Future<ProgressAnalyticsData> getProgressAnalytics(int periodIndex);
-  Future<List<PracticeSession>> getPracticeHistory({String? modeFilter, String? searchQuery});
+  Future<List<PracticeSession>> getPracticeHistory(
+      {String? modeFilter, String? searchQuery});
 }
 
 class MockFeedbackRepository implements FeedbackRepository {
@@ -27,25 +28,33 @@ class MockFeedbackRepository implements FeedbackRepository {
         DimensionScore(
           dimension: RubricDimension.fluency,
           estimatedBand: 6.5,
-          feedbackVi: 'Tốc độ phản xạ nhanh, độ ngập ngừng giảm đáng kể so với phiên trước.',
-          evidenceSnippets: ['Could we please have a bottle of sparkling water and some fresh orange juice?'],
+          feedbackVi:
+              'Tốc độ phản xạ nhanh, độ ngập ngừng giảm đáng kể so với phiên trước.',
+          evidenceSnippets: [
+            'Could we please have a bottle of sparkling water and some fresh orange juice?'
+          ],
         ),
         DimensionScore(
           dimension: RubricDimension.lexical,
           estimatedBand: 6.0,
-          feedbackVi: 'Sử dụng chính xác các cụm từ nhà hàng: "table for two", "reservation", "specialty".',
+          feedbackVi:
+              'Sử dụng chính xác các cụm từ nhà hàng: "table for two", "reservation", "specialty".',
           evidenceSnippets: ['Is this dish quite spicy, or mild?'],
         ),
         DimensionScore(
           dimension: RubricDimension.grammar,
           estimatedBand: 5.5,
-          feedbackVi: 'Cần chú ý thêm mạo từ "the" và chia thì quá khứ đơn trong câu trần thuật.',
-          evidenceSnippets: ['Yesterday I go to market (cần: went to the market)'],
+          feedbackVi:
+              'Cần chú ý thêm mạo từ "the" và chia thì quá khứ đơn trong câu trần thuật.',
+          evidenceSnippets: [
+            'Yesterday I go to market (cần: went to the market)'
+          ],
         ),
         DimensionScore(
           dimension: RubricDimension.pronunciation,
           estimatedBand: 6.0,
-          feedbackVi: 'Bật âm đuôi /s/, /z/ và /t/ tốt. Ngữ điệu câu hỏi lịch sự tự nhiên.',
+          feedbackVi:
+              'Bật âm đuôi /s/, /z/ và /t/ tốt. Ngữ điệu câu hỏi lịch sự tự nhiên.',
           evidenceSnippets: ['reservation', 'sparkling', 'available'],
           hasAcousticEvidence: true,
         ),
@@ -54,13 +63,16 @@ class MockFeedbackRepository implements FeedbackRepository {
         CorrectionItem(
           original: 'Yesterday I go to market to buy food.',
           suggested: 'Yesterday I went to the market to buy some groceries.',
-          explanationVi: 'Với trạng từ thời gian quá khứ ("yesterday"), động từ "go" phải chuyển thành "went". Dùng "the market" và từ vựng tự nhiên hơn "groceries".',
+          explanationVi:
+              'Với trạng từ thời gian quá khứ ("yesterday"), động từ "go" phải chuyển thành "went". Dùng "the market" và từ vựng tự nhiên hơn "groceries".',
           type: 'grammar',
         ),
         CorrectionItem(
           original: 'We have no table booked.',
-          suggested: 'We do not have a reservation, do you have any table available?',
-          explanationVi: 'Cách diễn đạt tự nhiên chuẩn bản xứ trong nhà hàng khi chưa đặt chỗ trước.',
+          suggested:
+              'We do not have a reservation, do you have any table available?',
+          explanationVi:
+              'Cách diễn đạt tự nhiên chuẩn bản xứ trong nhà hàng khi chưa đặt chỗ trước.',
           type: 'vocabulary',
         ),
       ],
@@ -132,7 +144,8 @@ class MockFeedbackRepository implements FeedbackRepository {
   }
 
   @override
-  Future<List<PracticeSession>> getPracticeHistory({String? modeFilter, String? searchQuery}) async {
+  Future<List<PracticeSession>> getPracticeHistory(
+      {String? modeFilter, String? searchQuery}) async {
     await Future.delayed(const Duration(milliseconds: 300));
 
     final list = [
@@ -192,7 +205,8 @@ class MockFeedbackRepository implements FeedbackRepository {
       }
       if (searchQuery != null && searchQuery.isNotEmpty) {
         final query = searchQuery.toLowerCase();
-        final titleMatch = s.scenarioTitle?.toLowerCase().contains(query) ?? false;
+        final titleMatch =
+            s.scenarioTitle?.toLowerCase().contains(query) ?? false;
         if (!titleMatch) return false;
       }
       return true;

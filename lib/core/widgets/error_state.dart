@@ -34,7 +34,9 @@ class ErrorStateWidget extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isOffline ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
+                isOffline
+                    ? Icons.wifi_off_rounded
+                    : Icons.error_outline_rounded,
                 size: 48,
                 color: isOffline ? AppColors.warning : AppColors.error,
               ),

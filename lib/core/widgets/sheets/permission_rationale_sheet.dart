@@ -17,7 +17,7 @@ class PermissionRationaleSheet extends StatelessWidget {
     super.key,
     this.title = 'Cho phép truy cập Microphone',
     this.description =
-        'Để luyện phát âm và trò chuyện trực tiếp với gia sư AI, ứng dụng cần quyền sử dụng micro. Bạn có thể bật hoặc tắt quyền lưu trữ âm thanh bất kỳ lúc nào trong Cài đặt riêng tư.',
+        'Để luyện phát âm và trò chuyện trực tiếp với gia sư Tom, ứng dụng cần quyền sử dụng micro. Bạn có thể bật hoặc tắt quyền lưu trữ âm thanh bất kỳ lúc nào trong Cài đặt riêng tư.',
     this.icon = Icons.mic_rounded,
     required this.onGrant,
     this.onCancel,

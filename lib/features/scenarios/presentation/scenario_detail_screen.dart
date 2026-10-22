@@ -1,3 +1,5 @@
+import '../../conversation/presentation/controllers/chat_controller.dart';
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,6 +57,24 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
       case SessionMode.text:
         context.push('/practice/text');
         break;
+    }
+  }
+
+  Future<void> _startTextScenario(Scenario scenario) async {
+    if (ref.read(authControllerProvider).user == null) {
+      context.push('/auth');
+      return;
+    }
+    final ready = await ref
+        .read(chatControllerProvider.notifier)
+        .beginScenario(scenario.id, scenario.level.code);
+    if (!mounted) return;
+    if (ready) {
+      context.push('/practice/text');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Hãy hoàn tất hoặc gửi lại tin nhắn đang xử lý trước khi đổi tình huống.')));
     }
   }
 
@@ -196,7 +216,7 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(16),
                               child: Text(
-                                  'Bạn đang xem nội dung từ máy chủ. Chế độ hội thoại trực tuyến đang được tích hợp.'),
+                                  'Luyện hội thoại văn bản theo vai và trình độ của tình huống. Có thể nghe phản hồi bằng giọng đọc trên thiết bị.'),
                             ),
                           ),
 
@@ -216,9 +236,11 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                   child: PrimaryButton(
                     text: isDemo
                         ? 'Bắt đầu hội thoại ngay'
-                        : 'Hội thoại chưa sẵn sàng',
+                        : 'Luyện chat tình huống này',
                     icon: Icons.play_arrow_rounded,
-                    onPressed: isDemo ? () => _startSession(scenario.id) : null,
+                    onPressed: isDemo
+                        ? () => _startSession(scenario.id)
+                        : () => _startTextScenario(scenario),
                   ),
                 ),
               ],
@@ -284,7 +306,7 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Gia sư AI đóng vai:',
+                    const Text('Trợ lý Tom đóng vai:',
                         style: TextStyle(
                             fontSize: 11, color: AppColors.textMuted)),
                     Text(
@@ -478,7 +500,7 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          const AdaptiveRow(
             children: [
               Icon(Icons.tune_rounded, color: AppColors.primary, size: 18),
               SizedBox(width: 8),
@@ -545,14 +567,14 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
 
           const SizedBox(height: AppSpacing.sm),
 
-          // 2. AI Speaking Speed
-          Row(
+          // 2. Tom Speaking Speed
+          AdaptiveRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Tốc độ phát âm AI:',
+              const Text('Tốc độ phát âm Tom:',
                   style:
                       TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-              Row(
+              AdaptiveRow(
                 children: [0.75, 1.0, 1.25].map((speed) {
                   final isSelected = _speakingSpeed == speed;
                   return Padding(
@@ -590,7 +612,7 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
           const SizedBox(height: 8),
 
           // 3. Live Captions Toggle
-          Row(
+          AdaptiveRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Hiển thị phụ đề thời gian thực:',
@@ -605,19 +627,21 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
           ),
 
           // 4. Voice Choice
-          Row(
+          AdaptiveRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Giọng AI:',
+              const Text('Giọng Tom:',
                   style:
                       TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-              DropdownButton<String>(
+              Expanded(
+                  child: DropdownButton<String>(
+                isExpanded: true,
                 value: _selectedVoice,
                 underline: const SizedBox.shrink(),
                 items: const [
                   DropdownMenuItem(
                       value: 'en-US-Journey-F',
-                      child: Text('🇺🇸 Emma (Anh-Mỹ)')),
+                      child: Text('🇺🇸 Tom (Anh-Mỹ)')),
                   DropdownMenuItem(
                       value: 'en-GB-Journey-M',
                       child: Text('🇬🇧 Arthur (Anh-Anh)')),
@@ -625,7 +649,7 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedVoice = val);
                 },
-              ),
+              )),
             ],
           ),
         ],

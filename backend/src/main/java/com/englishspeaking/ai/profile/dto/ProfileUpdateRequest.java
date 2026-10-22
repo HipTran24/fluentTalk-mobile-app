@@ -15,6 +15,7 @@ public record ProfileUpdateRequest(
         @Pattern(regexp = "^(A0|A1|A2|B1|B2|C1|C2)$", message = "level must be one of A0, A1, A2, B1, B2, C1, C2")
         String level,
 
+        @Size(max = 100, message = "goal must be at most 100 characters")
         String goal,
 
         @Min(value = 5, message = "dailyMinutes must be at least 5")

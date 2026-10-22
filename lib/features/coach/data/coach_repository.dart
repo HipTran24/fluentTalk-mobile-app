@@ -74,7 +74,7 @@ class MockCoachRepository implements CoachRepository {
       id: 'plan_07',
       dayIndex: 7,
       dayName: 'Chủ Nhật',
-      title: 'Tổng kết tuần & Kiểm tra tiến độ với Coach Emma',
+      title: 'Tổng kết tuần & Kiểm tra tiến độ với Coach Tom',
       activityType: 'Đánh giá tuần • 6 phút',
       estimatedMinutes: 6,
       isCompleted: false,
@@ -90,7 +90,8 @@ class MockCoachRepository implements CoachRepository {
         id: 'w_01',
         category: 'Ngữ pháp',
         description: 'Thì Quá khứ đơn (Past Simple regular verbs)',
-        evidence: 'Quên chia động từ quá khứ ở 4/6 phiên gần nhất ("Yesterday I go" thay vì "went").',
+        evidence:
+            'Quên chia động từ quá khứ ở 4/6 phiên gần nhất ("Yesterday I go" thay vì "went").',
         recurrenceCount: 4,
         impact: 0.85,
         confidence: 0.92,
@@ -100,7 +101,8 @@ class MockCoachRepository implements CoachRepository {
         id: 'w_02',
         category: 'Từ vựng & Liên kết',
         description: 'Từ nối câu (Connectors & Transition Words)',
-        evidence: 'Lặp lại "and", "so" quá 12 lần; cần bổ sung "however", "therefore", "besides".',
+        evidence:
+            'Lặp lại "and", "so" quá 12 lần; cần bổ sung "however", "therefore", "besides".',
         recurrenceCount: 3,
         impact: 0.65,
         confidence: 0.88,
@@ -110,7 +112,8 @@ class MockCoachRepository implements CoachRepository {
         id: 'w_03',
         category: 'Phát âm',
         description: 'Trọng âm từ kết thúc bằng đuôi -tion, -sion',
-        evidence: 'Nhấn sai trọng âm từ "decision", "situation" ở phiên hội thoại sân bay.',
+        evidence:
+            'Nhấn sai trọng âm từ "decision", "situation" ở phiên hội thoại sân bay.',
         recurrenceCount: 2,
         impact: 0.60,
         confidence: 0.85,
@@ -160,7 +163,8 @@ class MockCoachRepository implements CoachRepository {
       level: UserLevel.a2,
       taskType: 'listen_repeat',
       estimatedMinutes: 3,
-      targetPhrase: 'Yesterday, I went to the supermarket and bought some groceries.',
+      targetPhrase:
+          'Yesterday, I went to the supermarket and bought some groceries.',
       audioPromptUrl: 'drill_past_audio.mp3',
     );
   }

@@ -73,8 +73,8 @@ class RealtimeCallState {
   }
 }
 
-final realtimeCallControllerProvider =
-    StateNotifierProvider.family<RealtimeCallController, RealtimeCallState, String>((ref, sessionId) {
+final realtimeCallControllerProvider = StateNotifierProvider.family<
+    RealtimeCallController, RealtimeCallState, String>((ref, sessionId) {
   final repo = ref.watch(realtimeCallRepositoryProvider);
   return RealtimeCallController(repo, sessionId);
 });
@@ -91,7 +91,8 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
 
   Future<void> initCall() async {
     final hints = await _repository.getTopicHints(state.sessionId);
-    final initialCaps = await _repository.getInitialConversation(state.sessionId);
+    final initialCaps =
+        await _repository.getInitialConversation(state.sessionId);
 
     if (!mounted) return;
 
@@ -101,7 +102,7 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
       captionsHistory: initialCaps,
       currentSpeakerText: initialCaps.isNotEmpty
           ? initialCaps.last.text
-          : 'Hello! I am Emma. How has your day been so far?',
+          : 'Hello! I am Tom. How has your day been so far?',
       currentSpeakerRole: 'ai',
       latencyMs: 42,
     );
@@ -112,7 +113,8 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
         timer.cancel();
         return;
       }
-      state = state.copyWith(callDurationSeconds: state.callDurationSeconds + 1);
+      state =
+          state.copyWith(callDurationSeconds: state.callDurationSeconds + 1);
     });
 
     // Schedule natural transition from initial greeting to listening
@@ -121,7 +123,7 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
       if (state.speakerState == RealtimeSpeakerState.aiSpeaking) {
         state = state.copyWith(
           speakerState: RealtimeSpeakerState.listening,
-          currentSpeakerText: 'AI đang lắng nghe bạn nói...',
+          currentSpeakerText: 'Tom đang lắng nghe bạn nói...',
           currentSpeakerRole: 'user',
         );
       }
@@ -160,13 +162,13 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
       captionsHistory: [...state.captionsHistory, userCap],
     );
 
-    // After user finishes, AI enters thinking then speaks
+    // After user finishes, Tom enters thinking then speaks
     _speakerSimulationTimer = Timer(const Duration(milliseconds: 1800), () {
       if (!mounted) return;
       state = state.copyWith(
         speakerState: RealtimeSpeakerState.aiThinking,
         currentSpeakerRole: 'ai',
-        currentSpeakerText: 'AI đang suy nghĩ câu trả lời phản xạ...',
+        currentSpeakerText: 'Tom đang suy nghĩ câu trả lời phản xạ...',
       );
 
       _speakerSimulationTimer = Timer(const Duration(milliseconds: 1200), () {
@@ -176,7 +178,8 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
           'I completely agree with you! How did that make you feel at that moment?',
           'That is a great observation. In my experience, people often feel the same way!',
         ];
-        final replyText = aiReplies[state.captionsHistory.length % aiReplies.length];
+        final replyText =
+            aiReplies[state.captionsHistory.length % aiReplies.length];
 
         final aiCap = RealtimeCaptionItem(
           id: 'cap_ai_${DateTime.now().millisecondsSinceEpoch}',
@@ -198,21 +201,22 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
           state = state.copyWith(
             speakerState: RealtimeSpeakerState.listening,
             currentSpeakerRole: 'user',
-            currentSpeakerText: 'AI đang lắng nghe bạn nói...',
+            currentSpeakerText: 'Tom đang lắng nghe bạn nói...',
           );
         });
       });
     });
   }
 
-  /// Barge-in / Interrupt: User immediately stops AI from speaking
+  /// Barge-in / Interrupt: User immediately stops Tom from speaking
   void interruptAi() {
     if (state.speakerState == RealtimeSpeakerState.aiSpeaking) {
       _speakerSimulationTimer?.cancel();
       state = state.copyWith(
         speakerState: RealtimeSpeakerState.listening,
         currentSpeakerRole: 'user',
-        currentSpeakerText: 'Đã ngắt lời AI. AI đang lắng nghe bạn tiếp tục...',
+        currentSpeakerText:
+            'Đã ngắt lời Tom. Tom đang lắng nghe bạn tiếp tục...',
       );
     }
   }
@@ -222,7 +226,8 @@ class RealtimeCallController extends StateNotifier<RealtimeCallState> {
     _speakerSimulationTimer?.cancel();
 
     state = state.copyWith(speakerState: RealtimeSpeakerState.ended);
-    await _repository.endCallSession(state.sessionId, state.callDurationSeconds);
+    await _repository.endCallSession(
+        state.sessionId, state.callDurationSeconds);
 
     if (!mounted) return;
     state = state.copyWith(isCallEnded: true);

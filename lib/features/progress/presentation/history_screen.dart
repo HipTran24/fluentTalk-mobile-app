@@ -1,3 +1,5 @@
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -57,14 +59,17 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           icon: const Icon(Icons.clear_rounded, size: 18),
                           onPressed: () {
                             _searchController.clear();
-                            ref.read(historySearchQueryProvider.notifier).state = '';
+                            ref
+                                .read(historySearchQueryProvider.notifier)
+                                .state = '';
                             setState(() {});
                           },
                         )
                       : null,
                   filled: true,
                   fillColor: AppColors.surface,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppRadius.input),
                     borderSide: const BorderSide(color: AppColors.border),
@@ -84,16 +89,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             // 2. Mode Filter Chips
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pageHorizontal),
               child: Row(
                 children: [
                   _buildFilterChip('Tất cả', 'all', activeFilter),
                   const SizedBox(width: 8),
-                  _buildFilterChip('Luyện theo lượt (Guided)', 'guided', activeFilter),
+                  _buildFilterChip(
+                      'Luyện theo lượt (Guided)', 'guided', activeFilter),
                   const SizedBox(width: 8),
-                  _buildFilterChip('Cuộc gọi Realtime', 'realtime', activeFilter),
+                  _buildFilterChip(
+                      'Cuộc gọi Realtime', 'realtime', activeFilter),
                   const SizedBox(width: 8),
-                  _buildFilterChip('Hỏi đáp văn bản (Text)', 'text', activeFilter),
+                  _buildFilterChip(
+                      'Hỏi đáp văn bản (Text)', 'text', activeFilter),
                 ],
               ),
             ),
@@ -114,13 +123,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     return Center(
                       child: EmptyStateWidget(
                         title: 'Không tìm thấy phiên luyện tập',
-                        description: 'Không có phiên nói nào phù hợp với bộ lọc hiện tại của bạn.',
+                        description:
+                            'Không có phiên nói nào phù hợp với bộ lọc hiện tại của bạn.',
                         icon: Icons.history_toggle_off_rounded,
                         actionText: 'Đặt lại bộ lọc',
                         onAction: () {
                           _searchController.clear();
-                          ref.read(historyFilterModeProvider.notifier).state = 'all';
-                          ref.read(historySearchQueryProvider.notifier).state = '';
+                          ref.read(historyFilterModeProvider.notifier).state =
+                              'all';
+                          ref.read(historySearchQueryProvider.notifier).state =
+                              '';
                           setState(() {});
                         },
                       ),
@@ -128,13 +140,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   }
 
                   return ListView.separated(
-                    cacheExtent: 500,
+                    scrollCacheExtent: const ScrollCacheExtent.pixels(500),
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.pageHorizontal,
                       vertical: AppSpacing.xs,
                     ),
                     itemCount: sessions.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, index) {
                       final item = sessions[index];
                       return _buildHistoryCard(context, item);
@@ -202,7 +215,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -211,87 +224,94 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       child: Material(
         type: MaterialType.transparency,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md, vertical: 8),
           onTap: () => context.push('/practice/session/${session.id}/summary'),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: modeColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(modeIcon, size: 12, color: modeColor),
-                  const SizedBox(width: 4),
-                  Text(
-                    session.mode.title,
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: modeColor),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            const LevelChip(level: UserLevel.a2),
-          ],
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          title: AdaptiveRow(
             children: [
-              Text(
-                session.scenarioTitle ?? 'Phiên luyện nói tự do',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  color: AppColors.textPrimary,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: modeColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: AdaptiveRow(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(modeIcon, size: 12, color: modeColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      session.mode.title,
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: modeColor),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Thời lượng: $durationText • ${session.turnsCount} lượt đối thoại',
-                style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+              const SizedBox(width: 8),
+              const LevelChip(level: UserLevel.a2),
+            ],
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  session.scenarioTitle ?? 'Phiên luyện nói tự do',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Thời lượng: $durationText • ${session.turnsCount} lượt đối thoại',
+                  style:
+                      const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+              ],
+            ),
+          ),
+          trailing: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryLight,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star_rounded,
+                        size: 14, color: Colors.amber),
+                    const SizedBox(width: 2),
+                    Text(
+                      session.estimatedScore != null
+                          ? session.estimatedScore!.toStringAsFixed(1)
+                          : '6.0',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.secondaryLight,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
-                  const SizedBox(width: 2),
-                  Text(
-                    session.estimatedScore != null ? session.estimatedScore!.toStringAsFixed(1) : '6.0',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 4),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.textMuted),
-          ],
-        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

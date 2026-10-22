@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,7 +59,7 @@ class ProgressScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.lg),
 
                 // 3. Speaking Minutes Bar Chart Card
-                _buildChartCard(data),
+                _buildChartCard(context, data),
 
                 const SizedBox(height: AppSpacing.lg),
 
@@ -102,7 +103,8 @@ class ProgressScreen extends ConsumerWidget {
           final isSelected = selectedPeriod == idx;
           return Expanded(
             child: InkWell(
-              onTap: () => ref.read(progressPeriodProvider.notifier).state = idx,
+              onTap: () =>
+                  ref.read(progressPeriodProvider.notifier).state = idx,
               borderRadius: BorderRadius.circular(AppRadius.xs),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -112,7 +114,7 @@ class ProgressScreen extends ConsumerWidget {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -125,7 +127,9 @@ class ProgressScreen extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -191,7 +195,7 @@ class ProgressScreen extends ConsumerWidget {
         children: [
           Icon(icon, color: iconColor, size: 20),
           const SizedBox(height: 8),
-          Row(
+          AdaptiveRow(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
@@ -206,7 +210,8 @@ class ProgressScreen extends ConsumerWidget {
               const SizedBox(width: 3),
               Text(
                 unit,
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                style:
+                    const TextStyle(fontSize: 11, color: AppColors.textMuted),
               ),
             ],
           ),
@@ -220,8 +225,9 @@ class ProgressScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildChartCard(ProgressAnalyticsData data) {
-    final maxMinutes = data.weeklyBars.fold<int>(1, (prev, bar) => math.max(prev, bar.minutes));
+  Widget _buildChartCard(BuildContext context, ProgressAnalyticsData data) {
+    final maxMinutes = data.weeklyBars
+        .fold<int>(1, (prev, bar) => math.max(prev, bar.minutes));
 
     return Container(
       width: double.infinity,
@@ -234,7 +240,7 @@ class ProgressScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          const AdaptiveRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -247,7 +253,10 @@ class ProgressScreen extends ConsumerWidget {
               ),
               Text(
                 'Mục tiêu: 15p',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.accent),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.accent),
               ),
             ],
           ),
@@ -255,46 +264,64 @@ class ProgressScreen extends ConsumerWidget {
 
           // Custom Responsive Bar Chart
           SizedBox(
-            height: 120,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: data.weeklyBars.map((bar) {
-                final heightFactor = maxMinutes > 0 ? (bar.minutes / maxMinutes).clamp(0.08, 1.0) : 0.08;
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (bar.minutes > 0)
-                      Text(
-                        '${bar.minutes}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: bar.isToday ? AppColors.primary : AppColors.textMuted,
+            height: 120 + MediaQuery.textScalerOf(context).scale(40),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: 340,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: data.weeklyBars.map((bar) {
+                    final heightFactor = maxMinutes > 0
+                        ? (bar.minutes / maxMinutes).clamp(0.08, 1.0)
+                        : 0.08;
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (bar.minutes > 0)
+                          Text(
+                            '${bar.minutes}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: bar.isToday
+                                  ? AppColors.primary
+                                  : AppColors.textMuted,
+                            ),
+                          ),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: 22,
+                          height: 80 * heightFactor,
+                          decoration: BoxDecoration(
+                            color: bar.isToday
+                                ? AppColors.primary
+                                : AppColors.secondaryLight,
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(6)),
+                            border: bar.isToday
+                                ? Border.all(color: AppColors.primaryLight)
+                                : null,
+                          ),
                         ),
-                      ),
-                    const SizedBox(height: 4),
-                    Container(
-                      width: 22,
-                      height: 80 * heightFactor,
-                      decoration: BoxDecoration(
-                        color: bar.isToday ? AppColors.primary : AppColors.secondaryLight,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-                        border: bar.isToday ? Border.all(color: AppColors.primaryLight) : null,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      bar.dayLabel,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: bar.isToday ? FontWeight.w700 : FontWeight.w500,
-                        color: bar.isToday ? AppColors.primary : AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                );
-              }).toList(),
+                        const SizedBox(height: 6),
+                        Text(
+                          bar.dayLabel,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight:
+                                bar.isToday ? FontWeight.w700 : FontWeight.w500,
+                            color: bar.isToday
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           ),
         ],
@@ -316,7 +343,10 @@ class ProgressScreen extends ConsumerWidget {
         children: [
           const Text(
             'Tiến bộ theo 4 tiêu chí Rubric',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -324,7 +354,6 @@ class ProgressScreen extends ConsumerWidget {
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
           const SizedBox(height: AppSpacing.md),
-
           ...RubricDimension.values.map((dim) {
             final band = data.currentBands[dim] ?? 5.5;
             final growth = data.bandGrowth[dim] ?? 0.0;
@@ -335,30 +364,40 @@ class ProgressScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  AdaptiveRow(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         dim.labelVi,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                        style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary),
                       ),
-                      Row(
+                      AdaptiveRow(
                         children: [
                           Text(
                             'Band ${band.toStringAsFixed(1)}',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary),
                           ),
                           if (growth > 0) ...[
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColors.successBg,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 '+${growth.toStringAsFixed(1)}',
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.success),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.success),
                               ),
                             ),
                           ],
@@ -373,7 +412,8 @@ class ProgressScreen extends ConsumerWidget {
                       value: percent,
                       minHeight: 6,
                       backgroundColor: AppColors.surfaceVariant,
-                      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.primary),
                     ),
                   ),
                 ],
@@ -390,25 +430,31 @@ class ProgressScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.secondaryLight,
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.primaryLight.withOpacity(0.3)),
+        border:
+            Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
       ),
       child: Material(
         type: MaterialType.transparency,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md, vertical: 4),
           leading: const CircleAvatar(
             backgroundColor: AppColors.primary,
             child: Icon(Icons.history_rounded, color: Colors.white, size: 20),
           ),
           title: const Text(
             'Xem toàn bộ lịch sử luyện nói',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.textPrimary),
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: AppColors.textPrimary),
           ),
           subtitle: const Text(
             'Nghe lại audio và xem chi tiết điểm số từng phiên',
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
-          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.primary),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded,
+              size: 14, color: AppColors.primary),
           onTap: () => context.push('/progress/history'),
         ),
       ),

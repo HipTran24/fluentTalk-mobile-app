@@ -34,14 +34,17 @@ void main() {
       expect(plan.any((p) => p.isToday), isTrue);
     });
 
-    test('DrillPlayerController manages steps, recording and completion', () async {
+    test('DrillPlayerController manages steps, recording and completion',
+        () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final controller = container.read(drillPlayerControllerProvider('drill_past_tense').notifier);
+      final controller = container
+          .read(drillPlayerControllerProvider('drill_past_tense').notifier);
       await controller.loadDrill();
 
-      var state = container.read(drillPlayerControllerProvider('drill_past_tense'));
+      var state =
+          container.read(drillPlayerControllerProvider('drill_past_tense'));
       expect(state.isLoading, isFalse);
       expect(state.currentStep, 1);
       expect(state.totalSteps, 3);
@@ -58,13 +61,25 @@ void main() {
 
       // Advance to step 2, step 3, and complete
       controller.nextStep();
-      expect(container.read(drillPlayerControllerProvider('drill_past_tense')).currentStep, 2);
+      expect(
+          container
+              .read(drillPlayerControllerProvider('drill_past_tense'))
+              .currentStep,
+          2);
 
       controller.nextStep();
-      expect(container.read(drillPlayerControllerProvider('drill_past_tense')).currentStep, 3);
+      expect(
+          container
+              .read(drillPlayerControllerProvider('drill_past_tense'))
+              .currentStep,
+          3);
 
       controller.nextStep();
-      expect(container.read(drillPlayerControllerProvider('drill_past_tense')).isCompleted, isTrue);
+      expect(
+          container
+              .read(drillPlayerControllerProvider('drill_past_tense'))
+              .isCompleted,
+          isTrue);
     });
   });
 
@@ -83,25 +98,30 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final controller = container.read(profileSettingsControllerProvider.notifier);
+      final controller =
+          container.read(profileSettingsControllerProvider.notifier);
       var state = container.read(profileSettingsControllerProvider);
 
       expect(state.defaultSpeed, 1.0);
       controller.setDefaultSpeed(1.25);
-      expect(container.read(profileSettingsControllerProvider).defaultSpeed, 1.25);
+      expect(
+          container.read(profileSettingsControllerProvider).defaultSpeed, 1.25);
 
       expect(state.notifications, isTrue);
       controller.setNotifications(false);
-      expect(container.read(profileSettingsControllerProvider).notifications, isFalse);
+      expect(container.read(profileSettingsControllerProvider).notifications,
+          isFalse);
 
       expect(state.audioConsent, isFalse);
       controller.setAudioConsent(true);
-      expect(container.read(profileSettingsControllerProvider).audioConsent, isTrue);
+      expect(container.read(profileSettingsControllerProvider).audioConsent,
+          isTrue);
     });
   });
 
   group('Sprint 8 - UI Widget Smoke Tests', () {
-    testWidgets('CoachScreen (Screen 16) renders insights and 3 weaknesses', (WidgetTester tester) async {
+    testWidgets('CoachScreen (Screen 16) renders insights and 3 weaknesses',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(home: CoachScreen()),
@@ -112,15 +132,21 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.byType(CoachScreen), findsOneWidget);
-      expect(find.textContaining('Coach Emma (Trí nhớ dài hạn)'), findsOneWidget);
-      expect(find.textContaining('3 Trọng tâm tuần này của bạn'), findsOneWidget);
-      expect(find.textContaining('Vì sao AI đề xuất các bài học này?'), findsOneWidget);
+      expect(
+          find.textContaining('Coach Tom (Trí nhớ dài hạn)'), findsOneWidget);
+      expect(
+          find.textContaining('3 Trọng tâm tuần này của bạn'), findsOneWidget);
+      expect(find.textContaining('Vì sao Tom đề xuất các bài học này?'),
+          findsOneWidget);
     });
 
-    testWidgets('DrillPlayerScreen (Screen 17) renders step progress and target card', (WidgetTester tester) async {
+    testWidgets(
+        'DrillPlayerScreen (Screen 17) renders step progress and target card',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
-          child: MaterialApp(home: DrillPlayerScreen(drillId: 'drill_past_tense')),
+          child:
+              MaterialApp(home: DrillPlayerScreen(drillId: 'drill_past_tense')),
         ),
       );
 
@@ -129,11 +155,14 @@ void main() {
 
       expect(find.byType(DrillPlayerScreen), findsOneWidget);
       expect(find.textContaining('Bài tập sửa lỗi (1/3)'), findsOneWidget);
-      expect(find.textContaining('Nghe và nói lại câu chuẩn bản xứ:'), findsOneWidget);
+      expect(find.textContaining('Nghe và nói lại câu chuẩn bản xứ:'),
+          findsOneWidget);
       expect(find.byIcon(Icons.mic_rounded), findsOneWidget);
     });
 
-    testWidgets('WeeklyPlanScreen (Screen 18) renders 7-day plan with today badge', (WidgetTester tester) async {
+    testWidgets(
+        'WeeklyPlanScreen (Screen 18) renders 7-day plan with today badge',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(home: WeeklyPlanScreen()),
@@ -149,7 +178,8 @@ void main() {
       expect(find.text('Hôm nay'), findsOneWidget);
     });
 
-    testWidgets('VocabularyScreen (Screen 19) renders filters and saved words', (WidgetTester tester) async {
+    testWidgets('VocabularyScreen (Screen 19) renders filters and saved words',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(home: VocabularyScreen()),
@@ -163,10 +193,13 @@ void main() {
       expect(find.text('Tất cả'), findsOneWidget);
       expect(find.text('Cần ôn luyện'), findsOneWidget);
       expect(find.text('Đã thành thạo'), findsOneWidget);
-      expect(find.textContaining('Could I have the bill, please?'), findsOneWidget);
+      expect(find.textContaining('Could I have the bill, please?'),
+          findsOneWidget);
     });
 
-    testWidgets('ProfileScreen (Screen 20) renders identity card and privacy settings', (WidgetTester tester) async {
+    testWidgets(
+        'ProfileScreen (Screen 20) renders identity card and privacy settings',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(home: ProfileScreen()),
@@ -178,8 +211,10 @@ void main() {
 
       expect(find.byType(ProfileScreen), findsOneWidget);
       expect(find.textContaining('Sổ tay từ vựng & Mẫu câu'), findsOneWidget);
-      expect(find.textContaining('Cấu hình gia sư AI & Âm thanh'), findsOneWidget);
-      expect(find.textContaining('Lưu trữ file ghi âm (Audio Consent)'), findsOneWidget);
+      expect(find.textContaining('Cấu hình gia sư Tom & Âm thanh'),
+          findsOneWidget);
+      expect(find.textContaining('Lưu trữ file ghi âm (Audio Consent)'),
+          findsOneWidget);
       expect(find.text('Đăng xuất'), findsOneWidget);
     });
   });

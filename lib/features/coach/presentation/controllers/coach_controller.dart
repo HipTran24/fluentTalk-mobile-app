@@ -64,7 +64,8 @@ class DrillPlayerState {
   }
 }
 
-final drillPlayerControllerProvider = StateNotifierProvider.family<DrillPlayerController, DrillPlayerState, String>(
+final drillPlayerControllerProvider = StateNotifierProvider.family<
+    DrillPlayerController, DrillPlayerState, String>(
   (ref, drillId) {
     final repo = ref.watch(coachRepositoryProvider);
     return DrillPlayerController(repo, drillId);
@@ -75,7 +76,8 @@ class DrillPlayerController extends StateNotifier<DrillPlayerState> {
   final CoachRepository _repository;
   final String drillId;
 
-  DrillPlayerController(this._repository, this.drillId) : super(const DrillPlayerState()) {
+  DrillPlayerController(this._repository, this.drillId)
+      : super(const DrillPlayerState()) {
     loadDrill();
   }
 
@@ -96,7 +98,8 @@ class DrillPlayerController extends StateNotifier<DrillPlayerState> {
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
 
-    final target = state.drill?.targetPhrase ?? 'Yesterday, I went to the supermarket.';
+    final target =
+        state.drill?.targetPhrase ?? 'Yesterday, I went to the supermarket.';
     state = state.copyWith(
       hasResult: true,
       spokenTranscript: target,

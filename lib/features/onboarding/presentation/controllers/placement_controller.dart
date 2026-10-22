@@ -8,34 +8,52 @@ final placementQuestionsProvider = Provider<List<PlacementQuestion>>((ref) {
       id: 'q1',
       targetLevel: UserLevel.a1,
       title: 'Câu hỏi 1: Giới thiệu bản thân',
-      promptEn: 'Please introduce yourself. Mention your name, where you live, and what you do for fun.',
-      promptVi: 'Hãy giới thiệu ngắn về bản thân: tên, nơi bạn đang sống và một sở thích lúc rảnh rỗi.',
+      promptEn:
+          'Please introduce yourself. Mention your name, where you live, and what you do for fun.',
+      promptVi:
+          'Hãy giới thiệu ngắn về bản thân: tên, nơi bạn đang sống và một sở thích lúc rảnh rỗi.',
       timeLimitSeconds: 30,
-      sampleKeyPhrases: ['My name is...', 'I live in...', 'In my free time, I enjoy...'],
+      sampleKeyPhrases: [
+        'My name is...',
+        'I live in...',
+        'In my free time, I enjoy...'
+      ],
     ),
     PlacementQuestion(
       id: 'q2',
       targetLevel: UserLevel.a2,
       title: 'Câu hỏi 2: Kể về cuối tuần',
-      promptEn: 'Tell me about what you usually do on weekends and why you enjoy those activities.',
-      promptVi: 'Hãy chia sẻ về các hoạt động bạn thường làm vào thứ Bảy hoặc Chủ Nhật và lý do bạn thích chúng.',
+      promptEn:
+          'Tell me about what you usually do on weekends and why you enjoy those activities.',
+      promptVi:
+          'Hãy chia sẻ về các hoạt động bạn thường làm vào thứ Bảy hoặc Chủ Nhật và lý do bạn thích chúng.',
       timeLimitSeconds: 40,
-      sampleKeyPhrases: ['On Saturday mornings, I usually...', 'It helps me relax because...'],
+      sampleKeyPhrases: [
+        'On Saturday mornings, I usually...',
+        'It helps me relax because...'
+      ],
     ),
     PlacementQuestion(
       id: 'q3',
       targetLevel: UserLevel.b1,
       title: 'Câu hỏi 3: Trình bày quan điểm',
-      promptEn: 'In your opinion, what are the advantages and challenges of learning English using an AI app?',
-      promptVi: 'Theo bạn, việc tự luyện nói tiếng Anh với ứng dụng AI có những điểm thuận lợi và thử thách nào?',
+      promptEn:
+          'In your opinion, what are the advantages and challenges of learning English using an Tom app?',
+      promptVi:
+          'Theo bạn, việc tự luyện nói tiếng Anh với ứng dụng Tom có những điểm thuận lợi và thử thách nào?',
       timeLimitSeconds: 45,
-      sampleKeyPhrases: ['In my opinion...', 'One major advantage is...', 'However, learners need to...'],
+      sampleKeyPhrases: [
+        'In my opinion...',
+        'One major advantage is...',
+        'However, learners need to...'
+      ],
     ),
   ];
 });
 
 class PlacementState {
-  final int currentStep; // 0: Question 1, 1: Question 2, 2: Question 3, 3: Result
+  final int
+      currentStep; // 0: Question 1, 1: Question 2, 2: Question 3, 3: Result
   final Map<String, PlacementAnswer> answers;
   final bool isRecording;
   final bool isAnalyzing;
@@ -74,7 +92,8 @@ class PlacementState {
   }
 }
 
-final placementControllerProvider = StateNotifierProvider<PlacementController, PlacementState>((ref) {
+final placementControllerProvider =
+    StateNotifierProvider<PlacementController, PlacementState>((ref) {
   final questions = ref.watch(placementQuestionsProvider);
   return PlacementController(questions);
 });

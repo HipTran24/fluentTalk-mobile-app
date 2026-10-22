@@ -52,11 +52,67 @@ backend/target/
 backend/.mvn/wrapper/maven-wrapper.jar
 *.hprof
 
-# Environment and Secrets
+# Local environment files; only sanitized templates belong in Git.
 .env
-.env.local
-.env.*.local
+.env.*
+**/.env
+**/.env.*
+*.env
+!**/.env.example
+!**/.env.*.example
+!**/*.env.example
 
-# Local runtime configuration; keep only the example files in source control.
-config/mobile.public.json
-config/backend.private.env
+# Local application configuration (public project identifiers stay local too).
+/config/*
+!/config/*.example.json
+!/config/*.env.example
+!/config/README.md
+
+# Signing material, provider credentials and machine-specific secrets.
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.mobileprovision
+*.provisionprofile
+*.jks
+*.keystore
+**/key.properties
+**/keystore.properties
+**/credentials.json
+**/.npmrc
+**/.netrc
+**/.pypirc
+**/.docker/config.json
+**/service-account*.json
+**/service_account*.json
+**/google-services.json
+**/GoogleService-Info.plist
+**/application-local.yml
+**/application-local.yaml
+**/application-local.properties
+**/application-secrets.yml
+**/application-secrets.yaml
+**/application-secrets.properties
+
+# Runtime output, database backups and local service state.
+.run/
+scripts/__pycache__/
+backups/
+dumps/
+*.dump
+*.backup
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+supabase/.temp/
+supabase/.branches/
+supabase/config.local.toml
+.supabase/
+
+# Local editor overrides (shared tasks and launch templates remain versioned).
+.vscode/*.local.json

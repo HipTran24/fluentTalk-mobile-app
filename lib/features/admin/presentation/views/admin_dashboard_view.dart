@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:english_mobile_app/core/theme/app_colors.dart';
 import 'package:english_mobile_app/core/theme/app_radius.dart';
 import 'package:english_mobile_app/core/theme/app_spacing.dart';
@@ -44,7 +43,8 @@ class AdminDashboardView extends StatelessWidget {
                   children: [
                     Text(
                       'Trung tâm Điều hành & Đo lường KPI',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: isMobile ? 18 : 22,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -56,10 +56,11 @@ class AdminDashboardView extends StatelessWidget {
                       isMobile
                           ? 'Cập nhật thời gian thực từ Gemini Gateway'
                           : 'Cập nhật thời gian thực từ Gemini Live Gateway & Hệ thống học tập',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF94A3B8),
+                        color: Color(0xFF94A3B8),
                       ),
                     ),
                   ],
@@ -74,7 +75,10 @@ class AdminDashboardView extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.add_rounded, size: 18),
-                  label: Text('Thêm Kịch bản mới', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+                  label: const Text('Thêm Kịch bản mới',
+                      style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w700)),
                 ),
             ],
           ),
@@ -108,7 +112,8 @@ class AdminDashboardView extends StatelessWidget {
     );
   }
 
-  Widget _buildKpiGrid(BuildContext context, AdminKpiSummary kpi, bool isMobile, bool isDesktop) {
+  Widget _buildKpiGrid(BuildContext context, AdminKpiSummary kpi, bool isMobile,
+      bool isDesktop) {
     final cards = [
       AdminKpiCard(
         title: 'Tổng số Học viên',
@@ -116,8 +121,10 @@ class AdminDashboardView extends StatelessWidget {
         subtitle: '${kpi.activeSessionsToday} học viên đang hoạt động',
         icon: Icons.people_alt_rounded,
         iconColor: AppColors.primaryLight,
-        iconBgColor: AppColors.primary.withOpacity(0.2),
-        growthText: kpi.totalLearners > 0 ? '+${kpi.learnerGrowthPct.toInt()}% MoM' : 'Khởi tạo',
+        iconBgColor: AppColors.primary.withValues(alpha: 0.2),
+        growthText: kpi.totalLearners > 0
+            ? '+${kpi.learnerGrowthPct.toInt()}% MoM'
+            : 'Khởi tạo',
         isPositiveGrowth: true,
       ),
       AdminKpiCard(
@@ -126,7 +133,7 @@ class AdminDashboardView extends StatelessWidget {
         subtitle: 'Thời lượng thực hành thực tế',
         icon: Icons.mic_rounded,
         iconColor: AppColors.accent,
-        iconBgColor: AppColors.accent.withOpacity(0.2),
+        iconBgColor: AppColors.accent.withValues(alpha: 0.2),
         growthText: '+${kpi.voiceGrowthPct.toInt()}%',
         isPositiveGrowth: true,
       ),
@@ -136,7 +143,7 @@ class AdminDashboardView extends StatelessWidget {
         subtitle: 'Cuộc gọi thoại & lượt Guided',
         icon: Icons.headset_mic_rounded,
         iconColor: AppColors.warning,
-        iconBgColor: AppColors.warning.withOpacity(0.2),
+        iconBgColor: AppColors.warning.withValues(alpha: 0.2),
         growthText: 'Thời gian thực',
         isPositiveGrowth: true,
       ),
@@ -146,7 +153,7 @@ class AdminDashboardView extends StatelessWidget {
         subtitle: 'Hạn mức tháng: 5.0M Tokens',
         icon: Icons.auto_awesome_rounded,
         iconColor: const Color(0xFFA855F7),
-        iconBgColor: const Color(0xFFA855F7).withOpacity(0.2),
+        iconBgColor: const Color(0xFFA855F7).withValues(alpha: 0.2),
         growthText: 'Tối ưu',
         isPositiveGrowth: true,
       ),
@@ -188,7 +195,9 @@ class AdminDashboardView extends StatelessWidget {
   Widget _buildWeeklyTrendCard(AdminKpiSummary kpi) {
     final rawMax = kpi.weeklyTrends.isEmpty
         ? 0
-        : kpi.weeklyTrends.map((e) => e.voiceMinutes).reduce((a, b) => a > b ? a : b);
+        : kpi.weeklyTrends
+            .map((e) => e.voiceMinutes)
+            .reduce((a, b) => a > b ? a : b);
     final maxMinutes = rawMax > 0 ? rawMax : 60;
 
     return Container(
@@ -207,14 +216,16 @@ class AdminDashboardView extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              Row(
+              const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.bar_chart_rounded, color: AppColors.primaryLight, size: 20),
-                  const SizedBox(width: 8),
+                  Icon(Icons.bar_chart_rounded,
+                      color: AppColors.primaryLight, size: 20),
+                  SizedBox(width: 8),
                   Text(
                     'Thời lượng Luyện nói 7 ngày',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -223,14 +234,16 @@ class AdminDashboardView extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.2),
+                  color: AppColors.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   'Tổng 7 ngày: ${kpi.totalVoiceMinutes} phút',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primaryLight,
@@ -246,16 +259,19 @@ class AdminDashboardView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: kpi.weeklyTrends.map((metric) {
-                final barRatio = rawMax > 0 ? (metric.voiceMinutes / (maxMinutes * 1.15)) : 0.08;
+                final barRatio = rawMax > 0
+                    ? (metric.voiceMinutes / (maxMinutes * 1.15))
+                    : 0.08;
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
                       '${metric.voiceMinutes}p',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF94A3B8),
+                        color: Color(0xFF94A3B8),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -274,10 +290,11 @@ class AdminDashboardView extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       metric.dayLabel,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFFCBD5E1),
+                        color: Color(0xFFCBD5E1),
                       ),
                     ),
                   ],
@@ -301,13 +318,14 @@ class AdminDashboardView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.bolt_rounded, color: AppColors.warning, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.bolt_rounded, color: AppColors.warning, size: 20),
+              SizedBox(width: 8),
               Text(
                 'Nhật ký Hoạt động Trực tiếp',
-                style: GoogleFonts.plusJakartaSans(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -320,7 +338,8 @@ class AdminDashboardView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: kpi.recentActivities.length,
-            separatorBuilder: (_, __) => const Divider(height: 16, color: Color(0xFF1E293B)),
+            separatorBuilder: (_, __) =>
+                const Divider(height: 16, color: Color(0xFF1E293B)),
             itemBuilder: (context, index) {
               final act = kpi.recentActivities[index];
               return Row(
@@ -329,10 +348,10 @@ class AdminDashboardView extends StatelessWidget {
                   CircleAvatar(
                     radius: 16,
                     backgroundColor: act.type == 'session'
-                        ? AppColors.primary.withOpacity(0.2)
+                        ? AppColors.primary.withValues(alpha: 0.2)
                         : act.type == 'signup'
-                            ? AppColors.accent.withOpacity(0.2)
-                            : AppColors.warning.withOpacity(0.2),
+                            ? AppColors.accent.withValues(alpha: 0.2)
+                            : AppColors.warning.withValues(alpha: 0.2),
                     child: Icon(
                       act.type == 'session'
                           ? Icons.call_made_rounded
@@ -354,7 +373,8 @@ class AdminDashboardView extends StatelessWidget {
                       children: [
                         Text(
                           act.title,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: const TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
                             color: Colors.white,
@@ -363,10 +383,11 @@ class AdminDashboardView extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           act.description,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: const TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF94A3B8),
+                            color: Color(0xFF94A3B8),
                           ),
                         ),
                       ],
@@ -374,10 +395,11 @@ class AdminDashboardView extends StatelessWidget {
                   ),
                   Text(
                     act.timeAgo,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF64748B),
+                      color: Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -402,12 +424,13 @@ class AdminDashboardView extends StatelessWidget {
         runSpacing: 12,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
+          const Text(
             'Thao tác Quản trị nhanh:',
-            style: GoogleFonts.plusJakartaSans(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontWeight: FontWeight.w700,
               fontSize: 13,
-              color: const Color(0xFFCBD5E1),
+              color: Color(0xFFCBD5E1),
             ),
           ),
           ElevatedButton.icon(
@@ -418,23 +441,37 @@ class AdminDashboardView extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.add_circle_outline, size: 16),
-            label: Text('Thêm Kịch bản mới', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
+            label: const Text('Thêm Kịch bản mới',
+                style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13)),
           ),
           OutlinedButton.icon(
             onPressed: () {
-              controller.switchTab(3); // Go to AI Config
+              controller.switchTab(3); // Go to Tom Config
             },
             icon: const Icon(Icons.settings_suggest_rounded, size: 16),
-            label: Text('Điều chỉnh Prompt AI', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
+            label: const Text('Điều chỉnh Prompt Tom',
+                style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13)),
           ),
           OutlinedButton.icon(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã sao lưu nhật ký hệ thống ra file audit_log.json')),
+                const SnackBar(
+                    content: Text(
+                        'Đã sao lưu nhật ký hệ thống ra file audit_log.json')),
               );
             },
             icon: const Icon(Icons.download_rounded, size: 16),
-            label: Text('Xuất Báo cáo CSV/JSON', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
+            label: const Text('Xuất Báo cáo CSV/JSON',
+                style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13)),
           ),
         ],
       ),

@@ -40,7 +40,7 @@ void main() {
   });
 
   group('Sprint 4 - ChatRepository & ChatController Tests', () {
-    test('ChatRepository mock generates AI responses and idempotency check',
+    test('ChatRepository mock generates Tom responses and idempotency check',
         () async {
       final repo = MockChatRepository();
 
@@ -67,7 +67,9 @@ void main() {
     test(
         'ChatController sends message, sets thinking state, and handles speed changes',
         () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(overrides: [
+        appConfigProvider.overrideWithValue(const AppConfig(demoMode: true))
+      ]);
       addTearDown(container.dispose);
 
       final controller = container.read(chatControllerProvider.notifier);
@@ -87,7 +89,7 @@ void main() {
       await controller.sendTextMessage('Can I have oat milk?');
       state = container.read(chatControllerProvider);
 
-      // User message and AI reply should both exist
+      // User message and Tom reply should both exist
       expect(state.messages.length, greaterThanOrEqualTo(2));
       final userMessage =
           state.messages.firstWhere((m) => m.text == 'Can I have oat milk?');

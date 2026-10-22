@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,7 +63,8 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
           if (!isResultStep)
             TextButton(
               onPressed: () => _finishPlacement(UserLevel.a1),
-              child: const Text('Bỏ qua', style: TextStyle(fontWeight: FontWeight.w600)),
+              child: const Text('Bỏ qua',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
             ),
         ],
       ),
@@ -71,9 +73,12 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
           children: [
             // Stepper Progress Indicator (2/2)
             LinearProgressIndicator(
-              value: isResultStep ? 1.0 : 0.5 + (state.currentStep / (questions.length * 2)),
+              value: isResultStep
+                  ? 1.0
+                  : 0.5 + (state.currentStep / (questions.length * 2)),
               backgroundColor: AppColors.surfaceVariant,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 4,
             ),
 
@@ -87,7 +92,7 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                 child: Container(
                   height: 44,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant.withOpacity(0.55),
+                    color: AppColors.surfaceVariant.withValues(alpha: 0.55),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(4),
@@ -100,12 +105,15 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             decoration: BoxDecoration(
-                              color: !state.isManualMode ? AppColors.surface : Colors.transparent,
+                              color: !state.isManualMode
+                                  ? AppColors.surface
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: !state.isManualMode
                                   ? [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.06),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.06),
                                         blurRadius: 4,
                                         offset: const Offset(0, 1),
                                       ),
@@ -120,7 +128,9 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                                 Icon(
                                   Icons.mic,
                                   size: 16,
-                                  color: !state.isManualMode ? AppColors.primary : AppColors.textMuted,
+                                  color: !state.isManualMode
+                                      ? AppColors.primary
+                                      : AppColors.textMuted,
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
@@ -130,8 +140,12 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      fontWeight: !state.isManualMode ? FontWeight.w700 : FontWeight.w500,
-                                      color: !state.isManualMode ? AppColors.primary : AppColors.textSecondary,
+                                      fontWeight: !state.isManualMode
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: !state.isManualMode
+                                          ? AppColors.primary
+                                          : AppColors.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -148,12 +162,15 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             decoration: BoxDecoration(
-                              color: state.isManualMode ? AppColors.surface : Colors.transparent,
+                              color: state.isManualMode
+                                  ? AppColors.surface
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: state.isManualMode
                                   ? [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.06),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.06),
                                         blurRadius: 4,
                                         offset: const Offset(0, 1),
                                       ),
@@ -168,7 +185,9 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                                 Icon(
                                   Icons.tune,
                                   size: 16,
-                                  color: state.isManualMode ? AppColors.primary : AppColors.textMuted,
+                                  color: state.isManualMode
+                                      ? AppColors.primary
+                                      : AppColors.textMuted,
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
@@ -178,8 +197,12 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      fontWeight: state.isManualMode ? FontWeight.w700 : FontWeight.w500,
-                                      color: state.isManualMode ? AppColors.primary : AppColors.textSecondary,
+                                      fontWeight: state.isManualMode
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: state.isManualMode
+                                          ? AppColors.primary
+                                          : AppColors.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -199,7 +222,8 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                   ? _buildResultView(state, controller)
                   : (state.isManualMode
                       ? _buildManualLevelSelection(state, controller)
-                      : _buildInteractiveSpeakingTest(state, questions, controller)),
+                      : _buildInteractiveSpeakingTest(
+                          state, questions, controller)),
             ),
           ],
         ),
@@ -218,11 +242,15 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)),
+            CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)),
             SizedBox(height: AppSpacing.md),
             Text(
-              'AI đang phân tích phản xạ và cấu trúc câu...',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              'Tom đang phân tích phản xạ và cấu trúc câu...',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary),
             ),
             SizedBox(height: 4),
             Text(
@@ -242,12 +270,15 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          AdaptiveRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Câu hỏi ${state.currentStep + 1}/${questions.length}',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary),
               ),
               LevelChip(level: question.targetLevel),
             ],
@@ -255,7 +286,10 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
           const SizedBox(height: 6),
           Text(
             question.promptVi,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary),
           ),
           const SizedBox(height: AppSpacing.sm),
 
@@ -270,11 +304,14 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                const AdaptiveRow(
                   children: [
-                    Icon(Icons.volume_up_rounded, color: AppColors.primary, size: 20),
+                    Icon(Icons.volume_up_rounded,
+                        color: AppColors.primary, size: 20),
                     SizedBox(width: 8),
-                    Text('Prompt tiếng Anh:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    Text('Prompt tiếng Anh:',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 13)),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -291,16 +328,19 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                 Wrap(
                   spacing: 6,
                   runSpacing: 4,
-                  children: (question.sampleKeyPhrases as List<String>).map((phrase) {
+                  children:
+                      (question.sampleKeyPhrases as List<String>).map((phrase) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(AppRadius.round),
                       ),
                       child: Text(
                         phrase,
-                        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 11, color: AppColors.textSecondary),
                       ),
                     );
                   }).toList(),
@@ -326,23 +366,29 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                const AdaptiveRow(
                   children: [
-                    Icon(Icons.record_voice_over_outlined, color: AppColors.accent, size: 18),
+                    Icon(Icons.record_voice_over_outlined,
+                        color: AppColors.accent, size: 18),
                     SizedBox(width: 6),
-                    Text('Bản ghi nhận diện:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    Text('Bản ghi nhận diện:',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 13)),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Text(
                   state.isRecording
                       ? 'Đang lắng nghe câu trả lời của bạn...'
-                      : (answer?.transcript ?? 'Chạm nút Micro bên dưới và nói câu trả lời của bạn bằng tiếng Anh.'),
+                      : (answer?.transcript ??
+                          'Chạm nút Micro bên dưới và nói câu trả lời của bạn bằng tiếng Anh.'),
                   style: TextStyle(
                     fontSize: 14,
                     color: state.isRecording
                         ? AppColors.primary
-                        : (answer != null ? AppColors.textPrimary : AppColors.textMuted),
+                        : (answer != null
+                            ? AppColors.textPrimary
+                            : AppColors.textMuted),
                     height: 1.45,
                   ),
                 ),
@@ -372,7 +418,7 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                       ? 'Hello, my name is Nam. I live in Da Nang and I really love reading books.'
                       : (state.currentStep == 1
                           ? 'On weekends, I usually go cycling with my friends because it makes me feel healthy.'
-                          : 'I think practicing with an AI app is very flexible, but learners must stay disciplined.');
+                          : 'I think practicing with an Tom app is very flexible, but learners must stay disciplined.');
                   controller.submitAnswer(question.id, sampleText);
                 } else {
                   controller.setRecording(true);
@@ -383,10 +429,14 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                 height: 76,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: state.isRecording ? AppColors.error : AppColors.primary,
+                  color:
+                      state.isRecording ? AppColors.error : AppColors.primary,
                   boxShadow: [
                     BoxShadow(
-                      color: (state.isRecording ? AppColors.error : AppColors.primary).withOpacity(0.35),
+                      color: (state.isRecording
+                              ? AppColors.error
+                              : AppColors.primary)
+                          .withValues(alpha: 0.35),
                       blurRadius: 18,
                       offset: const Offset(0, 6),
                     ),
@@ -404,8 +454,13 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
           const SizedBox(height: 6),
           Center(
             child: Text(
-              state.isRecording ? 'Chạm để dừng và hoàn thành' : 'Chạm để nói câu trả lời',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textMuted),
+              state.isRecording
+                  ? 'Chạm để dừng và hoàn thành'
+                  : 'Chạm để nói câu trả lời',
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textMuted),
             ),
           ),
 
@@ -425,11 +480,14 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
               Expanded(
                 flex: 2,
                 child: PrimaryButton(
-                  text: state.currentStep < questions.length - 1 ? 'Tiếp tục câu sau' : 'Hoàn thành & Xem kết quả',
+                  text: state.currentStep < questions.length - 1
+                      ? 'Tiếp tục câu sau'
+                      : 'Hoàn thành & Xem kết quả',
                   onPressed: () {
                     // Auto submit if not answered yet
                     if (answer == null) {
-                      controller.submitAnswer(question.id, 'I am practicing my speaking skill.');
+                      controller.submitAnswer(
+                          question.id, 'I am practicing my speaking skill.');
                     }
                     controller.nextStep();
                   },
@@ -443,7 +501,8 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
   }
 
   // --- SUBVIEW 2: MANUAL LEVEL SELECTION (A0 - C2) ---
-  Widget _buildManualLevelSelection(PlacementState state, PlacementController controller) {
+  Widget _buildManualLevelSelection(
+      PlacementState state, PlacementController controller) {
     final levels = [
       UserLevel.a0,
       UserLevel.a1,
@@ -461,7 +520,10 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
         children: [
           const Text(
             'Chọn trình độ bạn cảm thấy phù hợp nhất',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -488,7 +550,7 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: AppColors.primary.withOpacity(0.08),
+                              color: AppColors.primary.withValues(alpha: 0.08),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -503,28 +565,32 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                       leading: LevelChip(level: lvl),
                       title: Text(
                         lvl.label,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 15),
                       ),
-                    subtitle: Text(
-                      lvl.description,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                    trailing: Radio<UserLevel>(
-                      value: lvl,
-                      groupValue: state.selectedManualLevel,
-                      activeColor: AppColors.primary,
-                      onChanged: (val) {
-                        if (val != null) controller.selectManualLevel(val);
-                      },
+                      subtitle: Text(
+                        lvl.description,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                      trailing: Icon(
+                        state.selectedManualLevel == lvl
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_unchecked,
+                        color: AppColors.primary,
+                        semanticLabel: state.selectedManualLevel == lvl
+                            ? 'Đã chọn'
+                            : 'Chưa chọn',
+                      ),
                     ),
                   ),
-                ),
-              );
+                );
               },
             ),
           ),
           PrimaryButton(
-            text: 'Bắt đầu với trình độ ${state.selectedManualLevel.code} (${state.selectedManualLevel.label})',
+            text:
+                'Bắt đầu với trình độ ${state.selectedManualLevel.code} (${state.selectedManualLevel.label})',
             onPressed: () => _finishPlacement(state.selectedManualLevel),
           ),
         ],
@@ -533,12 +599,14 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
   }
 
   // --- SUBVIEW 3: PLACEMENT RESULT VIEW ---
-  Widget _buildResultView(PlacementState state, PlacementController controller) {
+  Widget _buildResultView(
+      PlacementState state, PlacementController controller) {
     final result = state.result ??
         const PlacementResult(
           estimatedLevel: UserLevel.a2,
           confidence: 0.85,
-          evaluationSummary: 'Bạn có phản xạ giao tiếp cơ bản tốt trong các tình huống hàng ngày.',
+          evaluationSummary:
+              'Bạn có phản xạ giao tiếp cơ bản tốt trong các tình huống hàng ngày.',
         );
 
     return SingleChildScrollView(
@@ -554,7 +622,7 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
               border: Border.all(color: AppColors.border),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.08),
+                  color: AppColors.primary.withValues(alpha: 0.08),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -566,32 +634,45 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                 const SizedBox(height: 6),
                 const Text(
                   'Trình độ phản xạ đề xuất của bạn',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textMuted),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 8),
                 LevelChip(level: result.estimatedLevel),
                 const SizedBox(height: 10),
                 Text(
                   'Level ${result.estimatedLevel.code} — ${result.estimatedLevel.label}',
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                  style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.successBg,
                     borderRadius: BorderRadius.circular(AppRadius.round),
                   ),
                   child: Text(
                     'Độ tin cậy đánh giá: ${(result.confidence * 100).toInt()}%',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.success),
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.success),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
                   result.evaluationSummary,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.45),
+                  style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      height: 1.45),
                 ),
               ],
             ),
@@ -613,16 +694,21 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.check_circle_outline, color: AppColors.success, size: 20),
+                      Icon(Icons.check_circle_outline,
+                          color: AppColors.success, size: 20),
                       SizedBox(width: 8),
-                      Text('Ưu điểm nhận diện được:', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      Text('Ưu điểm nhận diện được:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 14)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   ...result.identifiedStrengths.map(
                     (s) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
-                      child: Text('• $s', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                      child: Text('• $s',
+                          style: const TextStyle(
+                              fontSize: 13, color: AppColors.textSecondary)),
                     ),
                   ),
                 ],
@@ -641,12 +727,14 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.info_outline, size: 16, color: AppColors.textMuted),
+                const Icon(Icons.info_outline,
+                    size: 16, color: AppColors.textMuted),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     result.disclaimer,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted, height: 1.35),
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textMuted, height: 1.35),
                   ),
                 ),
               ],

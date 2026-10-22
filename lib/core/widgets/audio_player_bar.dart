@@ -1,3 +1,4 @@
+import '../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
@@ -53,13 +54,14 @@ class _AudioPlayerBarState extends State<AudioPlayerBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
+      child: AdaptiveRow(
         children: [
           // Play / Pause Button
           IconButton(
@@ -74,7 +76,8 @@ class _AudioPlayerBarState extends State<AudioPlayerBar> {
 
           // Replay Button
           IconButton(
-            icon: const Icon(Icons.replay, color: AppColors.textSecondary, size: 20),
+            icon: const Icon(Icons.replay,
+                color: AppColors.textSecondary, size: 20),
             onPressed: _replay,
             tooltip: 'Phát lại',
           ),

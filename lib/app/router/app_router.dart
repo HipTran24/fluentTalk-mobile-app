@@ -1,18 +1,22 @@
+import '../../features/connected/presentation/connected_area_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/admin/presentation/admin_screen.dart';
 import '../../features/auth/domain/auth_state.dart';
 import '../../features/auth/presentation/auth_screen.dart';
+import '../../features/auth/presentation/email_otp_screen.dart';
 import '../../features/auth/presentation/learning_unavailable_screen.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/coach/presentation/coach_screen.dart';
+import '../../features/coach/presentation/tom_learning_screen.dart';
 import '../../features/coach/presentation/drill_player_screen.dart';
 import '../../features/coach/presentation/weekly_plan_screen.dart';
 import '../../features/conversation/presentation/guided_speaking_screen.dart';
 import '../../features/conversation/presentation/realtime_call_screen.dart';
+import '../../features/conversation/presentation/live_voice_screen.dart';
 import '../../features/conversation/presentation/text_chat_screen.dart';
 import '../../features/feedback/presentation/session_summary_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
@@ -62,14 +66,14 @@ GoRouter _createRouter(AuthState Function() readAuth,
 
         final isSplash = loc == '/splash';
         final isWelcome = loc == '/welcome';
-        final isAuthScreen = loc == '/auth';
+        final isAuthScreen = loc == '/auth' || loc == '/auth/otp';
         final isOnboarding = loc.startsWith('/onboarding');
         final isAdminScreen = loc == '/admin';
         final isPublicCatalog = loc == '/practice/scenarios' ||
             RegExp(r'^/practice/scenario/[^/]+$').hasMatch(loc);
 
         // ADR-010: active catalog metadata is public. Its repository uses
-        // unauthenticated HTTP; session/AI routes below remain protected.
+        // unauthenticated HTTP; session/Tom routes below remain protected.
         if (isPublicCatalog) return null;
 
         // 1. Initial state -> go to splash
@@ -79,10 +83,30 @@ GoRouter _createRouter(AuthState Function() readAuth,
           return '/splash';
         }
 
-        // ESP-S4..S7 are not implemented yet. Real identities must not be shown
-        // synthetic conversations, assessments, progress or privacy operations.
+        // Text chat has a remote adapter; keep the remaining simulated flows gated.
         if (!authState.isDemo && (isAuth || needsOnboarding)) {
-          return loc == '/unavailable' ? null : '/unavailable';
+          if (isSplash || isWelcome || isAuthScreen || isOnboarding) {
+            return '/home';
+          }
+          final connected = {
+            '/home',
+            '/practice',
+            '/progress',
+            '/coach',
+            '/profile',
+            '/progress/history',
+            '/unavailable',
+            '/practice/text'
+          };
+          if (loc == '/practice/voice' ||
+              RegExp(r'^/practice/realtime/[^/]+$').hasMatch(loc)) {
+            return null;
+          }
+          if (connected.contains(loc) ||
+              RegExp(r'^/practice/session/[^/]+/summary$').hasMatch(loc)) {
+            return null;
+          }
+          return '/unavailable';
         }
 
         // 2. Unauthenticated, error, or unconfigured
@@ -135,6 +159,12 @@ GoRouter _createRouter(AuthState Function() readAuth,
           },
         ),
         GoRoute(
+          path: '/auth/otp',
+          builder: (context, state) => EmailOtpScreen(
+            email: state.extra is String ? state.extra as String : null,
+          ),
+        ),
+        GoRoute(
           path: '/onboarding/goal',
           builder: (context, state) => const GoalOnboardingScreen(),
         ),
@@ -173,22 +203,29 @@ GoRouter _createRouter(AuthState Function() readAuth,
           },
         ),
         GoRoute(
+            path: '/practice/voice',
+            builder: (context, state) => const LiveVoiceScreen()),
+        GoRoute(
           path: '/practice/realtime/:id',
           builder: (context, state) {
             final id = state.pathParameters['id'] ?? '';
-            return RealtimeCallScreen(sessionId: id);
+            return readAuth().isDemo
+                ? RealtimeCallScreen(sessionId: id)
+                : const LiveVoiceScreen();
           },
         ),
         GoRoute(
           path: '/practice/session/:id/summary',
           builder: (context, state) {
             final id = state.pathParameters['id'] ?? '';
-            return SessionSummaryScreen(sessionId: id);
+            return _accountSurface(SessionSummaryScreen(sessionId: id),
+                ConnectedSessionScreen(sessionId: id));
           },
         ),
         GoRoute(
           path: '/progress/history',
-          builder: (context, state) => const HistoryScreen(),
+          builder: (context, state) => _accountSurface(const HistoryScreen(),
+              const ConnectedAreaScreen(section: 'history')),
         ),
         GoRoute(
           path: '/coach/drill/:id',
@@ -217,7 +254,9 @@ GoRouter _createRouter(AuthState Function() readAuth,
               routes: [
                 GoRoute(
                   path: '/home',
-                  builder: (context, state) => const HomeScreen(),
+                  builder: (context, state) => _accountSurface(
+                      const HomeScreen(),
+                      const ConnectedAreaScreen(section: 'home')),
                 ),
               ],
             ),
@@ -227,7 +266,9 @@ GoRouter _createRouter(AuthState Function() readAuth,
               routes: [
                 GoRoute(
                   path: '/practice',
-                  builder: (context, state) => const PracticeHubScreen(),
+                  builder: (context, state) => _accountSurface(
+                      const PracticeHubScreen(),
+                      const ConnectedAreaScreen(section: 'practice')),
                 ),
               ],
             ),
@@ -237,7 +278,9 @@ GoRouter _createRouter(AuthState Function() readAuth,
               routes: [
                 GoRoute(
                   path: '/progress',
-                  builder: (context, state) => const ProgressScreen(),
+                  builder: (context, state) => _accountSurface(
+                      const ProgressScreen(),
+                      const ConnectedAreaScreen(section: 'progress')),
                 ),
               ],
             ),
@@ -247,7 +290,8 @@ GoRouter _createRouter(AuthState Function() readAuth,
               routes: [
                 GoRoute(
                   path: '/coach',
-                  builder: (context, state) => const CoachScreen(),
+                  builder: (context, state) => _accountSurface(
+                      const CoachScreen(), const TomLearningScreen()),
                 ),
               ],
             ),
@@ -257,11 +301,18 @@ GoRouter _createRouter(AuthState Function() readAuth,
               routes: [
                 GoRoute(
                   path: '/profile',
-                  builder: (context, state) => const ProfileScreen(),
+                  builder: (context, state) => _accountSurface(
+                      const ProfileScreen(),
+                      const ConnectedAreaScreen(section: 'profile')),
                 ),
               ],
             ),
           ],
         ),
       ],
+    );
+
+Widget _accountSurface(Widget demo, Widget connected) => Consumer(
+      builder: (context, ref, child) =>
+          ref.watch(appConfigProvider).demoMode ? demo : connected,
     );

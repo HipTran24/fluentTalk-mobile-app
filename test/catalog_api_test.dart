@@ -278,7 +278,8 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('real detail disables conversation and fits 320dp at 200% text',
+  testWidgets(
+      'real detail offers remote text conversation and fits 320dp at 200% text',
       (tester) async {
     create((_, __) => jsonResponse(scenarioJson()));
     tester.view.physicalSize = const Size(320, 800);
@@ -299,7 +300,7 @@ void main() {
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
-    expect(find.text('Hội thoại chưa sẵn sàng'), findsOneWidget);
+    expect(find.text('Luyện chat tình huống này'), findsOneWidget);
     expect(find.text('Bắt đầu hội thoại ngay'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());

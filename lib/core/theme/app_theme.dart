@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_radius.dart';
 import 'app_spacing.dart';
@@ -9,7 +8,7 @@ import 'app_spacing.dart';
 class AppTheme {
   AppTheme._();
 
-  static String? get _fontFamily => GoogleFonts.plusJakartaSans().fontFamily;
+  static String get _fontFamily => 'PlusJakartaSans';
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -63,7 +62,8 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, AppSpacing.buttonHeightStandard),
+          minimumSize:
+              const Size(double.infinity, AppSpacing.buttonHeightStandard),
           shape: const RoundedRectangleBorder(
             borderRadius: AppRadius.buttonRadius,
           ),
@@ -78,7 +78,8 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
-          minimumSize: const Size(double.infinity, AppSpacing.buttonHeightStandard),
+          minimumSize:
+              const Size(double.infinity, AppSpacing.buttonHeightStandard),
           side: const BorderSide(color: AppColors.border, width: 1.5),
           backgroundColor: AppColors.surface,
           shape: const RoundedRectangleBorder(
@@ -141,7 +142,8 @@ class AppTheme {
         side: const BorderSide(color: AppColors.divider, width: 1.5),
       ),
       chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.round)),
         side: const BorderSide(color: AppColors.border),
         backgroundColor: AppColors.surface,
         selectedColor: AppColors.secondaryLight,
@@ -183,7 +185,8 @@ class AppTheme {
         elevation: 0,
         height: 70,
         indicatorColor: AppColors.secondaryLight,
-        indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        indicatorShape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return TextStyle(

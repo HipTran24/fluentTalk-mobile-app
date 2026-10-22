@@ -1,11 +1,11 @@
 {
-    "name": "FluentTalk AI - English Speaking Coach",
+    "name": "FluentTalk Tom - English Speaking Coach",
     "short_name": "FluentTalk",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F5F6FB",
     "theme_color": "#5048E5",
-    "description": "Ứng dụng luyện phản xạ giao tiếp tiếng Anh 1-1 cùng AI Coach thông minh",
+    "description": "Ứng dụng luyện phản xạ giao tiếp tiếng Anh 1-1 cùng Tom Coach thông minh",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

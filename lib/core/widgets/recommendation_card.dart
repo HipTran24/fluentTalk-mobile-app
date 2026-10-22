@@ -1,3 +1,4 @@
+import '../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
@@ -34,7 +35,10 @@ class RecommendationCard extends StatelessWidget {
         : LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [accentColor!, Color.lerp(accentColor!, Colors.black, 0.25)!],
+            colors: [
+              accentColor!,
+              Color.lerp(accentColor!, Colors.black, 0.25)!
+            ],
           );
     final glowColor = accentColor ?? AppColors.brandViolet;
 
@@ -62,26 +66,30 @@ class RecommendationCard extends StatelessWidget {
             Positioned(
               top: 18,
               right: 18,
-              child: Icon(Icons.auto_awesome_rounded, size: 40, color: Colors.white.withOpacity(0.22)),
+              child: Icon(Icons.auto_awesome_rounded,
+                  size: 40, color: Colors.white.withValues(alpha: 0.22)),
             ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  AdaptiveRow(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(AppRadius.round),
-                          border: Border.all(color: Colors.white.withOpacity(0.25)),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.25)),
                         ),
-                        child: Row(
+                        child: AdaptiveRow(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.bolt_rounded, size: 14, color: AppColors.brandAmber),
+                            const Icon(Icons.bolt_rounded,
+                                size: 14, color: AppColors.brandAmber),
                             const SizedBox(width: 4),
                             Text(
                               tag,
@@ -98,14 +106,16 @@ class RecommendationCard extends StatelessWidget {
                       if (timeEstimate != null)
                         Row(
                           children: [
-                            Icon(Icons.schedule_rounded, size: 14, color: Colors.white.withOpacity(0.85)),
+                            Icon(Icons.schedule_rounded,
+                                size: 14,
+                                color: Colors.white.withValues(alpha: 0.85)),
                             const SizedBox(width: 4),
                             Text(
                               timeEstimate!,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white.withOpacity(0.85),
+                                color: Colors.white.withValues(alpha: 0.85),
                               ),
                             ),
                           ],
@@ -131,29 +141,31 @@ class RecommendationCard extends StatelessWidget {
                     description,
                     style: TextStyle(
                       fontSize: 13.5,
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                       height: 1.45,
                     ),
                   ),
                   if (whyRecommended != null) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.14),
+                        color: Colors.black.withValues(alpha: 0.14),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.lightbulb_rounded, size: 15, color: AppColors.brandAmber),
+                          const Icon(Icons.lightbulb_rounded,
+                              size: 15, color: AppColors.brandAmber),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               whyRecommended!,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.92),
+                                color: Colors.white.withValues(alpha: 0.92),
                                 height: 1.35,
                               ),
                             ),
@@ -165,7 +177,7 @@ class RecommendationCard extends StatelessWidget {
                   const SizedBox(height: AppSpacing.md),
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: MediaQuery.textScalerOf(context).scale(48),
                     child: ElevatedButton(
                       onPressed: onStart,
                       style: ElevatedButton.styleFrom(
@@ -176,12 +188,13 @@ class RecommendationCard extends StatelessWidget {
                         ),
                         elevation: 0,
                       ),
-                      child: const Row(
+                      child: const AdaptiveRow(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'Bắt đầu ngay',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w800),
                           ),
                           SizedBox(width: 6),
                           Icon(Icons.arrow_forward_rounded, size: 18),
@@ -204,7 +217,7 @@ class RecommendationCard extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(opacity),
+        color: Colors.white.withValues(alpha: opacity),
       ),
     );
   }

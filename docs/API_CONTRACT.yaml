@@ -1708,29 +1708,15 @@
       "get": {
         "operationId": "get_progress_summary",
         "summary": "Own completed-session aggregates",
-        "x-implementation-status": "contract-first",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "period",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "week",
-                "month",
-                "all"
-              ]
-            }
-          }
-        ],
+        "x-implementation-status": "partial",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Progress"
+                  "$ref": "#/components/schemas/CurrentProgressSummary"
                 }
               }
             }
@@ -1835,7 +1821,8 @@
               }
             }
           }
-        }
+        },
+        "x-target-schema": "#/components/schemas/Progress"
       }
     },
     "/vocabulary": {
@@ -5038,7 +5025,7 @@
         "properties": {
           "code": {
             "type": "string",
-            "description": "Stable codes include VALIDATION_FAILED, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, IDEMPOTENCY_CONFLICT, SESSION_COMPLETED, QUOTA_EXCEEDED, UPSTREAM_INVALID_RESPONSE, UPSTREAM_TIMEOUT, UPSTREAM_UNAVAILABLE, CONFIGURATION_REQUIRED and INTERNAL_ERROR. Unknown future codes must map to a safe generic UI error."
+            "description": "Stable codes include VALIDATION_FAILED, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, IDEMPOTENCY_CONFLICT, SESSION_COMPLETED, QUOTA_EXCEEDED, UPSTREAM_INVALID_RESPONSE, UPSTREAM_TIMEOUT, UPSTREAM_UNAVAILABLE, CONFIGURATION_REQUIRED and INTERNAL_ERROR. Unknown future codes must map to a safe generic UI error. Current adapter also uses AI_NOT_CONFIGURED, AI_RATE_LIMITED, AI_UNAVAILABLE, AI_TIMEOUT, AI_INVALID_RESPONSE, MODE_UNAVAILABLE, IDEMPOTENCY_STATE_UNAVAILABLE and ASSESSMENT_NOT_READY."
           },
           "message": {
             "type": "string"
@@ -5281,7 +5268,8 @@
               "text",
               "guided",
               "realtime"
-            ]
+            ],
+            "description": "Only text is enabled by the current backend. guided/realtime return MODE_UNAVAILABLE until real audio adapters pass acceptance."
           },
           "level": {
             "type": "string",
@@ -5476,7 +5464,8 @@
             "enum": [
               "processing",
               "ready",
-              "failed"
+              "failed",
+              "unavailable"
             ]
           },
           "summaryVi": {
@@ -5505,7 +5494,8 @@
                 "confidence": {
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 1
+                  "maximum": 1,
+                  "nullable": true
                 },
                 "evidence": {
                   "type": "array",
@@ -5576,7 +5566,8 @@
             }
           },
           "modelId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "promptVersion": {
             "type": "string"
@@ -5855,6 +5846,73 @@
           "safetyFlag",
           "modelId",
           "usage"
+        ],
+        "additionalProperties": false
+      },
+      "ConversationProviderTurn": {
+        "type": "object",
+        "description": "Current Gemini adapter structured JSON; target AiTurnResponse with corrections/usage remains planned. Not an accepted calibrated assessment.",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "usefulPhrases": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          },
+          "suggestedFollowUps": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "text",
+          "usefulPhrases",
+          "suggestedFollowUps"
+        ],
+        "additionalProperties": false
+      },
+      "CurrentProgressSummary": {
+        "type": "object",
+        "description": "Current all-time completed-session aggregates. Full period/day breakdown in target Progress remains planned.",
+        "properties": {
+          "totalSessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalMinutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "currentLevel": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentStreakDays": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "averageBand": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "totalSessions",
+          "totalMinutes",
+          "currentLevel",
+          "currentStreakDays",
+          "averageBand"
         ],
         "additionalProperties": false
       }

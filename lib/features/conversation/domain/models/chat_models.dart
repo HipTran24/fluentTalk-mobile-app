@@ -5,7 +5,7 @@ enum MessageDeliveryStatus {
   failed,
 }
 
-/// Rich Chat Message for Mode 1: Ask by Text, Hear AI
+/// Rich Chat Message for Mode 1: Ask by Text, Hear Tom
 class ChatMessage {
   final String id;
   final String role; // 'user' or 'ai'

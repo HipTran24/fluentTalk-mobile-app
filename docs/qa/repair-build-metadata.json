@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-22T13:44:02.508031+07:00",
+  "android": {
+    "mode": "debug, real API config, emulator loopback",
+    "path": "build/app/outputs/flutter-apk/app-debug.apk",
+    "bytes": 175799343,
+    "sha256": "4481ef2b8b3ef21bda3ca3372ee8b9a87e433f6fb58927c1b5af31306046379c",
+    "sourceDigestLibAndPubspec": "b37d261eac4d51a0a189d8dae331a398f742ffccd33b43ed9c812324ebede77e",
+    "buildPassed": true,
+    "installedOn": "Pixel_7_Pro emulator Android API 37.2",
+    "installResult": "Success",
+    "coldStartResult": "Status ok; activity com.example.english_mobile_app/.MainActivity",
+    "coldStartMilliseconds": 11303,
+    "publicCatalogFromCloudBackend": "loaded on emulator",
+    "releaseSigning": "not configured; debug certificate",
+    "physicalDeviceUat": false,
+    "audioUat": false,
+    "nativeUiSmoke": {
+      "publicCatalogLoaded": true,
+      "logicalWidthDp": 320,
+      "fontScale": 2.0,
+      "testedAfterActivityRestart": true,
+      "welcomeActionsReachableByScrolling": true,
+      "logcatErrorPatternCounts": {
+        "RenderFlex overflowed": 0,
+        "FATAL EXCEPTION": 0,
+        "Unhandled Exception": 0,
+        "EXCEPTION CAUGHT BY": 0
+      },
+      "headlessEmulatorAudioDisabled": true
+    }
+  },
+  "backend": {
+    "jarSha256": "c3ffa0a2671932120dc8e72b8602f697caa5a6aebb4fbae1a128605c924865ea",
+    "java": 27,
+    "framework": "Spring Boot 4.2.0-M2; milestone",
+    "supabaseSchema": "english_app",
+    "schemaVersion": 7,
+    "topics": 4,
+    "scenarios": 17,
+    "postgresConcurrencyTestsPassed": 4,
+    "unitIntegrationPassed": 57,
+    "optInTestsSkippedInRegularVerify": 4
+  },
+  "releaseAccepted": false,
+  "flutter": {
+    "analyze": "No issues found",
+    "testsPassed": 173,
+    "uiMatrixCases": 60,
+    "realAccountSurfaceFixtureCases": 7,
+    "navigationAccessibility": true,
+    "chatKeyboardAndRichReply": true
+  }
+}

@@ -18,28 +18,35 @@ class MockRealtimeCallRepository implements RealtimeCallRepository {
       ConversationTopicHint(
         title: 'Kể về trải nghiệm du lịch',
         englishPhrase: 'Have you ever had an unforgettable trip abroad?',
-        vietnameseMeaning: 'Bạn đã từng có một chuyến đi nước ngoài khó quên nào chưa?',
+        vietnameseMeaning:
+            'Bạn đã từng có một chuyến đi nước ngoài khó quên nào chưa?',
       ),
       ConversationTopicHint(
         title: 'Bày tỏ sự đồng thuận',
-        englishPhrase: 'That makes total sense! Could you tell me more about that?',
-        vietnameseMeaning: 'Điều đó hoàn toàn hợp lý! Bạn có thể nói thêm về điều đó không?',
+        englishPhrase:
+            'That makes total sense! Could you tell me more about that?',
+        vietnameseMeaning:
+            'Điều đó hoàn toàn hợp lý! Bạn có thể nói thêm về điều đó không?',
       ),
       ConversationTopicHint(
         title: 'Yêu cầu giải thích lại',
-        englishPhrase: 'Sorry, could you explain that last point in a simpler way?',
-        vietnameseMeaning: 'Xin lỗi, bạn có thể giải thích ý vừa rồi đơn giản hơn không?',
+        englishPhrase:
+            'Sorry, could you explain that last point in a simpler way?',
+        vietnameseMeaning:
+            'Xin lỗi, bạn có thể giải thích ý vừa rồi đơn giản hơn không?',
       ),
     ];
   }
 
   @override
-  Future<List<RealtimeCaptionItem>> getInitialConversation(String scenarioId) async {
+  Future<List<RealtimeCaptionItem>> getInitialConversation(
+      String scenarioId) async {
     return [
       RealtimeCaptionItem(
         id: 'cap_01',
         speaker: 'ai',
-        text: 'Hello! I am Emma. How has your day been so far? Tell me something interesting that happened today.',
+        text:
+            'Hello! I am Tom. How has your day been so far? Tell me something interesting that happened today.',
         timestamp: DateTime.now().subtract(const Duration(seconds: 15)),
       ),
     ];

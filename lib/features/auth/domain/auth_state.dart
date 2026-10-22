@@ -14,6 +14,7 @@ enum AuthStatus {
 /// State of Authentication & Current User Session
 class AuthState {
   final AuthStatus status;
+  final String? pendingConfirmationEmail;
   final UserProfile? user;
   final String? errorMessage;
   final bool isOffline;
@@ -23,6 +24,7 @@ class AuthState {
 
   const AuthState({
     this.status = AuthStatus.initial,
+    this.pendingConfirmationEmail,
     this.user,
     this.errorMessage,
     this.isOffline = false,
@@ -38,6 +40,8 @@ class AuthState {
 
   AuthState copyWith({
     AuthStatus? status,
+    String? pendingConfirmationEmail,
+    bool clearPendingConfirmation = false,
     UserProfile? user,
     String? errorMessage,
     bool? isOffline,
@@ -47,6 +51,9 @@ class AuthState {
   }) {
     return AuthState(
       status: status ?? this.status,
+      pendingConfirmationEmail: clearPendingConfirmation
+          ? null
+          : pendingConfirmationEmail ?? this.pendingConfirmationEmail,
       user: user ?? this.user,
       errorMessage: errorMessage,
       isOffline: isOffline ?? this.isOffline,

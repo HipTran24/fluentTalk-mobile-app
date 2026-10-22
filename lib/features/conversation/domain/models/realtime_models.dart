@@ -1,10 +1,10 @@
 /// Speaker status in Realtime Call Mode
 enum RealtimeSpeakerState {
   connecting,
-  listening, // AI is listening to user
+  listening, // Tom is listening to user
   userSpeaking, // User is actively talking
-  aiThinking, // AI is processing response
-  aiSpeaking, // AI is talking (TTS)
+  aiThinking, // Tom is processing response
+  aiSpeaking, // Tom is talking (TTS)
   ended,
 }
 

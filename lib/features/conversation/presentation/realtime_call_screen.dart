@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +24,8 @@ class RealtimeCallScreen extends ConsumerStatefulWidget {
   ConsumerState<RealtimeCallScreen> createState() => _RealtimeCallScreenState();
 }
 
-class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with SingleTickerProviderStateMixin {
+class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _rippleController;
 
   @override
@@ -41,7 +43,8 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
     super.dispose();
   }
 
-  void _showTopicHintsSheet(BuildContext context, List<ConversationTopicHint> hints, RealtimeCallController controller) {
+  void _showTopicHintsSheet(BuildContext context,
+      List<ConversationTopicHint> hints, RealtimeCallController controller) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -71,7 +74,8 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
               const SizedBox(height: AppSpacing.md),
               const Row(
                 children: [
-                  Icon(Icons.lightbulb_outline_rounded, color: AppColors.accentLight, size: 20),
+                  Icon(Icons.lightbulb_outline_rounded,
+                      color: AppColors.accentLight, size: 20),
                   SizedBox(width: 8),
                   Text(
                     'Gợi ý chủ đề trò chuyện',
@@ -85,21 +89,22 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
               ),
               const SizedBox(height: 6),
               const Text(
-                'Chạm vào một câu để nói trực tiếp với AI nếu bạn đang bí ý tưởng:',
+                'Chạm vào một câu để nói trực tiếp với Tom nếu bạn đang bí ý tưởng:',
                 style: TextStyle(color: Colors.white70, fontSize: 13),
               ),
               const SizedBox(height: AppSpacing.md),
               ...hints.map((hint) => Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.06),
+                      color: Colors.white.withValues(alpha: 0.06),
                       borderRadius: AppRadius.cardRadius,
                       border: Border.all(color: Colors.white12),
                     ),
                     child: Material(
                       type: MaterialType.transparency,
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
                         title: Text(
                           hint.englishPhrase,
                           style: const TextStyle(
@@ -110,9 +115,11 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
                         ),
                         subtitle: Text(
                           '(${hint.vietnameseMeaning})',
-                          style: const TextStyle(color: Colors.white60, fontSize: 12),
+                          style: const TextStyle(
+                              color: Colors.white60, fontSize: 12),
                         ),
-                        trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white38, size: 14),
+                        trailing: const Icon(Icons.arrow_forward_ios_rounded,
+                            color: Colors.white38, size: 14),
                         onTap: () {
                           controller.simulateUserSpeech(hint.englishPhrase);
                           Navigator.of(ctx).pop();
@@ -128,7 +135,8 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
     );
   }
 
-  void _showTranscriptHistorySheet(BuildContext context, List<RealtimeCaptionItem> history) {
+  void _showTranscriptHistorySheet(
+      BuildContext context, List<RealtimeCaptionItem> history) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -159,11 +167,15 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
               const SizedBox(height: AppSpacing.md),
               const Row(
                 children: [
-                  Icon(Icons.history_rounded, color: AppColors.primaryLight, size: 20),
+                  Icon(Icons.history_rounded,
+                      color: AppColors.primaryLight, size: 20),
                   SizedBox(width: 8),
                   Text(
                     'Lịch sử cuộc gọi',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -180,7 +192,9 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
                       children: [
                         CircleAvatar(
                           radius: 12,
-                          backgroundColor: item.isAi ? AppColors.primaryLight : AppColors.userWaveform,
+                          backgroundColor: item.isAi
+                              ? AppColors.primaryLight
+                              : AppColors.userWaveform,
                           child: Icon(
                             item.isAi ? Icons.psychology : Icons.person,
                             size: 14,
@@ -193,17 +207,22 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                item.isAi ? 'Coach Emma' : 'Bạn',
+                                item.isAi ? 'Coach Tom' : 'Bạn',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: item.isAi ? AppColors.primaryLight : AppColors.userWaveform,
+                                  color: item.isAi
+                                      ? AppColors.primaryLight
+                                      : AppColors.userWaveform,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 item.text,
-                                style: const TextStyle(color: Colors.white, fontSize: 13.5, height: 1.35),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.5,
+                                    height: 1.35),
                               ),
                             ],
                           ),
@@ -223,20 +242,23 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(realtimeCallControllerProvider(widget.sessionId));
-    final controller = ref.read(realtimeCallControllerProvider(widget.sessionId).notifier);
+    final controller =
+        ref.read(realtimeCallControllerProvider(widget.sessionId).notifier);
 
     // When call ends, transition to summary
     ref.listen<RealtimeCallState>(
       realtimeCallControllerProvider(widget.sessionId),
       (previous, next) {
         if (next.isCallEnded && previous?.isCallEnded != true) {
-          context.pushReplacement('/practice/session/${widget.sessionId}/summary');
+          context
+              .pushReplacement('/practice/session/${widget.sessionId}/summary');
         }
       },
     );
 
     final isAiSpeaking = state.speakerState == RealtimeSpeakerState.aiSpeaking;
-    final isUserSpeaking = state.speakerState == RealtimeSpeakerState.userSpeaking;
+    final isUserSpeaking =
+        state.speakerState == RealtimeSpeakerState.userSpeaking;
 
     return PopScope(
       canPop: false,
@@ -245,7 +267,8 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         final confirmed = await ConfirmSheet.show(
           context,
           title: 'Kết thúc cuộc gọi?',
-          message: 'Hệ thống sẽ dừng ghi âm và tạo báo cáo đánh giá toàn diện (Rubric) cho phiên nói của bạn.',
+          message:
+              'Hệ thống sẽ dừng ghi âm và tạo báo cáo đánh giá toàn diện (Rubric) cho phiên nói của bạn.',
           confirmText: 'Kết thúc & Nhận điểm',
           cancelText: 'Tiếp tục gọi',
           isDestructive: true,
@@ -255,64 +278,68 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         }
       },
       child: Scaffold(
-      backgroundColor: AppColors.callSurface,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.pageHorizontal,
-            vertical: AppSpacing.md,
-          ),
-          child: Column(
-            children: [
-              // 1. TOP HEADER: Status, Timer, Latency & Topic hints
-              _buildTopBar(context, state, controller),
+        backgroundColor: AppColors.callSurface,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.pageHorizontal,
+              vertical: AppSpacing.md,
+            ),
+            child: Column(
+              children: [
+                // 1. TOP HEADER: Status, Timer, Latency & Topic hints
+                _buildTopBar(context, state, controller),
 
-              // 2. CENTER STAGE (Pinned between Top and Bottom Controls)
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: AppSpacing.sm),
-                        // 2. Ripple Rings & Coach Emma Avatar (Isolated GPU RepaintBoundary)
-                        RepaintBoundary(
-                          child: _buildCenterAvatar(state, controller, isAiSpeaking, isUserSpeaking),
-                        ),
+                // 2. CENTER STAGE (Pinned between Top and Bottom Controls)
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: AppSpacing.sm),
+                          // 2. Ripple Rings & Coach Tom Avatar (Isolated GPU RepaintBoundary)
+                          RepaintBoundary(
+                            child: _buildCenterAvatar(state, controller,
+                                isAiSpeaking, isUserSpeaking),
+                          ),
 
-                        const SizedBox(height: AppSpacing.md),
+                          const SizedBox(height: AppSpacing.md),
 
-                        // 3. SPEAKER STATUS BADGE / BARGE-IN BUTTON
-                        _buildSpeakerStatusBadge(state, controller),
+                          // 3. SPEAKER STATUS BADGE / BARGE-IN BUTTON
+                          _buildSpeakerStatusBadge(state, controller),
 
-                        const SizedBox(height: AppSpacing.md),
+                          const SizedBox(height: AppSpacing.md),
 
-                        // 4. DUAL WAVEFORM VISUALIZER (Isolated GPU RepaintBoundary)
-                        RepaintBoundary(
-                          child: _buildWaveformVisualizer(state, isAiSpeaking, isUserSpeaking),
-                        ),
+                          // 4. DUAL WAVEFORM VISUALIZER (Isolated GPU RepaintBoundary)
+                          RepaintBoundary(
+                            child: _buildWaveformVisualizer(
+                                state, isAiSpeaking, isUserSpeaking),
+                          ),
 
-                        const SizedBox(height: AppSpacing.md),
+                          const SizedBox(height: AppSpacing.md),
 
-                        // 5. LIVE CAPTIONS & SUBTITLES BOX
-                        if (state.showCaptions) _buildLiveCaptionsBox(context, state),
-                      ],
+                          // 5. LIVE CAPTIONS & SUBTITLES BOX
+                          if (state.showCaptions)
+                            _buildLiveCaptionsBox(context, state),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              // 6. BOTTOM CALL ACTION CONTROLS (Always accessible)
-              _buildCallControls(context, state, controller),
+                // 6. BOTTOM CALL ACTION CONTROLS (Always accessible)
+                _buildCallControls(context, state, controller),
 
-              const SizedBox(height: AppSpacing.xs),
-            ],
+                const SizedBox(height: AppSpacing.xs),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 
   Widget _buildTopBar(
@@ -320,18 +347,18 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
     RealtimeCallState state,
     RealtimeCallController controller,
   ) {
-    return Row(
+    return AdaptiveRow(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Live status & latency
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(AppRadius.round),
             border: Border.all(color: Colors.white12),
           ),
-          child: Row(
+          child: AdaptiveRow(
             children: [
               Container(
                 width: 7,
@@ -344,7 +371,10 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
               const SizedBox(width: 6),
               const Text(
                 'Trực tiếp',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700),
               ),
               const SizedBox(width: 6),
               Text(
@@ -359,7 +389,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(AppRadius.round),
             border: Border.all(color: Colors.white12),
           ),
@@ -380,12 +410,14 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
           icon: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.2),
+              color: AppColors.accent.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.lightbulb_outline_rounded, color: AppColors.accentLight, size: 20),
+            child: const Icon(Icons.lightbulb_outline_rounded,
+                color: AppColors.accentLight, size: 20),
           ),
-          onPressed: () => _showTopicHintsSheet(context, state.topicHints, controller),
+          onPressed: () =>
+              _showTopicHintsSheet(context, state.topicHints, controller),
         ),
       ],
     );
@@ -404,7 +436,8 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
     return AnimatedBuilder(
       animation: _rippleController,
       builder: (context, child) {
-        final rippleValue = (isAiSpeaking || isUserSpeaking) ? _rippleController.value : 0.0;
+        final rippleValue =
+            (isAiSpeaking || isUserSpeaking) ? _rippleController.value : 0.0;
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -414,7 +447,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
               height: 170 + (rippleValue * 30),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: activeColor.withOpacity((1 - rippleValue) * 0.15),
+                color: activeColor.withValues(alpha: (1 - rippleValue) * 0.15),
               ),
             ),
             // Outer Concentric Glow Ring 1
@@ -423,7 +456,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
               height: 140 + (rippleValue * 20),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: activeColor.withOpacity((1 - rippleValue) * 0.25),
+                color: activeColor.withValues(alpha: (1 - rippleValue) * 0.25),
               ),
             ),
             // Center Circular Avatar
@@ -436,7 +469,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
                 border: Border.all(color: activeColor, width: 2.5),
                 boxShadow: [
                   BoxShadow(
-                    color: activeColor.withOpacity(0.4),
+                    color: activeColor.withValues(alpha: 0.4),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -462,18 +495,23 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.primaryLight.withOpacity(0.5)),
+            border: Border.all(
+                color: AppColors.primaryLight.withValues(alpha: 0.5)),
           ),
-          child: const Row(
+          child: const AdaptiveRow(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.volume_up_rounded, color: AppColors.primaryLight, size: 16),
+              Icon(Icons.volume_up_rounded,
+                  color: AppColors.primaryLight, size: 16),
               SizedBox(width: 6),
               Text(
-                'Coach Emma đang nói • Chạm để ngắt lời',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                'Coach Tom đang nói • Chạm để ngắt lời',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -483,9 +521,10 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.accent.withOpacity(0.3),
+          color: AppColors.accent.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.accentLight.withOpacity(0.5)),
+          border:
+              Border.all(color: AppColors.accentLight.withValues(alpha: 0.5)),
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -494,7 +533,10 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
             SizedBox(width: 6),
             Text(
               'Đang thu âm giọng của bạn...',
-              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -512,11 +554,12 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
             SizedBox(
               width: 12,
               height: 12,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: Colors.white70),
             ),
             SizedBox(width: 8),
             Text(
-              'AI đang phản xạ câu trả lời...',
+              'Tom đang phản xạ câu trả lời...',
               style: TextStyle(color: Colors.white70, fontSize: 12),
             ),
           ],
@@ -530,7 +573,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
           borderRadius: BorderRadius.circular(20),
         ),
         child: const Text(
-          'AI đang lắng nghe bạn nói...',
+          'Tom đang lắng nghe bạn nói...',
           style: TextStyle(color: Colors.white70, fontSize: 12),
         ),
       );
@@ -554,7 +597,11 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         ),
         const SizedBox(height: 6),
         Text(
-          isAiSpeaking ? 'Kênh phát AI (TTS)' : (isUserSpeaking ? 'Kênh nói của Bạn (Mic)' : 'Đang chờ giọng nói'),
+          isAiSpeaking
+              ? 'Kênh phát Tom (TTS)'
+              : (isUserSpeaking
+                  ? 'Kênh nói của Bạn (Mic)'
+                  : 'Đang chờ giọng nói'),
           style: const TextStyle(color: Colors.white38, fontSize: 11),
         ),
       ],
@@ -571,35 +618,40 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         width: double.infinity,
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
           borderRadius: AppRadius.cardRadius,
           border: Border.all(color: Colors.white12),
         ),
         child: Column(
           children: [
-            Row(
+            AdaptiveRow(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     CircleAvatar(
                       radius: 4,
-                      backgroundColor: state.currentSpeakerRole == 'ai' ? AppColors.primaryLight : AppColors.userWaveform,
+                      backgroundColor: state.currentSpeakerRole == 'ai'
+                          ? AppColors.primaryLight
+                          : AppColors.userWaveform,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      state.currentSpeakerRole == 'ai' ? 'Coach Emma' : 'Bạn',
+                      state.currentSpeakerRole == 'ai' ? 'Coach Tom' : 'Bạn',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: state.currentSpeakerRole == 'ai' ? AppColors.primaryLight : AppColors.userWaveform,
+                        color: state.currentSpeakerRole == 'ai'
+                            ? AppColors.primaryLight
+                            : AppColors.userWaveform,
                       ),
                     ),
                   ],
                 ),
                 const Row(
                   children: [
-                    Icon(Icons.history_rounded, size: 14, color: Colors.white60),
+                    Icon(Icons.history_rounded,
+                        size: 14, color: Colors.white60),
                     SizedBox(width: 4),
                     Text(
                       'Lịch sử',
@@ -655,11 +707,14 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         IconButton.filledTonal(
           tooltip: state.isSpeakerPhoneOn ? 'Loa ngoài' : 'Tai nghe/Loa trong',
           style: IconButton.styleFrom(
-            backgroundColor: state.isSpeakerPhoneOn ? Colors.white30 : Colors.white12,
+            backgroundColor:
+                state.isSpeakerPhoneOn ? Colors.white30 : Colors.white12,
             padding: const EdgeInsets.all(16),
           ),
           icon: Icon(
-            state.isSpeakerPhoneOn ? Icons.volume_up_rounded : Icons.phone_in_talk_rounded,
+            state.isSpeakerPhoneOn
+                ? Icons.volume_up_rounded
+                : Icons.phone_in_talk_rounded,
             color: Colors.white,
             size: 26,
           ),
@@ -670,11 +725,14 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
         IconButton.filledTonal(
           tooltip: state.showCaptions ? 'Ẩn phụ đề' : 'Bật phụ đề trực tiếp',
           style: IconButton.styleFrom(
-            backgroundColor: state.showCaptions ? Colors.white30 : Colors.white12,
+            backgroundColor:
+                state.showCaptions ? Colors.white30 : Colors.white12,
             padding: const EdgeInsets.all(16),
           ),
           icon: Icon(
-            state.showCaptions ? Icons.subtitles_rounded : Icons.subtitles_off_rounded,
+            state.showCaptions
+                ? Icons.subtitles_rounded
+                : Icons.subtitles_off_rounded,
             color: Colors.white,
             size: 26,
           ),
@@ -688,12 +746,14 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
             backgroundColor: AppColors.error,
             padding: const EdgeInsets.all(20),
           ),
-          icon: const Icon(Icons.call_end_rounded, color: Colors.white, size: 30),
+          icon:
+              const Icon(Icons.call_end_rounded, color: Colors.white, size: 30),
           onPressed: () async {
             final confirmed = await ConfirmSheet.show(
               context,
               title: 'Kết thúc cuộc gọi?',
-              message: 'Hệ thống sẽ dừng ghi âm và tạo báo cáo đánh giá toàn diện (Rubric) cho phiên nói của bạn.',
+              message:
+                  'Hệ thống sẽ dừng ghi âm và tạo báo cáo đánh giá toàn diện (Rubric) cho phiên nói của bạn.',
               confirmText: 'Kết thúc & Nhận điểm',
               cancelText: 'Tiếp tục gọi',
               isDestructive: true,

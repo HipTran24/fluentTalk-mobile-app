@@ -15,16 +15,19 @@ void main() {
     test('Loads 4 required topic groups', () async {
       final topics = await repository.getTopics();
       expect(topics.length, 4);
-      expect(topics.map((t) => t.id).toSet(), containsAll(['tp_intro', 'tp_daily', 'tp_travel', 'tp_career']));
+      expect(topics.map((t) => t.id).toSet(),
+          containsAll(['tp_intro', 'tp_daily', 'tp_travel', 'tp_career']));
     });
 
-    test('Contains at least 12 scenarios across topics (G2 Requirement)', () async {
+    test('Contains at least 12 scenarios across topics (G2 Requirement)',
+        () async {
       final scenarios = await repository.getScenarios();
       expect(scenarios.length, greaterThanOrEqualTo(12));
     });
 
     test('Filters scenarios by topic correctly', () async {
-      final travelScenarios = await repository.getScenarios(topicId: 'tp_travel');
+      final travelScenarios =
+          await repository.getScenarios(topicId: 'tp_travel');
       expect(travelScenarios.isNotEmpty, true);
       for (final s in travelScenarios) {
         expect(s.topicId, 'tp_travel');

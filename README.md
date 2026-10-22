@@ -1,92 +1,201 @@
-# english_mobile_app
+<p align="center">
+  <img src="docs/assets/readme-banner.svg" alt="FluentTalk — Learn English with Tom" width="100%" />
+</p>
 
-A new Flutter project.
+<p align="center">
+  <img alt="Flutter" src="https://img.shields.io/badge/Flutter-02569B?logo=flutter&amp;logoColor=white" />
+  <img alt="Java 27" src="https://img.shields.io/badge/Java-27-17234A" />
+  <img alt="Supabase" src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&amp;logoColor=white" />
+  <img alt="Gemini" src="https://img.shields.io/badge/Gemini-Text%20%26%20Live-7C3AED" />
+  <img alt="Local beta" src="https://img.shields.io/badge/Status-Local%20beta-D69A39" />
+</p>
 
-## Getting Started
+<p align="center">
+  <strong>Không gian luyện tiếng Anh cùng Tom.</strong><br />
+  Hội thoại tự nhiên, giọng nói trực tiếp và lộ trình từ dữ liệu học của chính bạn.
+</p>
 
-This project is a starting point for a Flutter application.
+<p align="center">
+  <a href="#tính-năng">Tính năng</a> ·
+  <a href="#bắt-đầu">Bắt đầu</a> ·
+  <a href="#kiểm-thử">Kiểm thử</a> ·
+  <a href="#bảo-mật-và-dữ-liệu">Bảo mật</a> ·
+  <a href="#tài-liệu">Tài liệu</a>
+</p>
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Giới thiệu
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**FluentTalk** là ứng dụng Flutter với trợ lý ảo **Tom**, dùng Spring Boot làm backend và Supabase cho xác thực, PostgreSQL. Giao diện thích ứng với điện thoại và trình duyệt desktop; dữ liệu học được tách theo tài khoản đăng nhập.
 
-## Backend Setup (Spring Boot 4.2 milestone / Java 27)
+Dự án đang ở giai đoạn **beta chạy local**. Hội thoại thật và cá nhân hóa đã được tích hợp; việc triển khai production, nghiệm thu thiết bị và phát hành cửa hàng còn nằm trong lộ trình.
 
-The backend is built as a modular monolith in `backend/` using Spring Boot 4.2.0-M2 and Java 27. The milestone runtime has not been accepted for production.
+## Tính năng
 
-Read [the current setup guide](docs/THIET_LAP_DE_CHAY_APP_THUC_TE.md) and [the detailed remaining-stage plan](docs/KE_HOACH_CHI_TIET_GIAI_DOAN_4_DEN_8.md), both dated 22/10/2026. Adding credentials alone does not enable the unfinished AI/audio/coach integrations. The setup guide records current source findings separately from historical test results.
+| Khu vực | Khả năng hiện tại |
+| --- | --- |
+| **Tài khoản** | Đăng ký, đăng nhập, xác thực OTP email qua Supabase; hồ sơ và mục tiêu học. |
+| **Chat cùng Tom** | Phản hồi Gemini thật, lưu phiên hội thoại, mở lại lịch sử và phát giọng đọc. |
+| **Hội thoại giọng nói** | Gemini Live trên **web**: micro, âm thanh trực tiếp, phụ đề, ngắt lời và chọn giọng. |
+| **Cá nhân hóa** | Mục tiêu, trình độ tự chọn, chủ đề ưu tiên; kế hoạch ngày và tình huống kèm lý do đề xuất. |
+| **Ghi nhớ có kiểm soát** | Dùng lịch sử khi bật cá nhân hóa; lưu phụ đề cuộc gọi khi đồng ý riêng, tối đa 30 ngày, có thể xóa. |
+| **Nội dung học** | Danh mục chủ đề, tình huống theo trình độ, lịch sử và thống kê từ dữ liệu đã lưu. |
 
-### Prerequisites
+Tom không tạo điểm năng lực, nhận xét phát âm hoặc lịch sử giả. Khi chưa có dữ liệu, đề xuất bắt đầu từ lựa chọn của người học. Phút luyện tập hiện tính theo phiên chat đã hoàn thành; phụ đề Live chưa cộng vào chỉ số thời gian này.
 
-- **Java 27**: Installed toolchain at `/Users/ProM2/.cache/english-speaking-ai/toolchains/jdk-27.0.1.jdk/Contents/Home`
-- **Maven 3.9+** (or use the provided `backend/mvnw` wrapper)
-- **Docker & Docker Compose** (for local PostgreSQL infrastructure)
+## Kiến trúc
 
-### Environment Configuration
+```mermaid
+flowchart LR
+    App["Flutter · Web / Mobile"] --> Auth["Supabase Auth"]
+    App -->|JWT| API["Spring Boot API"]
+    API --> DB[("PostgreSQL · private schema")]
+    API --> Text["Gemini · text"]
+    API -->|Ephemeral token| App
+    App <-->|WebSocket · audio| Live["Gemini Live · web"]
+```
 
-Create a local environment file from the template:
+API key Gemini và mật khẩu database chỉ được nạp ở backend. Web nhận token Live ngắn hạn, không nhận API key lâu dài.
+
+## Bắt đầu
+
+### Yêu cầu
+
+| Công cụ | Mục đích |
+| --- | --- |
+| Flutter SDK | Cài dependencies, chạy và build ứng dụng. |
+| Python 3 | Script cấu hình và khởi chạy local. |
+| **JDK 27** | Build/chạy backend; đặt `JAVA_HOME` trên máy của bạn. |
+| **JDK 21** | Toolchain Android đã được kiểm chứng, độc lập với JDK backend. |
+| Supabase project | Email Auth và PostgreSQL có quyền chạy migration. |
+| Gemini API key | Chat và Live; project cần có model/quota phù hợp. |
+
+Backend hiện dùng **Spring Boot 4.2.0-M2**. Đây là bản milestone; cần đánh giá phiên bản ổn định trước khi triển khai production.
+
+### 1. Cài dependencies và tạo cấu hình
+
+Chạy các lệnh từ thư mục gốc repository:
+
 ```bash
-cp .env.example .env
+flutter pub get
+cp -n config/mobile.public.example.json config/mobile.public.json
+cp -n config/backend.private.env.example config/backend.private.env
+chmod 600 config/backend.private.env
 ```
-Never commit `.env` or production credentials to source control.
 
-Creating `.env` alone does not inject configuration into Spring or Flutter. Configure the backend process environment in your IDE/host. Flutter reads Dart defines; use only public values in `config/mobile.public.example.json`, never the backend secret file.
+Lệnh `cp -n` giữ nguyên file cấu hình đã tồn tại. Điền thông tin trực tiếp trên máy:
 
-### Local Infrastructure (PostgreSQL)
+| File | Cấu hình |
+| --- | --- |
+| `config/mobile.public.json` | `SUPABASE_URL`, publishable key trong `SUPABASE_ANON_KEY`, `API_BASE_URL`. |
+| `config/backend.private.env` | PostgreSQL URL/user/password, Supabase issuer/JWKS, `GEMINI_API_KEY`, model text/Live và CORS. |
 
-Start the local PostgreSQL container:
+`backend.private.env` được đọc như dữ liệu, không chạy bằng `source` hay `eval`. Không truyền file này vào `--dart-define-from-file`.
+
+Flyway tự chạy các migration **V1–V9** trong schema `english_app`. Các migration tạo bảng/cập nhật dữ liệu; hãy dùng database phát triển phù hợp, không bỏ qua migration để tự tạo bảng bằng tay.
+
+### 2. Chạy backend và web
+
 ```bash
-docker compose -f infra/docker-compose.yml up -d
+./start_app.sh
 ```
-To stop the database:
+
+Trình chạy sẽ verify backend, build web, nạp cấu hình local và kiểm tra health trước khi phục vụ:
+
+- **Web:** <http://localhost:3000>
+- **Backend health:** <http://localhost:8080/api/v1/health>
+
+`Ctrl+C` dừng hai dịch vụ do script tạo. Nếu cổng 3000/8080 đang có tiến trình khác, dừng tiến trình đó trước khi chạy lại. Log được ghi vào `.run/` và không đưa lên Git.
+
+Cấu hình web public được sinh riêng thành `config/mobile.web.public.json`. Để kiểm tra cấu hình/database mà không in secret:
+
 ```bash
-docker compose -f infra/docker-compose.yml down
+python3 scripts/run_backend.py --check-config
+python3 scripts/check_supabase.py
 ```
 
-### Build & Run Tests
+### 3. Thiết lập email và cá nhân hóa
 
-Run the full backend test suite using Java 27:
+- **Email OTP:** bật Confirm email, cấu hình Custom SMTP và mẫu email có `{{ .Token }}`. Xem [hướng dẫn email OTP](docs/THIET_LAP_EMAIL_OTP.md).
+- **Tom:** đăng nhập → tab **Tom** → bật cá nhân hóa, chọn mục tiêu/chủ đề/giọng → lưu. Ghi nhớ phụ đề cần bật riêng. Xem [cá nhân hóa Tom](docs/CA_NHAN_HOA_TOM.md).
+- **Gọi thoại:** vào **Luyện tập**, bắt đầu cuộc gọi và cấp quyền micro. Dùng localhost hoặc HTTPS; nên dùng tai nghe. Xem [thiết lập realtime](docs/THIET_LAP_AI_REALTIME.md).
+
+### Android và chế độ demo
+
 ```bash
-cd backend
-JAVA_HOME=/Users/ProM2/.cache/english-speaking-ai/toolchains/jdk-27.0.1.jdk/Contents/Home ./mvnw clean test
+flutter run --dart-define-from-file=config/mobile.public.json
+flutter build apk --debug --dart-define-from-file=config/mobile.public.json
 ```
 
-### Running the Application
+Với Android emulator, đặt API thành `http://10.0.2.2:8080/api/v1` và `ALLOW_INSECURE_LOCALHOST=true`. Thiết bị thật cần backend có thể truy cập; bản phát hành dùng HTTPS. APK debug không phải bản ký phát hành. Realtime hiện được tích hợp cho web, chưa tích hợp transport native Android/iOS.
 
-Start the backend server on port 8080:
-```bash
-cd backend
-JAVA_HOME=/Users/ProM2/.cache/english-speaking-ai/toolchains/jdk-27.0.1.jdk/Contents/Home ./mvnw spring-boot:run
-```
-
-Verify the sanitized public health endpoint:
-```bash
-curl -i http://localhost:8080/api/v1/health
-```
-Expected response:
-```json
-{
-  "status": "UP"
-}
-```
-Response header `X-Request-Id` contains the correlation UUID.
-
-### Current delivery status
-
-Read [the Vietnamese eight-stage plan](docs/KE_HOACH_8_GIAI_DOAN.md) and [the final status report](docs/FINAL_STATUS.md) before running this snapshot. The four-hour scope was not completed. Java 27 auth/profile/catalog works locally; production AI, audio, realtime, coaching and full privacy flows are unfinished. Spring Boot 4.2.0-M2 is a milestone, not a production stability claim.
-
-Android builds require a separate compatible JDK (JDK 21 was used locally), Gradle 8.14.3, AGP 8.11.1 and Kotlin 2.2.20. Set the Android JDK in your own Flutter/IDE configuration; do not hardcode a machine path in `android/gradle.properties`. Backend remains Java 27. Toolchain bounds were checked against the installed Flutter SDK and [official AGP compatibility documentation](https://developer.android.com/build/releases/agp-8-11-0-release-notes).
-
-For an explicitly simulated mobile preview:
+Chạy dữ liệu minh họa độc lập:
 
 ```bash
 flutter run --dart-define=DEMO_MODE=true
 ```
 
-The app displays a DEMO banner. Normal builds keep unfinished learning routes unavailable for real identities. See the final report for actual test and Android packaging results; a debug preview is not a release build.
+## Kiểm thử
+
+```bash
+flutter analyze
+flutter test
+(cd backend && ./mvnw verify)
+python3 scripts/check_git_secrets.py --history
+```
+
+Một số kiểm thử được bật riêng:
+
+```bash
+# Kiểm tra concurrency trên PostgreSQL thật trong schema QA tạm, rồi xóa schema đó.
+python3 scripts/check_supabase.py --concurrency
+
+# Kiểm tra transport audio bằng WebAudio/WebSocket giả lập; cần Node.js.
+node --test test/live_audio_transport_test.cjs
+
+# Render giao diện qua app root thật, dùng dữ liệu fixture.
+flutter test --dart-define=CAPTURE_UI=true test/academic_design_test.dart
+```
+
+Kiểm thử provider thật cần chủ động bật `LIVE_PROVIDER_SMOKE=true` cùng biến môi trường Gemini của backend; có thể phát sinh sử dụng API. Bộ verify thông thường không gọi provider thật hoặc database production. Ảnh render và fixture không thay thế nghiệm thu micro/loa, email và thiết bị thật.
+
+Workflow [Backend CI](.github/workflows/backend-ci.yml) hiện build/test backend trên push/PR tới `main` hoặc `develop` khi các đường dẫn liên quan thay đổi; đây chưa phải pipeline triển khai production.
+
+## Bảo mật và dữ liệu
+
+- Chỉ commit **file mẫu**. `.gitignore` loại cấu hình local, file môi trường, khóa ký, credentials, runtime log và database dump.
+- Supabase JWT xác định chủ sở hữu dữ liệu ở backend. Schema học tập không cấp quyền Data API trực tiếp cho `anon`/`authenticated`.
+- Cá nhân hóa và lưu phụ đề mặc định tắt. Phụ đề chỉ lưu khi đồng ý; không lưu audio. Có tùy chọn xóa và tác vụ dọn phụ đề quá hạn.
+- Script `check_git_secrets.py` rà các định dạng credential thường gặp, giá trị private local đang dùng, nội dung staged và lịch sử khi có `--history`. Script chỉ báo đường dẫn/loại, không in key. Đây là kiểm tra hỗ trợ, không bảo đảm phát hiện mọi loại secret.
+- `.gitignore` không gỡ dữ liệu đã commit. Nếu phát hiện credential trong lịch sử, thu hồi/đổi credential và xử lý lịch sử trước khi public repository.
+
+## Cấu trúc repository
+
+```text
+lib/                    Flutter UI, domain, repository và API adapters
+backend/                Spring Boot API, security, learning và Flyway migrations
+web/                    Web bootstrap, audio transport và AudioWorklet
+config/                 File mẫu được commit; cấu hình thật chỉ nằm local
+supabase/               Cấu hình dự án và mẫu email
+scripts/                Khởi chạy, kiểm tra database và rà secret
+test/                  Flutter tests và audio transport tests
+docs/                  Kế hoạch, hướng dẫn và báo cáo kiểm tra
+```
+
+## Tài liệu
+
+| Nội dung | Đường dẫn |
+| --- | --- |
+| Cấu hình và xác thực email | [Thiết lập OTP](docs/THIET_LAP_EMAIL_OTP.md) |
+| Hội thoại trực tiếp | [Gemini Live](docs/THIET_LAP_AI_REALTIME.md) |
+| Cá nhân hóa, dữ liệu và consent | [Tom personalization](docs/CA_NHAN_HOA_TOM.md) |
+| Kết quả tích hợp gần nhất | [Tom & personalization QA](docs/qa/TOM_PERSONALIZATION_2026_10_23.md) |
+| Kế hoạch tổng thể | [Tám giai đoạn](docs/KE_HOACH_8_GIAI_DOAN.md) |
+| Công việc giai đoạn 4–8 | [Kế hoạch chi tiết](docs/KE_HOACH_CHI_TIET_GIAI_DOAN_4_DEN_8.md) |
+
+## Lộ trình
+
+Các hạng mục còn lại gồm guided speaking, realtime native, đánh giá kỹ năng có bằng chứng/hiệu chuẩn, ôn từ vựng và bài tập chuyên sâu, full password-recovery/account lifecycle, cùng hosting HTTPS, quyền database tối thiểu, backup/restore, monitoring và release signing.
+
+Có schema, màn hình demo hoặc hợp đồng API không đồng nghĩa tính năng đã hoàn thiện. Trạng thái thực tế được ghi trong hướng dẫn và báo cáo QA tương ứng.

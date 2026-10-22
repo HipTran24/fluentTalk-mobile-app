@@ -23,7 +23,11 @@ class AdminRepository implements IAdminRepository {
       usageCount: 1420,
       avgScore: 8.2,
       isActive: true,
-      keyPhrases: ['reservation under name', 'room on higher floor', 'breakfast included'],
+      keyPhrases: [
+        'reservation under name',
+        'room on higher floor',
+        'breakfast included'
+      ],
     ),
     const AdminScenarioItem(
       id: 'sc_cafe_01',
@@ -51,7 +55,11 @@ class AdminRepository implements IAdminRepository {
       usageCount: 980,
       avgScore: 7.5,
       isActive: true,
-      keyPhrases: ['system architecture', 'conflict resolution', 'scalable backend'],
+      keyPhrases: [
+        'system architecture',
+        'conflict resolution',
+        'scalable backend'
+      ],
     ),
     const AdminScenarioItem(
       id: 'sc_ielts_01',
@@ -65,7 +73,11 @@ class AdminRepository implements IAdminRepository {
       usageCount: 1150,
       avgScore: 7.4,
       isActive: true,
-      keyPhrases: ['hustle and bustle', 'cultural heritage', 'picturesque landscape'],
+      keyPhrases: [
+        'hustle and bustle',
+        'cultural heritage',
+        'picturesque landscape'
+      ],
     ),
     const AdminScenarioItem(
       id: 'sc_tech_01',
@@ -79,7 +91,11 @@ class AdminRepository implements IAdminRepository {
       usageCount: 840,
       avgScore: 7.9,
       isActive: true,
-      keyPhrases: ['what I did yesterday', 'blockers on API', 'pull request review'],
+      keyPhrases: [
+        'what I did yesterday',
+        'blockers on API',
+        'pull request review'
+      ],
     ),
     const AdminScenarioItem(
       id: 'sc_airport_01',
@@ -93,7 +109,11 @@ class AdminRepository implements IAdminRepository {
       usageCount: 620,
       avgScore: 7.7,
       isActive: true,
-      keyPhrases: ['luggage tag receipt', 'black hard-shell suitcase', 'delivery address'],
+      keyPhrases: [
+        'luggage tag receipt',
+        'black hard-shell suitcase',
+        'delivery address'
+      ],
     ),
   ];
 
@@ -104,7 +124,8 @@ class AdminRepository implements IAdminRepository {
     temperature: 0.7,
     bargeInSensitivity: 0.85,
     maxTurnDurationSec: 90,
-    systemPrompt: '''You are an empathetic, professional English conversation partner.
+    systemPrompt:
+        '''You are an empathetic, professional English conversation partner.
 Guidelines:
 1. Stay in character based on the scenario role.
 2. Keep spoken responses concise (1 to 2 sentences) to encourage learner speaking time.
@@ -133,7 +154,8 @@ Guidelines:
         AdminActivityItem(
           id: 'act_${learner.id}',
           title: 'Học viên ${learner.name} đã đăng ký tài khoản',
-          description: 'Email: ${learner.email} • Cấp độ: ${learner.level.name.toUpperCase()} • Mục tiêu: ${learner.goal.title}',
+          description:
+              'Email: ${learner.email} • Cấp độ: ${learner.level.name.toUpperCase()} • Mục tiêu: ${learner.goal.title}',
           timeAgo: 'Đã ghi nhận',
           type: 'signup',
         ),
@@ -145,7 +167,8 @@ Guidelines:
         const AdminActivityItem(
           id: 'act_ready',
           title: 'Hệ thống quản trị sẵn sàng',
-          description: 'Chưa có tài khoản nào đăng ký. Danh bạ sẽ tự động ghi nhận khi học viên đăng ký mới.',
+          description:
+              'Chưa có tài khoản nào đăng ký. Danh bạ sẽ tự động ghi nhận khi học viên đăng ký mới.',
           timeAgo: 'Hiện tại',
           type: 'alert',
         ),
@@ -155,13 +178,20 @@ Guidelines:
     // Weekly metrics based on registered voice time
     final dailyAvg = count > 0 ? (totalVoice / 7).round() : 0;
     final weekly = [
-      AdminDailyMetric(dayLabel: 'T2', voiceMinutes: dailyAvg, sessionCount: count),
-      AdminDailyMetric(dayLabel: 'T3', voiceMinutes: dailyAvg, sessionCount: count),
-      AdminDailyMetric(dayLabel: 'T4', voiceMinutes: dailyAvg, sessionCount: count),
-      AdminDailyMetric(dayLabel: 'T5', voiceMinutes: dailyAvg, sessionCount: count),
-      AdminDailyMetric(dayLabel: 'T6', voiceMinutes: dailyAvg, sessionCount: count),
-      AdminDailyMetric(dayLabel: 'T7', voiceMinutes: dailyAvg, sessionCount: count),
-      AdminDailyMetric(dayLabel: 'CN', voiceMinutes: dailyAvg, sessionCount: count),
+      AdminDailyMetric(
+          dayLabel: 'T2', voiceMinutes: dailyAvg, sessionCount: count),
+      AdminDailyMetric(
+          dayLabel: 'T3', voiceMinutes: dailyAvg, sessionCount: count),
+      AdminDailyMetric(
+          dayLabel: 'T4', voiceMinutes: dailyAvg, sessionCount: count),
+      AdminDailyMetric(
+          dayLabel: 'T5', voiceMinutes: dailyAvg, sessionCount: count),
+      AdminDailyMetric(
+          dayLabel: 'T6', voiceMinutes: dailyAvg, sessionCount: count),
+      AdminDailyMetric(
+          dayLabel: 'T7', voiceMinutes: dailyAvg, sessionCount: count),
+      AdminDailyMetric(
+          dayLabel: 'CN', voiceMinutes: dailyAvg, sessionCount: count),
     ];
 
     return AdminKpiSummary(
@@ -178,14 +208,16 @@ Guidelines:
   }
 
   @override
-  Future<List<AdminLearner>> getLearners({String query = '', String levelFilter = 'all'}) async {
+  Future<List<AdminLearner>> getLearners(
+      {String query = '', String levelFilter = 'all'}) async {
     await Future.delayed(const Duration(milliseconds: 60));
 
     // Load actual registered accounts from local persistence
     final registeredUsers = await LocalAuthRepository.getRegisteredUsers();
 
     for (final u in registeredUsers) {
-      final existingIndex = _learners.indexWhere((l) => l.email.toLowerCase() == u.email.toLowerCase());
+      final existingIndex = _learners
+          .indexWhere((l) => l.email.toLowerCase() == u.email.toLowerCase());
       if (existingIndex == -1) {
         _learners.add(
           AdminLearner(
@@ -217,7 +249,8 @@ Guidelines:
       final matchesQuery = query.isEmpty ||
           l.name.toLowerCase().contains(query.toLowerCase()) ||
           l.email.toLowerCase().contains(query.toLowerCase());
-      final matchesLevel = levelFilter == 'all' || l.level.name.toLowerCase() == levelFilter.toLowerCase();
+      final matchesLevel = levelFilter == 'all' ||
+          l.level.name.toLowerCase() == levelFilter.toLowerCase();
       return matchesQuery && matchesLevel;
     }).toList();
   }
@@ -226,12 +259,14 @@ Guidelines:
   Future<void> toggleLearnerStatus(String learnerId) async {
     final idx = _learners.indexWhere((l) => l.id == learnerId);
     if (idx != -1) {
-      _learners[idx] = _learners[idx].copyWith(isActive: !_learners[idx].isActive);
+      _learners[idx] =
+          _learners[idx].copyWith(isActive: !_learners[idx].isActive);
     }
   }
 
   @override
-  Future<List<AdminScenarioItem>> getScenarios({String query = '', String topicFilter = 'all'}) async {
+  Future<List<AdminScenarioItem>> getScenarios(
+      {String query = '', String topicFilter = 'all'}) async {
     await Future.delayed(const Duration(milliseconds: 120));
     return _scenarios.where((s) {
       final matchesQuery = query.isEmpty ||
@@ -257,7 +292,8 @@ Guidelines:
   Future<void> toggleScenarioStatus(String scenarioId) async {
     final idx = _scenarios.indexWhere((s) => s.id == scenarioId);
     if (idx != -1) {
-      _scenarios[idx] = _scenarios[idx].copyWith(isActive: !_scenarios[idx].isActive);
+      _scenarios[idx] =
+          _scenarios[idx].copyWith(isActive: !_scenarios[idx].isActive);
     }
   }
 

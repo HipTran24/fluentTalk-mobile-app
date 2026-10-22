@@ -19,7 +19,8 @@ class MockProfileRepository implements ProfileRepository {
       phrase: 'Could I have the bill, please?',
       ipa: '/kʊd aɪ hæv ðə bɪl pliːz/',
       meaningVi: 'Làm ơn cho tôi xin hóa đơn thanh toán?',
-      exampleSentence: 'Excuse me, could I have the bill, please? We are in a hurry.',
+      exampleSentence:
+          'Excuse me, could I have the bill, please? We are in a hurry.',
       sourceScenarioTitle: 'Gọi món tại nhà hàng Ý',
       isMastered: true,
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
@@ -29,8 +30,9 @@ class MockProfileRepository implements ProfileRepository {
       phrase: 'I would be delighted to',
       ipa: '/aɪ wʊd bi dɪˈlaɪtɪd tuː/',
       meaningVi: 'Tôi rất sẵn lòng / rất vinh hạnh được làm việc này.',
-      exampleSentence: 'I would be delighted to assist you with your flight reservation.',
-      sourceScenarioTitle: 'Hỏi đáp với AI Coach',
+      exampleSentence:
+          'I would be delighted to assist you with your flight reservation.',
+      sourceScenarioTitle: 'Hỏi đáp với Tom Coach',
       isMastered: false,
       createdAt: DateTime.now().subtract(const Duration(days: 3)),
     ),
@@ -49,7 +51,8 @@ class MockProfileRepository implements ProfileRepository {
       phrase: 'Have a reservation',
       ipa: '/hæv ə ˌrezəˈveɪʃn/',
       meaningVi: 'Đã đặt chỗ / đặt bàn trước.',
-      exampleSentence: 'Good evening, I have a reservation under the name of Nam.',
+      exampleSentence:
+          'Good evening, I have a reservation under the name of Nam.',
       sourceScenarioTitle: 'Gọi món tại nhà hàng Ý',
       isMastered: true,
       createdAt: DateTime.now().subtract(const Duration(days: 4)),
@@ -59,7 +62,8 @@ class MockProfileRepository implements ProfileRepository {
       phrase: 'Sparkling water',
       ipa: '/ˈspɑːrklɪŋ ˈwɔːtər/',
       meaningVi: 'Nước khoáng có ga.',
-      exampleSentence: 'Could we get a bottle of chilled sparkling water, please?',
+      exampleSentence:
+          'Could we get a bottle of chilled sparkling water, please?',
       sourceScenarioTitle: 'Gọi món tại nhà hàng Ý',
       isMastered: false,
       createdAt: DateTime.now().subtract(const Duration(days: 1)),

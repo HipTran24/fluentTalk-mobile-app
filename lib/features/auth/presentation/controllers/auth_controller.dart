@@ -18,7 +18,8 @@ final Provider<AppConfig> appConfigProvider = Provider<AppConfig>((ref) {
   return AppConfig.fromEnvironment();
 });
 
-final Provider<String?> supabaseInitErrorProvider = Provider<String?>((ref) => null);
+final Provider<String?> supabaseInitErrorProvider =
+    Provider<String?>((ref) => null);
 
 final Provider<ApiClient?> apiClientProvider = Provider<ApiClient?>((ref) {
   final config = ref.watch(appConfigProvider);
@@ -37,7 +38,8 @@ final Provider<ApiClient?> apiClientProvider = Provider<ApiClient?>((ref) {
   return client;
 });
 
-final Provider<AuthRepository> authRepositoryProvider = Provider<AuthRepository>((ref) {
+final Provider<AuthRepository> authRepositoryProvider =
+    Provider<AuthRepository>((ref) {
   final config = ref.watch(appConfigProvider);
   if (config.demoMode) {
     return LocalAuthRepository();
@@ -115,12 +117,13 @@ class AuthController extends StateNotifier<AuthState> {
     _authSubscription = _repository.authEventStream.listen(
       (event) async {
         if (event == AuthChangeEvent.tokenRefreshed) {
-          if (state.isAuthenticated && state.user != null) {
+          if ((state.isAuthenticated || state.needsOnboarding) &&
+              state.user != null) {
             await syncProfileFromBackend();
           }
-        } else if (event == AuthChangeEvent.signedOut ||
-            event == AuthChangeEvent.userDeleted) {
-          if (_signOutFuture != null || state.status == AuthStatus.unauthenticated) {
+        } else if (event == AuthChangeEvent.signedOut) {
+          if (_signOutFuture != null ||
+              state.status == AuthStatus.unauthenticated) {
             // Already signing out or already unauthenticated; avoid reentering
             return;
           }
@@ -129,7 +132,7 @@ class AuthController extends StateNotifier<AuthState> {
       },
       onError: (error) {
         state = state.copyWith(
-          errorMessage: 'Lỗi phiên xác thực: $error',
+          errorMessage: 'Phiên xác thực gặp lỗi. Hãy đăng nhập lại.',
         );
       },
     );
@@ -142,8 +145,14 @@ class AuthController extends StateNotifier<AuthState> {
       final res = await apiClient!.get('me');
       if (!mounted || opEpoch != _epoch) return;
       if (res is Map<String, dynamic>) {
-        final backendUser = MeProfileDto.fromJson(res).toDomain();
-        state = state.copyWith(user: backendUser);
+        final profile = MeProfileDto.fromJson(res);
+        state = state.copyWith(
+            user: profile.toDomain(),
+            status: profile.onboarded == null
+                ? state.status
+                : profile.onboarded == true
+                    ? AuthStatus.authenticated
+                    : AuthStatus.needsOnboarding);
       }
     } catch (_) {
       // Fail-soft on profile background sync
@@ -159,27 +168,32 @@ class AuthController extends StateNotifier<AuthState> {
 
       if (user != null) {
         UserProfile effectiveUser = user;
+        bool? backendOnboarded;
         if (apiClient != null && !isDemo) {
           try {
             final res = await apiClient!.get('me');
             if (!mounted || opEpoch != _epoch) return;
             if (res is Map<String, dynamic>) {
-              effectiveUser = MeProfileDto.fromJson(res).toDomain();
+              final profile = MeProfileDto.fromJson(res);
+              effectiveUser = profile.toDomain();
+              backendOnboarded = profile.onboarded;
             }
           } catch (_) {}
         }
-        final onboarded = await _repository.isOnboarded();
+        final onboarded = backendOnboarded ?? await _repository.isOnboarded();
         if (!mounted || opEpoch != _epoch) return;
 
         state = state.copyWith(
-          status: onboarded ? AuthStatus.authenticated : AuthStatus.needsOnboarding,
+          status:
+              onboarded ? AuthStatus.authenticated : AuthStatus.needsOnboarding,
           user: effectiveUser,
           isAdmin: _repository.isAdmin,
           isDemo: isDemo,
         );
       } else {
         if (!mounted || opEpoch != _epoch) return;
-        state = state.copyWith(status: AuthStatus.unauthenticated, isDemo: isDemo);
+        state =
+            state.copyWith(status: AuthStatus.unauthenticated, isDemo: isDemo);
       }
     } on ConfigurationRequiredException catch (e) {
       if (!mounted || opEpoch != _epoch) return;
@@ -207,20 +221,24 @@ class AuthController extends StateNotifier<AuthState> {
       if (!mounted || opEpoch != _epoch) return false;
 
       UserProfile effectiveUser = user;
+      bool? backendOnboarded;
       if (apiClient != null && !isDemo) {
         try {
           final res = await apiClient!.get('me');
           if (!mounted || opEpoch != _epoch) return false;
           if (res is Map<String, dynamic>) {
-            effectiveUser = MeProfileDto.fromJson(res).toDomain();
+            final profile = MeProfileDto.fromJson(res);
+            effectiveUser = profile.toDomain();
+            backendOnboarded = profile.onboarded;
           }
         } catch (_) {}
       }
-      final onboarded = await _repository.isOnboarded();
+      final onboarded = backendOnboarded ?? await _repository.isOnboarded();
       if (!mounted || opEpoch != _epoch) return false;
 
       state = state.copyWith(
-        status: onboarded ? AuthStatus.authenticated : AuthStatus.needsOnboarding,
+        status:
+            onboarded ? AuthStatus.authenticated : AuthStatus.needsOnboarding,
         user: effectiveUser,
         isAdmin: _repository.isAdmin,
         isDemo: isDemo,
@@ -252,13 +270,27 @@ class AuthController extends StateNotifier<AuthState> {
     required String displayName,
   }) async {
     final opEpoch = _epoch;
-    state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
+    state = state.copyWith(
+        status: AuthStatus.loading,
+        errorMessage: null,
+        clearPendingConfirmation: true);
     try {
       final user = await _repository.signUp(
         email: email,
         password: password,
         displayName: displayName,
       );
+      if (!mounted || opEpoch != _epoch) return false;
+
+      if (!isDemo && await _repository.getAccessToken() == null) {
+        if (!mounted || opEpoch != _epoch) return false;
+        state = state.copyWith(
+            status: AuthStatus.unauthenticated,
+            pendingConfirmationEmail: email.trim(),
+            errorMessage:
+                'Nếu đăng ký thành công, hãy kiểm tra email xác nhận rồi quay lại đăng nhập.');
+        return false;
+      }
       if (!mounted || opEpoch != _epoch) return false;
 
       state = state.copyWith(

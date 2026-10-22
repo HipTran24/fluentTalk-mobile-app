@@ -51,10 +51,10 @@ class LevelChip extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected ? color : color.withOpacity(0.08),
+              color: isSelected ? color : color.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppRadius.round),
               border: Border.all(
-                color: isSelected ? color : color.withOpacity(0.3),
+                color: isSelected ? color : color.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
@@ -88,9 +88,9 @@ class LevelChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppRadius.round),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Text(
         '${level.code} • ${level.label}',

@@ -34,7 +34,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       const Expanded(
-                          child: Text('FluentTalk AI',
+                          child: Text('FluentTalk Tom',
                               style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w800,

@@ -66,6 +66,19 @@ class ApiFailure implements Exception {
         'FORBIDDEN' => 'Bạn không có quyền thực hiện thao tác này.',
         'NOT_FOUND' => 'Không tìm thấy nội dung này.',
         'CONFLICT' => 'Yêu cầu xung đột. Hãy tải lại trước khi tiếp tục.',
+        'AI_NOT_CONFIGURED' => 'Dịch vụ Tom chưa được cấu hình trên máy chủ.',
+        'AI_ACCESS_DENIED' =>
+          'API key hoặc quyền truy cập Gemini Live chưa hợp lệ. Kiểm tra cấu hình máy chủ.',
+        'AI_RATE_LIMITED' =>
+          'Gemini đã hết hạn mức hoặc đang quá tải. Kiểm tra quota/billing rồi thử lại.',
+        'AI_UNAVAILABLE' => 'Chưa kết nối được Gemini. Vui lòng thử lại sau.',
+        'AI_TIMEOUT' =>
+          'Tom phản hồi quá lâu. Bạn có thể thử lại cùng tin nhắn.',
+        'AI_INVALID_RESPONSE' =>
+          'Tom chưa trả về phản hồi hợp lệ. Hãy thử lại.',
+        'MODE_UNAVAILABLE' => 'Chế độ luyện tập này chưa sẵn sàng.',
+        'IDEMPOTENCY_STATE_UNAVAILABLE' =>
+          'Chưa khôi phục được kết quả cũ. Không gửi lượt mới.',
         'QUOTA_EXCEEDED' => 'Bạn đã đạt giới hạn sử dụng. Hãy thử lại sau.',
         'NETWORK_ERROR' => 'Không thể kết nối. Hãy kiểm tra mạng và thử lại.',
         'TLS_ERROR' => 'Không thể xác minh kết nối an toàn tới máy chủ.',

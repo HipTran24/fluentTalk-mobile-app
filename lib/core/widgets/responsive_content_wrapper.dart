@@ -25,7 +25,8 @@ class ResponsiveContentWrapper extends StatelessWidget {
       builder: (context, constraints) {
         if (constraints.maxWidth > maxWidth) {
           return Container(
-            color: backgroundColor ?? (kIsWeb ? const Color(0xFFE2E8F0) : AppColors.background),
+            color: backgroundColor ??
+                (kIsWeb ? const Color(0xFFE2E8F0) : AppColors.background),
             child: Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -37,7 +38,7 @@ class ResponsiveContentWrapper extends StatelessWidget {
                     color: AppColors.background,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 30,
                         offset: const Offset(0, 10),
                       ),

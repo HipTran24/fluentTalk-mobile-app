@@ -15,7 +15,8 @@ void main() {
   });
 
   group('Sprint 7 - FeedbackRepository & Controllers Tests', () {
-    test('Loads SessionReport with 4 rubric dimensions and corrections', () async {
+    test('Loads SessionReport with 4 rubric dimensions and corrections',
+        () async {
       final repo = MockFeedbackRepository();
       final report = await repo.getSessionReport('sess_101');
 
@@ -27,12 +28,14 @@ void main() {
       expect(report.recommendedDrillId, isNotEmpty);
     });
 
-    test('Loads ProgressAnalyticsData and updates when period changes', () async {
+    test('Loads ProgressAnalyticsData and updates when period changes',
+        () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       // Period 0: Week
-      var data = await container.read(progressAnalyticsControllerProvider.future);
+      var data =
+          await container.read(progressAnalyticsControllerProvider.future);
       expect(data.weeklyBars.length, 7);
       expect(data.currentStreak, 5);
       expect(data.currentBands[RubricDimension.fluency], 6.0);
@@ -44,11 +47,13 @@ void main() {
       expect(data.totalMinutes, 320);
     });
 
-    test('Loads practice history and filters by mode and search query', () async {
+    test('Loads practice history and filters by mode and search query',
+        () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      var sessions = await container.read(practiceHistoryControllerProvider.future);
+      var sessions =
+          await container.read(practiceHistoryControllerProvider.future);
       expect(sessions.length, 4);
 
       // Filter by guided mode
@@ -66,7 +71,8 @@ void main() {
   });
 
   group('Sprint 7 - UI Widget Smoke Tests', () {
-    testWidgets('SessionSummaryScreen (Screen 13) renders rubric report and disclaimer',
+    testWidgets(
+        'SessionSummaryScreen (Screen 13) renders rubric report and disclaimer',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
@@ -81,14 +87,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.byType(SessionSummaryScreen), findsOneWidget);
-      expect(find.textContaining('Hoàn thành phiên luyện tập!'), findsOneWidget);
+      expect(
+          find.textContaining('Hoàn thành phiên luyện tập!'), findsOneWidget);
       expect(find.textContaining('Band 6.0 (Tham khảo)'), findsOneWidget);
       expect(find.textContaining('Tuyên bố học thuật'), findsOneWidget);
-      expect(find.textContaining('Đánh giá 4 tiêu chí năng lực'), findsOneWidget);
-      expect(find.textContaining('Phân tích sửa lỗi Trước ➔ Sau'), findsOneWidget);
+      expect(
+          find.textContaining('Đánh giá 4 tiêu chí năng lực'), findsOneWidget);
+      expect(
+          find.textContaining('Phân tích sửa lỗi Trước ➔ Sau'), findsOneWidget);
     });
 
-    testWidgets('ProgressScreen (Screen 14) renders period toggle, stat cards, and chart',
+    testWidgets(
+        'ProgressScreen (Screen 14) renders period toggle, stat cards, and chart',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
@@ -105,11 +115,14 @@ void main() {
       expect(find.text('Tuần này'), findsOneWidget);
       expect(find.text('Tháng này'), findsOneWidget);
       expect(find.textContaining('Thời lượng nói'), findsOneWidget);
-      expect(find.textContaining('Thời gian luyện nói mỗi ngày'), findsOneWidget);
-      expect(find.textContaining('Tiến bộ theo 4 tiêu chí Rubric'), findsOneWidget);
+      expect(
+          find.textContaining('Thời gian luyện nói mỗi ngày'), findsOneWidget);
+      expect(find.textContaining('Tiến bộ theo 4 tiêu chí Rubric'),
+          findsOneWidget);
     });
 
-    testWidgets('HistoryScreen (Screen 15) renders search bar, filters, and session list',
+    testWidgets(
+        'HistoryScreen (Screen 15) renders search bar, filters, and session list',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(

@@ -43,7 +43,7 @@ public class FeedbackEntity {
         this.sessionId = sessionId;
         this.userId = userId;
         this.rubricVersion = "v1.1";
-        this.status = "ready";
+        this.status = overallBand == null ? "unavailable" : "ready";
         this.summaryVi = summaryVi;
         this.dimensionsJson = dimensionsJson;
         this.overallBand = overallBand;

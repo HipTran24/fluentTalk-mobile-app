@@ -29,7 +29,8 @@ void main() {
 
     test('Transcribes audio and evaluates turn with rubric feedback', () async {
       final repo = MockGuidedSpeakingRepository();
-      final transcript = await repo.transcribeAudio(scenarioId: 'sc_travel_01', turnIndex: 1);
+      final transcript =
+          await repo.transcribeAudio(scenarioId: 'sc_travel_01', turnIndex: 1);
       expect(transcript, contains('table for two'));
 
       final feedback = await repo.evaluateTurn(
@@ -45,15 +46,18 @@ void main() {
   });
 
   group('Sprint 5 - GuidedSpeakingController Tests', () {
-    test('Initializes session, handles recording lifecycle, and speed toggle', () async {
+    test('Initializes session, handles recording lifecycle, and speed toggle',
+        () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final controller = container.read(guidedSpeakingControllerProvider('sc_travel_01').notifier);
+      final controller = container
+          .read(guidedSpeakingControllerProvider('sc_travel_01').notifier);
       // Wait for repository fetch
       await controller.loadSession();
 
-      var state = container.read(guidedSpeakingControllerProvider('sc_travel_01'));
+      var state =
+          container.read(guidedSpeakingControllerProvider('sc_travel_01'));
       expect(state.isLoading, isFalse);
       expect(state.turns.length, 4);
       expect(state.currentTurnIndex, 0);
@@ -62,12 +66,20 @@ void main() {
       // Speech rate test
       expect(state.aiSpeechRate, 1.0);
       controller.setAiSpeechRate(0.75);
-      expect(container.read(guidedSpeakingControllerProvider('sc_travel_01')).aiSpeechRate, 0.75);
+      expect(
+          container
+              .read(guidedSpeakingControllerProvider('sc_travel_01'))
+              .aiSpeechRate,
+          0.75);
 
       // Translation toggle test
       expect(state.showAiTranslation, isFalse);
       controller.toggleTranslation();
-      expect(container.read(guidedSpeakingControllerProvider('sc_travel_01')).showAiTranslation, isTrue);
+      expect(
+          container
+              .read(guidedSpeakingControllerProvider('sc_travel_01'))
+              .showAiTranslation,
+          isTrue);
 
       // Recording lifecycle
       controller.startRecording();
@@ -83,7 +95,9 @@ void main() {
       // Edit draft transcript
       controller.updateTranscriptDraft('Good evening! Table for two please.');
       expect(
-        container.read(guidedSpeakingControllerProvider('sc_travel_01')).currentTranscriptDraft,
+        container
+            .read(guidedSpeakingControllerProvider('sc_travel_01'))
+            .currentTranscriptDraft,
         'Good evening! Table for two please.',
       );
 
@@ -103,7 +117,8 @@ void main() {
   });
 
   group('Sprint 5 - UI Widget Smoke Tests', () {
-    testWidgets('GuidedSpeakingScreen renders turn header, AI card, and recording button',
+    testWidgets(
+        'GuidedSpeakingScreen renders turn header, Tom card, and recording button',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
@@ -119,7 +134,7 @@ void main() {
 
       expect(find.byType(GuidedSpeakingScreen), findsOneWidget);
       expect(find.textContaining('Lượt 1/4'), findsOneWidget);
-      expect(find.textContaining('AI: Bồi bàn'), findsOneWidget);
+      expect(find.textContaining('Tom: Bồi bàn'), findsOneWidget);
       expect(find.textContaining('Bella Italia'), findsOneWidget);
       expect(find.textContaining('Mục tiêu lượt nói của bạn:'), findsOneWidget);
       expect(find.byIcon(Icons.mic_rounded), findsOneWidget);

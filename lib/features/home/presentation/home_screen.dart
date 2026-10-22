@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -57,7 +58,8 @@ class HomeScreen extends ConsumerWidget {
                           description: state.nextLessonDesc,
                           timeEstimate: '5 phút',
                           whyRecommended: state.nextLessonWhy,
-                          onStart: () => context.push('/practice/scenario/${state.nextLessonScenarioId}'),
+                          onStart: () => context.push(
+                              '/practice/scenario/${state.nextLessonScenarioId}'),
                         ),
 
                         const SizedBox(height: AppSpacing.xxl),
@@ -73,7 +75,8 @@ class HomeScreen extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.xxl),
 
                         // 6. Recommended Scenarios Horizontal Carousel
-                        _buildScenarioSection(context, state.recommendedScenarios),
+                        _buildScenarioSection(
+                            context, state.recommendedScenarios),
 
                         const SizedBox(height: AppSpacing.huge),
                       ],
@@ -94,7 +97,8 @@ class HomeScreen extends ConsumerWidget {
             children: [
               ShimmerLoading.circular(size: 48),
               const SizedBox(width: AppSpacing.sm),
-              const Expanded(child: ShimmerLoading(width: double.infinity, height: 40)),
+              const Expanded(
+                  child: ShimmerLoading(width: double.infinity, height: 40)),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -115,7 +119,7 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _sectionTitle(String text, {Widget? trailing}) {
-    return Row(
+    return AdaptiveRow(
       children: [
         Container(
           width: 4,
@@ -146,7 +150,7 @@ class HomeScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        AdaptiveRow(
           children: [
             const AppLogoWordmark(logoSize: 30, fontSize: 18),
             const Spacer(),
@@ -162,7 +166,8 @@ class HomeScreen extends ConsumerWidget {
               child: const Badge(
                 smallSize: 8,
                 backgroundColor: AppColors.accent,
-                child: Icon(Icons.notifications_none_rounded, color: AppColors.textPrimary, size: 22),
+                child: Icon(Icons.notifications_none_rounded,
+                    color: AppColors.textPrimary, size: 22),
               ),
             ),
           ],
@@ -187,7 +192,9 @@ class HomeScreen extends ConsumerWidget {
                   radius: 22,
                   backgroundColor: AppColors.secondaryLight,
                   child: Text(
-                    state.userName.isNotEmpty ? state.userName[0].toUpperCase() : 'U',
+                    state.userName.isNotEmpty
+                        ? state.userName[0].toUpperCase()
+                        : 'U',
                     style: const TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
@@ -211,7 +218,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Row(
+                  AdaptiveRow(
                     children: [
                       Flexible(
                         child: Text(
@@ -239,7 +246,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _circleIconButton({required VoidCallback onTap, required Widget child}) {
+  Widget _circleIconButton(
+      {required VoidCallback onTap, required Widget child}) {
     return Material(
       color: AppColors.surface,
       shape: const CircleBorder(side: BorderSide(color: AppColors.border)),
@@ -327,7 +335,7 @@ class HomeScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border.withOpacity(0.7)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
         boxShadow: AppColors.softShadow,
       ),
       child: Column(
@@ -340,7 +348,7 @@ class HomeScreen extends ConsumerWidget {
                 height: 40,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: iconGradient.colors.first.withOpacity(0.12),
+                  color: iconGradient.colors.first.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(emoji, style: const TextStyle(fontSize: 20)),
@@ -367,7 +375,10 @@ class HomeScreen extends ConsumerWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                          fontSize: 11.5,
+                          color: AppColors.textMuted,
+                          fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -392,8 +403,8 @@ class HomeScreen extends ConsumerWidget {
             _buildActionItem(
               context: context,
               icon: Icons.chat_bubble_outline_rounded,
-              title: 'Hỏi AI Text',
-              subtitle: 'Nghe AI đọc',
+              title: 'Hỏi Tom Text',
+              subtitle: 'Nghe Tom đọc',
               gradient: AppColors.brandGradient,
               onTap: () => context.push('/practice/text'),
             ),
@@ -435,7 +446,7 @@ class HomeScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: AppRadius.cardRadius,
-          border: Border.all(color: AppColors.border.withOpacity(0.7)),
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
           boxShadow: AppColors.softShadow,
         ),
         child: Material(
@@ -455,7 +466,7 @@ class HomeScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.35),
+                          color: color.withValues(alpha: 0.35),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -503,7 +514,7 @@ class HomeScreen extends ConsumerWidget {
           colors: [Color(0xFFE8FBF6), Color(0xFFE6F7FD)],
         ),
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.accent.withOpacity(0.2)),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,7 +527,8 @@ class HomeScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: AppColors.glow(AppColors.accent, opacity: 0.25),
             ),
-            child: const Icon(Icons.trending_up_rounded, color: Colors.white, size: 22),
+            child: const Icon(Icons.trending_up_rounded,
+                color: Colors.white, size: 22),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
@@ -557,7 +569,7 @@ class HomeScreen extends ConsumerWidget {
           'Tình huống đề xuất',
           trailing: TextButton(
             onPressed: () => context.push('/practice/scenarios'),
-            child: const Row(
+            child: const AdaptiveRow(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Xem tất cả'),
@@ -569,7 +581,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         SizedBox(
-          height: 172,
+          height: MediaQuery.textScalerOf(context).scale(172) + 24,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,
@@ -591,7 +603,8 @@ class HomeScreen extends ConsumerWidget {
     AppColors.warmGradient,
   ];
 
-  Widget _buildScenarioCard(BuildContext context, Scenario scenario, int index) {
+  Widget _buildScenarioCard(
+      BuildContext context, Scenario scenario, int index) {
     final gradient = _cardGradients[index % _cardGradients.length];
 
     return Container(
@@ -600,7 +613,7 @@ class HomeScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border.withOpacity(0.7)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
         boxShadow: AppColors.softShadow,
       ),
       child: Material(
@@ -623,16 +636,21 @@ class HomeScreen extends ConsumerWidget {
                         gradient: gradient,
                         borderRadius: BorderRadius.circular(11),
                       ),
-                      child: const Icon(Icons.forum_rounded, color: Colors.white, size: 18),
+                      child: const Icon(Icons.forum_rounded,
+                          color: Colors.white, size: 18),
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Flexible(child: LevelChip(level: scenario.level)),
                     const Spacer(),
-                    const Icon(Icons.schedule_rounded, size: 13, color: AppColors.textMuted),
+                    const Icon(Icons.schedule_rounded,
+                        size: 13, color: AppColors.textMuted),
                     const SizedBox(width: 3),
                     Text(
                       '${scenario.estimatedMinutes} phút',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textMuted,
+                          fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -648,16 +666,20 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                   decoration: BoxDecoration(
                     color: AppColors.accentBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'AI: ${scenario.roleAi} • Bạn: ${scenario.roleUser}',
+                    'Tom: ${scenario.roleAi} • Bạn: ${scenario.roleUser}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.accent, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w700),
                   ),
                 ),
               ],

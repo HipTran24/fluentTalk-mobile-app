@@ -140,6 +140,18 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler({
+            org.springframework.web.bind.MissingRequestHeaderException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+            org.springframework.http.converter.HttpMessageNotReadableException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handleMalformedRequest(Exception ex, HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(new ApiErrorResponse(
+                "VALIDATION_FAILED", "Request headers, parameters or JSON body are invalid", Map.of(),
+                RequestIdFilter.getRequestId(request)));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         String requestId = RequestIdFilter.getRequestId(request);

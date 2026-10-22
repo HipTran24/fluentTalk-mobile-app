@@ -28,7 +28,8 @@ void main() {
       repo = AdminRepository();
     });
 
-    test('Loads KPI summary with weekly trends and recent activities', () async {
+    test('Loads KPI summary with weekly trends and recent activities',
+        () async {
       final kpi = await repo.getKpiSummary();
       expect(kpi.totalLearners, greaterThanOrEqualTo(1));
       expect(kpi.totalVoiceMinutes, greaterThanOrEqualTo(20));
@@ -53,7 +54,8 @@ void main() {
       final originalStatus = target.isActive;
 
       await repo.toggleScenarioStatus(target.id);
-      final updated = (await repo.getScenarios()).firstWhere((s) => s.id == target.id);
+      final updated =
+          (await repo.getScenarios()).firstWhere((s) => s.id == target.id);
       expect(updated.isActive, equals(!originalStatus));
 
       await repo.deleteScenario(target.id);
@@ -61,12 +63,13 @@ void main() {
       expect(afterDelete.any((s) => s.id == target.id), isFalse);
     });
 
-    test('Loads and updates AI configuration', () async {
+    test('Loads and updates Tom configuration', () async {
       final config = await repo.getAiConfig();
       expect(config.modelName, contains('gemini'));
       expect(config.temperature, greaterThan(0));
 
-      final updated = config.copyWith(temperature: 0.5, bargeInSensitivity: 0.95);
+      final updated =
+          config.copyWith(temperature: 0.5, bargeInSensitivity: 0.95);
       await repo.updateAiConfig(updated);
 
       final reloaded = await repo.getAiConfig();
@@ -95,16 +98,21 @@ void main() {
       controller = AdminController(repo);
     });
 
-    test('Initializes state with KPIs, scenarios, learners and AI config', () async {
+    test('Initializes state with KPIs, scenarios, learners and Tom config',
+        () async {
       await controller.loadAll();
       expect(controller.state.isLoading, isFalse);
       expect(controller.state.kpiSummary, isNotNull);
       expect(controller.state.scenarios.isNotEmpty, isTrue);
-      expect(controller.state.learners.any((l) => l.email == 'learner.test@fluenttalk.com'), isTrue);
+      expect(
+          controller.state.learners
+              .any((l) => l.email == 'learner.test@fluenttalk.com'),
+          isTrue);
       expect(controller.state.aiConfig, isNotNull);
     });
 
-    test('Captures newly registered user in admin directory dynamically', () async {
+    test('Captures newly registered user in admin directory dynamically',
+        () async {
       final authRepo = LocalAuthRepository();
       await authRepo.signUp(
         email: 'newbie@example.com',
@@ -113,10 +121,13 @@ void main() {
       );
 
       await controller.loadAll();
-      expect(controller.state.learners.any((l) => l.email == 'newbie@example.com'), isTrue);
+      expect(
+          controller.state.learners.any((l) => l.email == 'newbie@example.com'),
+          isTrue);
     });
 
-    test('Switches tabs between Dashboard, Scenarios, Users, and AI Config', () {
+    test('Switches tabs between Dashboard, Scenarios, Users, and Tom Config',
+        () {
       expect(controller.state.currentTabIndex, equals(0));
       controller.switchTab(1);
       expect(controller.state.currentTabIndex, equals(1));
@@ -147,7 +158,8 @@ void main() {
 
       await controller.saveScenario(newScenario);
       expect(controller.state.scenarios.length, equals(initialCount + 1));
-      expect(controller.state.scenarios.any((s) => s.id == 'sc_test_new'), isTrue);
+      expect(
+          controller.state.scenarios.any((s) => s.id == 'sc_test_new'), isTrue);
     });
   });
 }

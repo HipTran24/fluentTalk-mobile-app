@@ -44,6 +44,23 @@ class SessionIntegrationTest {
     @Autowired
     private JwksJwtTokenVerifier tokenVerifier;
 
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private com.englishspeaking.ai.conversation.service.ConversationAiService aiService;
+
+    @org.junit.jupiter.api.BeforeEach
+    void fixtureProvider() {
+        org.mockito.Mockito.reset(aiService);
+        org.mockito.Mockito.when(aiService.generateTurn(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyList(), org.mockito.ArgumentMatchers.anyString()))
+                .thenReturn(new com.englishspeaking.ai.conversation.service.ConversationAiService.AiTurnResult(
+                        "Hello! What would you like to practice?", List.of("I would like to..."), List.of("Let's begin.")));
+        org.mockito.Mockito.when(aiService.generateFeedback(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyList()))
+                .thenReturn(new com.englishspeaking.ai.conversation.service.ConversationAiService.FeedbackData(
+                        "Chưa có đánh giá được kiểm chứng.", null,
+                        List.of("fluency", "lexical", "grammar", "pronunciation").stream()
+                                .map(name -> new com.englishspeaking.ai.conversation.dto.DimensionDto(name, null, null, List.of(), null, null)).toList()));
+    }
+
     private RSAKey testRsaKey;
     private JWSSigner signer;
 
@@ -174,4 +191,49 @@ class SessionIntegrationTest {
                 .andExpect(jsonPath("$.totalSessions", greaterThanOrEqualTo(1)))
                 .andExpect(jsonPath("$.currentLevel", is("B1")));
     }
+    @Test
+    void emptyProgressDoesNotInventActivityOrBand() throws Exception {
+        String token = createToken(UUID.randomUUID(), "empty@example.test");
+        mockMvc.perform(get("/api/v1/progress/summary").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSessions", is(0)))
+                .andExpect(jsonPath("$.totalMinutes", is(0)))
+                .andExpect(jsonPath("$.currentStreakDays", is(0)))
+                .andExpect(jsonPath("$.averageBand").doesNotExist());
+    }
+
+    @Test
+    void missingIdempotencyKeyIsRejected() throws Exception {
+        String token = createToken(UUID.randomUUID(), "missing-key@example.test");
+        mockMvc.perform(post("/api/v1/sessions").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"mode\":\"text\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void failedProviderRollsBackTurnAndAllowsExplicitRetry() throws Exception {
+        String token = createToken(UUID.randomUUID(), "retry@example.test");
+        var created = mockMvc.perform(post("/api/v1/sessions").header("Authorization", "Bearer " + token)
+                        .header("Idempotency-Key", "create-failure-key")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"mode\":\"text\",\"level\":\"A1\"}"))
+                .andExpect(status().isCreated()).andReturn();
+        String id = com.jayway.jsonpath.JsonPath.read(created.getResponse().getContentAsString(), "$.id");
+        org.mockito.Mockito.when(aiService.generateTurn(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyList(), org.mockito.ArgumentMatchers.anyString()))
+                .thenThrow(new com.englishspeaking.ai.common.error.ApiException("AI_NOT_CONFIGURED", "AI chưa sẵn sàng", org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE));
+        mockMvc.perform(post("/api/v1/sessions/" + id + "/messages").header("Authorization", "Bearer " + token)
+                        .header("Idempotency-Key", "retry-failure-key")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"text\":\"Hello\"}"))
+                .andExpect(status().isServiceUnavailable());
+        mockMvc.perform(get("/api/v1/sessions/" + id).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.messages", hasSize(0)));
+        fixtureProvider();
+        mockMvc.perform(post("/api/v1/sessions/" + id + "/messages").header("Authorization", "Bearer " + token)
+                        .header("Idempotency-Key", "retry-failure-key")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"text\":\"Hello\"}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/v1/sessions/" + id).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.messages", hasSize(2)));
+    }
+
 }

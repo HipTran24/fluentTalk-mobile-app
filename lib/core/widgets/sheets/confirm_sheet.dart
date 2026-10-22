@@ -72,7 +72,9 @@ class ConfirmSheet extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Icon(
-              isDestructive ? Icons.warning_amber_rounded : Icons.help_outline_rounded,
+              isDestructive
+                  ? Icons.warning_amber_rounded
+                  : Icons.help_outline_rounded,
               size: 48,
               color: isDestructive ? AppColors.error : AppColors.primary,
             ),
@@ -99,7 +101,8 @@ class ConfirmSheet extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
             PrimaryButton(
               text: confirmText,
-              backgroundColor: isDestructive ? AppColors.error : AppColors.primary,
+              backgroundColor:
+                  isDestructive ? AppColors.error : AppColors.primary,
               onPressed: onConfirm,
             ),
             const SizedBox(height: AppSpacing.xs),

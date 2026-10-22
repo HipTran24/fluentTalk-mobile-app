@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:english_mobile_app/core/theme/app_colors.dart';
 import 'package:english_mobile_app/core/theme/app_radius.dart';
 import 'package:english_mobile_app/core/theme/app_spacing.dart';
@@ -36,7 +35,7 @@ class AdminKpiCard extends StatelessWidget {
         border: Border.all(color: const Color(0xFF1E293B)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -60,33 +59,41 @@ class AdminKpiCard extends StatelessWidget {
               ),
               if (growthText != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
                     color: isPositiveGrowth
-                        ? const Color(0xFF10B981).withOpacity(0.18)
-                        : AppColors.error.withOpacity(0.18),
+                        ? const Color(0xFF10B981).withValues(alpha: 0.18)
+                        : AppColors.error.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isPositiveGrowth
-                          ? const Color(0xFF10B981).withOpacity(0.3)
-                          : AppColors.error.withOpacity(0.3),
+                          ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                          : AppColors.error.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isPositiveGrowth ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                        isPositiveGrowth
+                            ? Icons.trending_up_rounded
+                            : Icons.trending_down_rounded,
                         size: 13,
-                        color: isPositiveGrowth ? const Color(0xFF10B981) : AppColors.error,
+                        color: isPositiveGrowth
+                            ? const Color(0xFF10B981)
+                            : AppColors.error,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         growthText!,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isPositiveGrowth ? const Color(0xFF10B981) : AppColors.error,
+                          color: isPositiveGrowth
+                              ? const Color(0xFF10B981)
+                              : AppColors.error,
                         ),
                       ),
                     ],
@@ -97,7 +104,8 @@ class AdminKpiCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             value,
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 25,
               fontWeight: FontWeight.w800,
               color: Colors.white,
@@ -107,19 +115,21 @@ class AdminKpiCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             title,
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF94A3B8),
+              color: Color(0xFF94A3B8),
             ),
           ),
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF64748B),
+              color: Color(0xFF64748B),
             ),
           ),
         ],

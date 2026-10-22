@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -47,7 +48,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                 CircularProgressIndicator(color: AppColors.primary),
                 SizedBox(height: AppSpacing.md),
                 Text(
-                  'AI đang tổng hợp và phân tích báo cáo Rubric...',
+                  'Tom đang tổng hợp và phân tích báo cáo Rubric...',
                   style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                 ),
               ],
@@ -81,7 +82,7 @@ class SessionSummaryScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.lg),
 
                 // 3. 4-Axis Rubric Evaluations
-                Row(
+                AdaptiveRow(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
@@ -103,7 +104,8 @@ class SessionSummaryScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
 
                 // Render 4 ScoreAxisCards
-                ...report.dimensionScores.map((score) => ScoreAxisCard(score: score)),
+                ...report.dimensionScores
+                    .map((score) => ScoreAxisCard(score: score)),
 
                 const SizedBox(height: AppSpacing.lg),
 
@@ -112,7 +114,7 @@ class SessionSummaryScreen extends ConsumerWidget {
 
                 const SizedBox(height: AppSpacing.lg),
 
-                // 5. Coach Emma Personalized Advice Card
+                // 5. Coach Tom Personalized Advice Card
                 _buildCoachAdviceCard(report),
 
                 const SizedBox(height: AppSpacing.xl),
@@ -121,7 +123,8 @@ class SessionSummaryScreen extends ConsumerWidget {
                 PrimaryButton(
                   text: report.recommendedDrillTitle,
                   icon: Icons.bolt_rounded,
-                  onPressed: () => context.push('/coach/drill/${report.recommendedDrillId}'),
+                  onPressed: () =>
+                      context.push('/coach/drill/${report.recommendedDrillId}'),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 SecondaryButton(
@@ -149,7 +152,7 @@ class SessionSummaryScreen extends ConsumerWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -161,13 +164,19 @@ class SessionSummaryScreen extends ConsumerWidget {
           const SizedBox(height: 6),
           const Text(
             'Hoàn thành phiên luyện tập!',
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            style: TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
             '${report.scenarioTitle} • ${report.mode.title}',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
+            style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary),
           ),
           const SizedBox(height: 4),
           Text(
@@ -188,13 +197,13 @@ class SessionSummaryScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(AppRadius.round),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
               ],
             ),
-            child: Row(
+            child: AdaptiveRow(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.stars_rounded, color: Colors.amber, size: 22),
@@ -254,13 +263,17 @@ class SessionSummaryScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          const AdaptiveRow(
             children: [
-              Icon(Icons.auto_fix_high_rounded, color: AppColors.accent, size: 20),
+              Icon(Icons.auto_fix_high_rounded,
+                  color: AppColors.accent, size: 20),
               SizedBox(width: 8),
               Text(
                 'Phân tích sửa lỗi Trước ➔ Sau',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary),
               ),
             ],
           ),
@@ -270,7 +283,6 @@ class SessionSummaryScreen extends ConsumerWidget {
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
           const SizedBox(height: AppSpacing.sm),
-
           ...report.keyCorrections.map((item) => Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: Column(
@@ -281,13 +293,14 @@ class SessionSummaryScreen extends ConsumerWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.errorBg.withOpacity(0.5),
+                        color: AppColors.errorBg.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(AppRadius.sm),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.close_rounded, size: 16, color: AppColors.error),
+                          const Icon(Icons.close_rounded,
+                              size: 16, color: AppColors.error),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -308,13 +321,14 @@ class SessionSummaryScreen extends ConsumerWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.successBg.withOpacity(0.5),
+                        color: AppColors.successBg.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(AppRadius.sm),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.check_rounded, size: 16, color: AppColors.success),
+                          const Icon(Icons.check_rounded,
+                              size: 16, color: AppColors.success),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -332,7 +346,10 @@ class SessionSummaryScreen extends ConsumerWidget {
                     const SizedBox(height: 6),
                     Text(
                       'Lý do: ${item.explanationVi}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.35),
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          height: 1.35),
                     ),
                   ],
                 ),
@@ -348,7 +365,8 @@ class SessionSummaryScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.secondaryLight,
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.primaryLight.withOpacity(0.3)),
+        border:
+            Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,7 +382,7 @@ class SessionSummaryScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Lời khuyên từ Coach Emma:',
+                  'Lời khuyên từ Coach Tom:',
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,

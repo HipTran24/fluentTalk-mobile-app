@@ -21,7 +21,8 @@ class DrillPlayerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(drillPlayerControllerProvider(drillId));
-    final controller = ref.read(drillPlayerControllerProvider(drillId).notifier);
+    final controller =
+        ref.read(drillPlayerControllerProvider(drillId).notifier);
 
     if (state.isLoading) {
       return const Scaffold(
@@ -37,7 +38,7 @@ class DrillPlayerScreen extends ConsumerWidget {
         backgroundColor: AppColors.background,
         appBar: AppBar(title: const Text('Hoàn thành bài tập')),
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -47,7 +48,10 @@ class DrillPlayerScreen extends ConsumerWidget {
                 const Text(
                   'Tuyệt vời! Bạn đã hoàn thành Drill 3 phút!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                  style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -57,7 +61,7 @@ class DrillPlayerScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 PrimaryButton(
-                  text: 'Quay lại Gia sư AI',
+                  text: 'Quay lại Trợ lý Tom',
                   icon: Icons.check_circle_rounded,
                   onPressed: () => context.pop(),
                 ),
@@ -73,10 +77,11 @@ class DrillPlayerScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Bài tập sửa lỗi (${state.currentStep}/${state.totalSteps})'),
+        title:
+            Text('Bài tập sửa lỗi (${state.currentStep}/${state.totalSteps})'),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,19 +93,26 @@ class DrillPlayerScreen extends ConsumerWidget {
                   value: state.currentStep / state.totalSteps,
                   minHeight: 6,
                   backgroundColor: AppColors.surfaceVariant,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(AppColors.primary),
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
 
               Text(
                 'Mục tiêu: ${drill?.objective ?? "Luyện phản xạ chuẩn xác"}',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.accent),
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.accent),
               ),
               const SizedBox(height: 4),
               const Text(
                 'Nghe và nói lại câu chuẩn bản xứ:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary),
               ),
               const SizedBox(height: AppSpacing.md),
 
@@ -114,7 +126,7 @@ class DrillPlayerScreen extends ConsumerWidget {
                   border: Border.all(color: AppColors.border),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -136,7 +148,10 @@ class DrillPlayerScreen extends ConsumerWidget {
                     TextButton.icon(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Đang phát âm thanh mẫu chuẩn bản xứ...'), duration: Duration(seconds: 1)),
+                          const SnackBar(
+                              content: Text(
+                                  'Đang phát âm thanh mẫu chuẩn bản xứ...'),
+                              duration: Duration(seconds: 1)),
                         );
                       },
                       icon: const Icon(Icons.volume_up_rounded, size: 20),
@@ -146,7 +161,7 @@ class DrillPlayerScreen extends ConsumerWidget {
                 ),
               ),
 
-              const Spacer(),
+              const SizedBox(height: AppSpacing.lg),
 
               // Instant Result Card
               if (state.hasResult) ...[
@@ -156,7 +171,8 @@ class DrillPlayerScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.successBg,
                     borderRadius: AppRadius.cardRadius,
-                    border: Border.all(color: AppColors.success.withOpacity(0.4)),
+                    border: Border.all(
+                        color: AppColors.success.withValues(alpha: 0.4)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,23 +182,31 @@ class DrillPlayerScreen extends ConsumerWidget {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.check_circle_rounded, color: AppColors.success, size: 20),
+                              Icon(Icons.check_circle_rounded,
+                                  color: AppColors.success, size: 20),
                               SizedBox(width: 6),
                               Text(
                                 'Chính xác xuất sắc!',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.success),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: AppColors.success),
                               ),
                             ],
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: AppColors.success,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               '${state.score.toInt()}%',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12),
                             ),
                           ),
                         ],
@@ -190,14 +214,17 @@ class DrillPlayerScreen extends ConsumerWidget {
                       const SizedBox(height: 6),
                       Text(
                         'Bạn đã nói: "${state.spokenTranscript}"',
-                        style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                        style: const TextStyle(
+                            fontSize: 13, color: AppColors.textPrimary),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 PrimaryButton(
-                  text: state.currentStep < state.totalSteps ? 'Bước tiếp theo' : 'Hoàn thành bài tập',
+                  text: state.currentStep < state.totalSteps
+                      ? 'Bước tiếp theo'
+                      : 'Hoàn thành bài tập',
                   icon: Icons.arrow_forward_rounded,
                   onPressed: controller.nextStep,
                 ),
@@ -230,17 +257,24 @@ class DrillPlayerScreen extends ConsumerWidget {
                     height: 76,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: state.isRecording ? AppColors.error : AppColors.primary,
+                      color: state.isRecording
+                          ? AppColors.error
+                          : AppColors.primary,
                       boxShadow: [
                         BoxShadow(
-                          color: (state.isRecording ? AppColors.error : AppColors.primary).withOpacity(0.35),
+                          color: (state.isRecording
+                                  ? AppColors.error
+                                  : AppColors.primary)
+                              .withValues(alpha: 0.35),
                           blurRadius: 20,
                           offset: const Offset(0, 6),
                         ),
                       ],
                     ),
                     child: Icon(
-                      state.isRecording ? Icons.stop_rounded : Icons.mic_rounded,
+                      state.isRecording
+                          ? Icons.stop_rounded
+                          : Icons.mic_rounded,
                       color: Colors.white,
                       size: 38,
                     ),
@@ -250,8 +284,11 @@ class DrillPlayerScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               Center(
                 child: Text(
-                  state.isRecording ? 'Chạm để dừng và chấm điểm' : 'Chạm vào Micro để đọc câu',
-                  style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                  state.isRecording
+                      ? 'Chạm để dừng và chấm điểm'
+                      : 'Chạm vào Micro để đọc câu',
+                  style:
+                      const TextStyle(fontSize: 13, color: AppColors.textMuted),
                 ),
               ),
 

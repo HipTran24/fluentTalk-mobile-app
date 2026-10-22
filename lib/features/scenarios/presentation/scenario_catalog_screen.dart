@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -246,7 +247,8 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                       child: FilterChip(
                         label: Text(lvl.code),
                         selected: isSelected,
-                        selectedColor: AppColors.primary.withOpacity(0.12),
+                        selectedColor:
+                            AppColors.primary.withValues(alpha: 0.12),
                         checkmarkColor: AppColors.primary,
                         labelStyle: TextStyle(
                           fontSize: 11,
@@ -295,8 +297,8 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                         }
                       },
                       child: ListView.builder(
+                        scrollCacheExtent: const ScrollCacheExtent.pixels(500),
                         physics: const AlwaysScrollableScrollPhysics(),
-                        cacheExtent: 500,
                         padding:
                             const EdgeInsets.all(AppSpacing.pageHorizontal),
                         itemCount: scenarios.length,
@@ -308,7 +310,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                       ));
                 },
                 loading: () => ListView.builder(
-                  cacheExtent: 500,
+                  scrollCacheExtent: const ScrollCacheExtent.pixels(500),
                   padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
                   itemCount: 4,
                   itemBuilder: (_, __) => Padding(
@@ -328,8 +330,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
             ),
             scenariosAsync.maybeWhen(
               data: (page) => Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -380,7 +381,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -465,7 +466,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
 
                 // Roles Preview
                 Text(
-                  'AI: ${scenario.roleAi} • Bạn: ${scenario.roleUser}',
+                  'Tom: ${scenario.roleAi} • Bạn: ${scenario.roleUser}',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

@@ -6,15 +6,18 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
   return MockProfileRepository();
 });
 
-final vocabularyFilterProvider = StateProvider<String>((ref) => 'all'); // 'all', 'learning', 'mastered'
+final vocabularyFilterProvider =
+    StateProvider<String>((ref) => 'all'); // 'all', 'learning', 'mastered'
 
 final vocabularyListProvider =
-    StateNotifierProvider<VocabularyNotifier, AsyncValue<List<VocabularyItem>>>((ref) {
+    StateNotifierProvider<VocabularyNotifier, AsyncValue<List<VocabularyItem>>>(
+        (ref) {
   final repo = ref.watch(profileRepositoryProvider);
   return VocabularyNotifier(repo);
 });
 
-class VocabularyNotifier extends StateNotifier<AsyncValue<List<VocabularyItem>>> {
+class VocabularyNotifier
+    extends StateNotifier<AsyncValue<List<VocabularyItem>>> {
   final ProfileRepository _repo;
 
   VocabularyNotifier(this._repo) : super(const AsyncValue.loading()) {
@@ -91,7 +94,8 @@ class ProfileSettingsState {
 }
 
 final profileSettingsControllerProvider =
-    StateNotifierProvider<ProfileSettingsController, ProfileSettingsState>((ref) {
+    StateNotifierProvider<ProfileSettingsController, ProfileSettingsState>(
+        (ref) {
   final repo = ref.watch(profileRepositoryProvider);
   return ProfileSettingsController(repo);
 });

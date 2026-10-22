@@ -43,6 +43,7 @@ void main() {
     expect(router.routerDelegate.currentConfiguration.uri.path,
         '/practice/scenario/10000000-0000-0000-0000-000000000001');
     for (final protected in [
+      '/practice/voice',
       '/practice/text',
       '/practice/guided/123',
       '/practice/realtime/123',
@@ -73,7 +74,7 @@ void main() {
       child: MaterialApp.router(routerConfig: router),
     ));
     await tester.pump();
-    for (final path in ['/home', '/practice/text', '/coach', '/profile']) {
+    for (final path in ['/practice/guided/123', '/admin']) {
       router.go(path);
       await tester.pump();
       await tester.pump();
@@ -81,7 +82,7 @@ void main() {
           router.routerDelegate.currentConfiguration.uri.path, '/unavailable',
           reason: path);
     }
-    expect(find.text('Chế độ học chưa sẵn sàng'), findsOneWidget);
+    expect(find.text('Khu vực luyện tập'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 2));
     container.dispose();

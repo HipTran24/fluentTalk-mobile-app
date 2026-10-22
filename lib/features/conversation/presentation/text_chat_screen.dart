@@ -1,3 +1,5 @@
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,11 +7,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/widgets/audio_player_bar.dart';
 import '../domain/models/chat_models.dart';
 import 'controllers/chat_controller.dart';
 
-/// Screen 10 — Mode 1: Ask AI by Text, Hear AI Reply
+/// Screen 10 — Mode 1: Ask Tom by Text, Hear Tom Reply
 /// Compliant with ESP-PLAN-001 Appendix A4, B12 & MODE-01
 class TextChatScreen extends ConsumerStatefulWidget {
   const TextChatScreen({super.key});
@@ -18,12 +19,31 @@ class TextChatScreen extends ConsumerStatefulWidget {
   ConsumerState<TextChatScreen> createState() => _TextChatScreenState();
 }
 
-class _TextChatScreenState extends ConsumerState<TextChatScreen> {
+class _TextChatScreenState extends ConsumerState<TextChatScreen>
+    with WidgetsBindingObserver {
+  ChatController? _chatController;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _chatController?.stopAudio();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) _chatController?.stopAudio();
+  }
+
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _chatController?.stopAudio(updateState: false);
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -43,8 +63,18 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
 
   void _sendMessage([String? textOverride]) {
     final text = textOverride ?? _inputController.text.trim();
-    if (text.isEmpty) return;
+    final state = ref.read(chatControllerProvider);
+    if (text.isEmpty ||
+        state.isAiThinking ||
+        state.messages
+            .any((m) => m.deliveryStatus == MessageDeliveryStatus.failed)) {
+      return;
+    }
 
+    if (text.length > 4000) {
+      ref.read(chatControllerProvider.notifier).sendTextMessage(text);
+      return;
+    }
     ref.read(chatControllerProvider.notifier).sendTextMessage(text);
     _inputController.clear();
     _scrollToBottom();
@@ -54,42 +84,16 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatControllerProvider);
     final chatController = ref.read(chatControllerProvider.notifier);
+    _chatController = chatController;
+    ref.listen(chatControllerProvider, (_, next) {
+      _scrollToBottom();
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.psychology, color: AppColors.primary, size: 20),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Coach Emma (Text-to-Voice)',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                ),
-                Row(
-                  children: [
-                    CircleAvatar(radius: 3, backgroundColor: AppColors.success),
-                    SizedBox(width: 4),
-                    Text(
-                      'Sẵn sàng đàm thoại',
-                      style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+        title: const Text('Trợ lý Tom',
+            maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
@@ -115,9 +119,11 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
                 value: 'clear',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                    Icon(Icons.delete_outline,
+                        size: 18, color: AppColors.error),
                     SizedBox(width: 8),
-                    Text('Làm mới cuộc trò chuyện', style: TextStyle(color: AppColors.error)),
+                    Text('Làm mới cuộc trò chuyện',
+                        style: TextStyle(color: AppColors.error)),
                   ],
                 ),
               ),
@@ -131,42 +137,62 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
             // Chat Message List
             Expanded(
               child: ListView.builder(
+                scrollCacheExtent: const ScrollCacheExtent.pixels(500),
                 controller: _scrollController,
-                cacheExtent: 500,
                 padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
                 itemCount: chatState.messages.length,
                 itemBuilder: (ctx, idx) {
                   final message = chatState.messages[idx];
                   return message.isUser
                       ? _buildUserMessageBubble(message)
-                      : _buildAiMessageBubble(message, chatState, chatController);
+                      : _buildAiMessageBubble(
+                          message, chatState, chatController);
                 },
               ),
             ),
 
-            // AI Thinking / Voice Generating Indicator (Isolated GPU RepaintBoundary)
+            // Tom Thinking / Voice Generating Indicator (Isolated GPU RepaintBoundary)
             if (chatState.isAiThinking)
               RepaintBoundary(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   margin: const EdgeInsets.only(bottom: 8),
-                  child: const Row(
+                  child: const AdaptiveRow(
                     children: [
                       SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: AppColors.primary),
                       ),
                       SizedBox(width: 10),
                       Text(
-                        'Coach Emma đang soạn câu trả lời & phát âm...',
-                        style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+                        'Tom đang xử lý hội thoại…',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                            fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
                 ),
               ),
 
+            if (chatState.errorMessage != null)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(children: [
+                  Text(chatState.errorMessage!,
+                      style: const TextStyle(color: AppColors.error)),
+                  if (!chatState.messages.any(
+                      (m) => m.deliveryStatus == MessageDeliveryStatus.failed))
+                    TextButton(
+                        onPressed: () => chatController.loadHistory(),
+                        child: const Text('Tải lại hội thoại')),
+                ]),
+              ),
             // Input Composer Bar
             _buildComposer(chatState),
           ],
@@ -189,15 +215,19 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
             children: [
               if (isFailed)
                 IconButton(
-                  icon: const Icon(Icons.refresh, color: AppColors.error, size: 20),
-                  onPressed: () => _sendMessage(message.text),
+                  icon: const Icon(Icons.refresh,
+                      color: AppColors.error, size: 20),
+                  onPressed: () => ref
+                      .read(chatControllerProvider.notifier)
+                      .retryMessage(message.id),
                   tooltip: 'Gửi lại tin nhắn',
                 ),
               Container(
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.78,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
                   color: isFailed ? AppColors.errorBg : AppColors.primary,
                   borderRadius: const BorderRadius.only(
@@ -265,7 +295,7 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
                     border: Border.all(color: AppColors.border),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
+                        color: Colors.black.withValues(alpha: 0.02),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -284,21 +314,44 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
                         ),
                       ),
 
-                      // Embedded Waveform Audio Player Bar (MODE-01)
-                      if (message.audioUrl != null) ...[
-                        const SizedBox(height: AppSpacing.sm),
-                        AudioPlayerBar(
-                          audioUrl: message.audioUrl,
-                          onSpeedChanged: controller.setPlaybackSpeed,
-                        ),
-                      ],
+                      const SizedBox(height: AppSpacing.sm),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () =>
+                                controller.toggleAudioPlayback(message.id),
+                            icon: Icon(chatState.currentlyPlayingMessageId ==
+                                    message.id
+                                ? Icons.stop_rounded
+                                : Icons.volume_up_rounded),
+                            label: Text(chatState.currentlyPlayingMessageId ==
+                                    message.id
+                                ? 'Dừng đọc'
+                                : 'Nghe / phát lại'),
+                          ),
+                          TextButton(
+                            onPressed: () => controller.setPlaybackSpeed(
+                                chatState.globalPlaybackSpeed == 1.0
+                                    ? 0.75
+                                    : chatState.globalPlaybackSpeed == 0.75
+                                        ? 1.25
+                                        : 1.0),
+                            child: Text('${chatState.globalPlaybackSpeed}x'),
+                          ),
+                        ],
+                      ),
 
                       // Useful Phrases Highlight
                       if (message.usefulPhrases.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.sm),
                         const Text(
                           'Mẫu câu gợi ý:',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textMuted),
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textMuted),
                         ),
                         const SizedBox(height: 4),
                         Wrap(
@@ -315,18 +368,24 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
                                   ),
                                 );
                               },
-                              borderRadius: BorderRadius.circular(AppRadius.round),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.round),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: AppColors.secondaryLight,
-                                  borderRadius: BorderRadius.circular(AppRadius.round),
-                                  border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.round),
+                                  border: Border.all(
+                                      color: AppColors.primary
+                                          .withValues(alpha: 0.2)),
                                 ),
-                                child: Row(
+                                child: AdaptiveRow(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.copy, size: 11, color: AppColors.primary),
+                                    const Icon(Icons.copy,
+                                        size: 11, color: AppColors.primary),
                                     const SizedBox(width: 4),
                                     Text(
                                       phrase,
@@ -357,10 +416,12 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 6),
                           child: ActionChip(
-                            avatar: const Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.accent),
+                            avatar: const Icon(Icons.chat_bubble_outline,
+                                size: 14, color: AppColors.accent),
                             label: Text(
                               question,
-                              style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                              style: const TextStyle(
+                                  fontSize: 12, color: AppColors.textPrimary),
                             ),
                             backgroundColor: AppColors.surface,
                             side: const BorderSide(color: AppColors.border),
@@ -413,7 +474,8 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
                 onSubmitted: (_) => _sendMessage(),
                 decoration: const InputDecoration(
                   hintText: 'Nhập câu hỏi tiếng Anh hoặc Việt...',
-                  hintStyle: TextStyle(fontSize: 14, color: AppColors.textMuted),
+                  hintStyle:
+                      TextStyle(fontSize: 14, color: AppColors.textMuted),
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
@@ -428,13 +490,14 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
           IconButton.filled(
             style: IconButton.styleFrom(
               backgroundColor: AppColors.primary,
-              disabledBackgroundColor: AppColors.primary.withOpacity(0.4),
+              disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
             ),
             icon: chatState.isAiThinking
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 : const Icon(Icons.send_rounded, color: Colors.white, size: 20),
             onPressed: chatState.isAiThinking ? null : () => _sendMessage(),

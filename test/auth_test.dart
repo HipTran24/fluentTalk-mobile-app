@@ -55,7 +55,9 @@ void main() {
       expect(restored, isNull);
     });
 
-    test('updateOnboardingPreferences updates dailyMinutes and onboarded status', () async {
+    test(
+        'updateOnboardingPreferences updates dailyMinutes and onboarded status',
+        () async {
       final repo = LocalAuthRepository();
       await repo.signUp(
         email: 'onboard@test.com',

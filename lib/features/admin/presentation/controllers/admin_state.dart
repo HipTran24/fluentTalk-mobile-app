@@ -1,7 +1,8 @@
 import 'package:english_mobile_app/features/admin/domain/models/admin_models.dart';
 
 class AdminState {
-  final int currentTabIndex; // 0: Dashboard, 1: Scenarios, 2: Users, 3: AI Config
+  final int
+      currentTabIndex; // 0: Dashboard, 1: Scenarios, 2: Users, 3: Tom Config
   final bool isLoading;
   final AdminKpiSummary? kpiSummary;
   final List<AdminScenarioItem> scenarios;

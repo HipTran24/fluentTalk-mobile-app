@@ -52,6 +52,6 @@ class PlacementResult {
     this.identifiedStrengths = const [],
     this.recommendedNextSteps = const [],
     this.disclaimer =
-        'Đánh giá phản xạ được thực hiện bởi AI Coach nội bộ dựa trên các mẫu nói thực nghiệm. Đây là kết quả tham khảo học tập, không thay thế chứng chỉ CEFR hay kỳ thi IELTS chính thức.',
+        'Đánh giá phản xạ được thực hiện bởi Tom Coach nội bộ dựa trên các mẫu nói thực nghiệm. Đây là kết quả tham khảo học tập, không thay thế chứng chỉ CEFR hay kỳ thi IELTS chính thức.',
   });
 }

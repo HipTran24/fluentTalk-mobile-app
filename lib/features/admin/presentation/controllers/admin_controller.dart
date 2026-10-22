@@ -4,7 +4,8 @@ import '../../domain/models/admin_models.dart';
 import '../../domain/repository/i_admin_repository.dart';
 import 'admin_state.dart';
 
-final adminControllerProvider = StateNotifierProvider<AdminController, AdminState>((ref) {
+final adminControllerProvider =
+    StateNotifierProvider<AdminController, AdminState>((ref) {
   final repo = ref.watch(adminRepositoryProvider);
   return AdminController(repo);
 });
@@ -38,7 +39,8 @@ class AdminController extends StateNotifier<AdminState> {
         aiConfig: aiConfig,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, statusMessage: 'Lỗi tải dữ liệu: $e');
+      state = state.copyWith(
+          isLoading: false, statusMessage: 'Lỗi tải dữ liệu: $e');
     }
   }
 
@@ -70,7 +72,8 @@ class AdminController extends StateNotifier<AdminState> {
       query: state.scenarioQuery,
       topicFilter: state.scenarioTopicFilter,
     );
-    state = state.copyWith(scenarios: scenarios, statusMessage: 'Đã cập nhật trạng thái kịch bản');
+    state = state.copyWith(
+        scenarios: scenarios, statusMessage: 'Đã cập nhật trạng thái kịch bản');
   }
 
   Future<void> deleteScenario(String scenarioId) async {
@@ -79,7 +82,8 @@ class AdminController extends StateNotifier<AdminState> {
       query: state.scenarioQuery,
       topicFilter: state.scenarioTopicFilter,
     );
-    state = state.copyWith(scenarios: scenarios, statusMessage: 'Đã xóa kịch bản khỏi danh mục');
+    state = state.copyWith(
+        scenarios: scenarios, statusMessage: 'Đã xóa kịch bản khỏi danh mục');
   }
 
   Future<void> saveScenario(AdminScenarioItem scenario) async {
@@ -88,7 +92,8 @@ class AdminController extends StateNotifier<AdminState> {
       query: state.scenarioQuery,
       topicFilter: state.scenarioTopicFilter,
     );
-    state = state.copyWith(scenarios: scenarios, statusMessage: 'Đã lưu kịch bản thành công');
+    state = state.copyWith(
+        scenarios: scenarios, statusMessage: 'Đã lưu kịch bản thành công');
   }
 
   Future<void> searchLearners(String query) async {
@@ -115,11 +120,15 @@ class AdminController extends StateNotifier<AdminState> {
       query: state.userQuery,
       levelFilter: state.userLevelFilter,
     );
-    state = state.copyWith(learners: learners, statusMessage: 'Đã thay đổi trạng thái kích hoạt học viên');
+    state = state.copyWith(
+        learners: learners,
+        statusMessage: 'Đã thay đổi trạng thái kích hoạt học viên');
   }
 
   Future<void> updateAiConfig(AdminAiConfig config) async {
     await _repo.updateAiConfig(config);
-    state = state.copyWith(aiConfig: config, statusMessage: 'Đã lưu cấu hình AI Gemini Live thành công');
+    state = state.copyWith(
+        aiConfig: config,
+        statusMessage: 'Đã lưu cấu hình Tom Gemini Live thành công');
   }
 }

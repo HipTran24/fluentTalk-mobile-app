@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-/// Animated Waveform Visualizer for Speaking & AI Audio Playback
+/// Animated Waveform Visualizer for Speaking & Tom Audio Playback
 /// Compliant with Appendix B11, B12, B14
 class VoiceWaveform extends StatefulWidget {
   final bool isActive;

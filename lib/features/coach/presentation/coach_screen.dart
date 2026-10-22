@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +8,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import 'controllers/coach_controller.dart';
 
-/// Screen 16 — Personal AI Coach Dashboard
+/// Screen 16 — Personal Tom Coach Dashboard
 /// Compliant with ESP-PLAN-001 Appendix B18 & COACH-06
 class CoachScreen extends ConsumerWidget {
   const CoachScreen({super.key});
@@ -19,7 +20,7 @@ class CoachScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Gia sư AI Coach'),
+        title: const Text('Trợ lý Tom'),
         actions: [
           IconButton(
             onPressed: () => context.push('/coach/plan'),
@@ -72,7 +73,9 @@ class CoachScreen extends ConsumerWidget {
                 ),
                 error: (err, _) => Text('Lỗi tải dữ liệu: $err'),
                 data: (items) => Column(
-                  children: items.map((w) => _buildWeaknessItemCard(context, w)).toList(),
+                  children: items
+                      .map((w) => _buildWeaknessItemCard(context, w))
+                      .toList(),
                 ),
               ),
 
@@ -95,7 +98,7 @@ class CoachScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.secondaryLight,
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +114,7 @@ class CoachScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Coach Emma (Trí nhớ dài hạn)',
+                  'Coach Tom (Trí nhớ dài hạn)',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -121,7 +124,8 @@ class CoachScreen extends ConsumerWidget {
                 SizedBox(height: 4),
                 Text(
                   'Tôi nhận thấy bạn đã phản xạ tự tin hơn rất nhiều khi chào hỏi! Tuy nhiên, bạn thường quên chia thì Quá khứ đơn khi kể lại trải nghiệm. Hãy luyện ngay bài tập 3 phút dưới đây nhé.',
-                  style: TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.4),
+                  style: TextStyle(
+                      fontSize: 13, color: AppColors.textPrimary, height: 1.4),
                 ),
               ],
             ),
@@ -144,20 +148,25 @@ class CoachScreen extends ConsumerWidget {
       child: Material(
         type: MaterialType.transparency,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md, vertical: 6),
           leading: const CircleAvatar(
             backgroundColor: Colors.white24,
             child: Icon(Icons.event_note_rounded, color: Colors.white),
           ),
           title: const Text(
             'Lộ trình học cá nhân hóa 7 ngày',
-            style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 14.5),
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                fontSize: 14.5),
           ),
           subtitle: const Text(
             'Hôm nay: Thứ Ba • Bài tập sửa thì Quá khứ đơn',
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
-          trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 14),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded,
+              color: Colors.white, size: 14),
           onTap: () => context.push('/coach/plan'),
         ),
       ),
@@ -196,7 +205,7 @@ class CoachScreen extends ConsumerWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -205,24 +214,30 @@ class CoachScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          AdaptiveRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: Text(
                   item.description,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: priorityColor.withOpacity(0.12),
+                  color: priorityColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   priorityText,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: priorityColor),
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: priorityColor),
                 ),
               ),
             ],
@@ -238,12 +253,16 @@ class CoachScreen extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.analytics_outlined, size: 15, color: AppColors.textMuted),
+                const Icon(Icons.analytics_outlined,
+                    size: 15, color: AppColors.textMuted),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     'Bằng chứng: ${item.evidence}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.35),
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        height: 1.35),
                   ),
                 ),
               ],
@@ -257,11 +276,15 @@ class CoachScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
               ),
               icon: const Icon(Icons.play_arrow_rounded, size: 16),
-              label: const Text('Bắt đầu Drill 3p', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+              label: const Text('Bắt đầu Drill 3p',
+                  style:
+                      TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -287,13 +310,17 @@ class CoachScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Vì sao AI đề xuất các bài học này? (COACH-06)',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  'Vì sao Tom đề xuất các bài học này? (COACH-06)',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Gia sư AI đối chiếu lỗi ngữ pháp lặp lại, độ ngập ngừng âm thanh và vốn từ vựng của bạn qua các phiên gần nhất để xếp thứ tự ưu tiên các bài tập cần khắc phục trước.',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted, height: 1.35),
+                  'Trợ lý Tom đối chiếu lỗi ngữ pháp lặp lại, độ ngập ngừng âm thanh và vốn từ vựng của bạn qua các phiên gần nhất để xếp thứ tự ưu tiên các bài tập cần khắc phục trước.',
+                  style: TextStyle(
+                      fontSize: 12, color: AppColors.textMuted, height: 1.35),
                 ),
               ],
             ),

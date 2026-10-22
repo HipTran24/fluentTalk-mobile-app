@@ -33,11 +33,14 @@ class HomeDashboardState {
     this.dailyGoalMinutes = 15,
     this.weeklyMinutes = 68,
     this.nextLessonTitle = 'Phản xạ: Gọi món tại nhà hàng Ý',
-    this.nextLessonDesc = 'Thực hành cấu trúc "Could I have..." và hỏi món đặc sản của quán.',
+    this.nextLessonDesc =
+        'Thực hành cấu trúc "Could I have..." và hỏi món đặc sản của quán.',
     this.nextLessonScenarioId = 'sc_travel_01',
-    this.nextLessonWhy = 'Dựa trên lỗi dùng từ vựng ẩm thực và liên từ ở phiên gần nhất',
+    this.nextLessonWhy =
+        'Dựa trên lỗi dùng từ vựng ẩm thực và liên từ ở phiên gần nhất',
     this.microInsightTitle = 'Bạn đã tự tin hơn 20% trong phản xạ câu hỏi!',
-    this.microInsightEvidence = 'Độ ngập ngừng giảm từ 4.2s xuống 2.1s qua 5 phiên gần nhất.',
+    this.microInsightEvidence =
+        'Độ ngập ngừng giảm từ 4.2s xuống 2.1s qua 5 phiên gần nhất.',
     this.hasActiveSession = false,
     this.activeSessionId,
     this.activeSessionTitle,
@@ -123,7 +126,8 @@ class HomeDashboardController extends StateNotifier<HomeDashboardState> {
     final authState = _ref.read(authControllerProvider);
     final user = authState.user;
 
-    final userName = (user?.displayName.isNotEmpty == true) ? user!.displayName : 'Lê Nam';
+    final userName =
+        (user?.displayName.isNotEmpty == true) ? user!.displayName : 'Lê Nam';
     final userLevel = user?.level ?? UserLevel.a2;
     final dailyGoal = user?.dailyMinutes ?? 15;
 
@@ -134,14 +138,18 @@ class HomeDashboardController extends StateNotifier<HomeDashboardState> {
     if (!mounted) return;
 
     // Filter recommended based on user level and popular topics
-    final recommended = allScenarios.where((s) => s.level == userLevel || s.level == UserLevel.a2).take(4).toList();
+    final recommended = allScenarios
+        .where((s) => s.level == userLevel || s.level == UserLevel.a2)
+        .take(4)
+        .toList();
 
     state = state.copyWith(
       greeting: _computeGreeting(),
       userName: userName,
       userLevel: userLevel,
       dailyGoalMinutes: dailyGoal,
-      recommendedScenarios: recommended.isNotEmpty ? recommended : allScenarios.take(3).toList(),
+      recommendedScenarios:
+          recommended.isNotEmpty ? recommended : allScenarios.take(3).toList(),
       isLoading: false,
     );
   }

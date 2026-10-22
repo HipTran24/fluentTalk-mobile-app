@@ -23,7 +23,7 @@ class MockChatRepository implements ChatRepository {
     }
     _processedKeys.add(idempotencyKey);
 
-    // Simulate AI thinking and voice synthesis latency
+    // Simulate Tom thinking and voice synthesis latency
     await Future.delayed(const Duration(milliseconds: 900));
 
     final query = text.toLowerCase();
@@ -34,23 +34,55 @@ class MockChatRepository implements ChatRepository {
     if (query.contains('introduce') || query.contains('giới thiệu')) {
       replyText =
           'To introduce yourself naturally, you can say: "Hello! My name is Nam. I am currently working as a software developer and I love learning new languages." Listen to how the sentence flows:';
-      usefulPhrases = ['My name is...', 'I am currently working as...', 'In my spare time...'];
-      followUps = ['How do I mention my hobbies?', 'What is a good phrase for job interviews?'];
-    } else if (query.contains('restaurant') || query.contains('nhà hàng') || query.contains('gọi món')) {
+      usefulPhrases = [
+        'My name is...',
+        'I am currently working as...',
+        'In my spare time...'
+      ];
+      followUps = [
+        'How do I mention my hobbies?',
+        'What is a good phrase for job interviews?'
+      ];
+    } else if (query.contains('restaurant') ||
+        query.contains('nhà hàng') ||
+        query.contains('gọi món')) {
       replyText =
           'When ordering food, a polite and native way is to say: "Could I please have the seafood pasta with a glass of water?" Here is how it sounds:';
-      usefulPhrases = ['Could I please have...', 'What do you recommend?', 'Could I get the check?'];
-      followUps = ['How do I ask if a dish is spicy?', 'How do I compliment the chef?'];
-    } else if (query.contains('travel') || query.contains('du lịch') || query.contains('sân bay')) {
+      usefulPhrases = [
+        'Could I please have...',
+        'What do you recommend?',
+        'Could I get the check?'
+      ];
+      followUps = [
+        'How do I ask if a dish is spicy?',
+        'How do I compliment the chef?'
+      ];
+    } else if (query.contains('travel') ||
+        query.contains('du lịch') ||
+        query.contains('sân bay')) {
       replyText =
           'At the airport, you can ask the agent: "Excuse me, could you tell me where boarding gate 12 is located?" Listen to the intonation:';
-      usefulPhrases = ['Where is gate...?', 'Is this flight on time?', 'Could I get a window seat?'];
-      followUps = ['How do I report lost luggage?', 'How to ask for a taxi at the terminal?'];
+      usefulPhrases = [
+        'Where is gate...?',
+        'Is this flight on time?',
+        'Could I get a window seat?'
+      ];
+      followUps = [
+        'How do I report lost luggage?',
+        'How to ask for a taxi at the terminal?'
+      ];
     } else {
       replyText =
           'That is a very good question! Here is a natural way to express that in English: "I would be delighted to help you explore more conversational expressions." Listen to the native intonation:';
-      usefulPhrases = ['I would be delighted to...', 'Feel free to ask...', 'Practice makes perfect.'];
-      followUps = ['Tell me more about daily idioms.', 'How do I sound more natural?'];
+      usefulPhrases = [
+        'I would be delighted to...',
+        'Feel free to ask...',
+        'Practice makes perfect.'
+      ];
+      followUps = [
+        'Tell me more about daily idioms.',
+        'How do I sound more natural?'
+      ];
     }
 
     return ChatMessage(

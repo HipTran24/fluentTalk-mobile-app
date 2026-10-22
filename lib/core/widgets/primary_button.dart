@@ -54,7 +54,7 @@ class PrimaryButton extends StatelessWidget {
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: glowColor.withOpacity(0.32),
+                    color: glowColor.withValues(alpha: 0.32),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),
@@ -66,8 +66,8 @@ class PrimaryButton extends StatelessWidget {
           child: InkWell(
             onTap: enabled ? onPressed : null,
             borderRadius: AppRadius.buttonRadius,
-            splashColor: Colors.white.withOpacity(0.18),
-            highlightColor: Colors.white.withOpacity(0.08),
+            splashColor: Colors.white.withValues(alpha: 0.18),
+            highlightColor: Colors.white.withValues(alpha: 0.08),
             child: Center(
               child: isLoading
                   ? SizedBox(

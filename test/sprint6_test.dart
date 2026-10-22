@@ -23,16 +23,19 @@ void main() {
       final initialCaps = await repo.getInitialConversation('sess_rt_01');
       expect(initialCaps.length, 1);
       expect(initialCaps.first.isAi, isTrue);
-      expect(initialCaps.first.text, contains('Emma'));
+      expect(initialCaps.first.text, contains('Tom'));
     });
   });
 
   group('Sprint 6 - RealtimeCallController Tests', () {
-    test('Handles call lifecycle, controls, barge-in interrupt, and termination', () async {
+    test(
+        'Handles call lifecycle, controls, barge-in interrupt, and termination',
+        () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final controller = container.read(realtimeCallControllerProvider('sess_rt_01').notifier);
+      final controller =
+          container.read(realtimeCallControllerProvider('sess_rt_01').notifier);
       await controller.initCall();
 
       var state = container.read(realtimeCallControllerProvider('sess_rt_01'));
@@ -43,29 +46,42 @@ void main() {
       // Controls test: Mute, Speakerphone, Captions
       expect(state.isMuted, isFalse);
       controller.toggleMute();
-      expect(container.read(realtimeCallControllerProvider('sess_rt_01')).isMuted, isTrue);
+      expect(
+          container.read(realtimeCallControllerProvider('sess_rt_01')).isMuted,
+          isTrue);
 
       expect(state.isSpeakerPhoneOn, isTrue);
       controller.toggleSpeakerPhone();
-      expect(container.read(realtimeCallControllerProvider('sess_rt_01')).isSpeakerPhoneOn, isFalse);
+      expect(
+          container
+              .read(realtimeCallControllerProvider('sess_rt_01'))
+              .isSpeakerPhoneOn,
+          isFalse);
 
       expect(state.showCaptions, isTrue);
       controller.toggleCaptions();
-      expect(container.read(realtimeCallControllerProvider('sess_rt_01')).showCaptions, isFalse);
+      expect(
+          container
+              .read(realtimeCallControllerProvider('sess_rt_01'))
+              .showCaptions,
+          isFalse);
 
-      // Barge-in Interrupt Test: When AI is speaking, user interrupts
+      // Barge-in Interrupt Test: When Tom is speaking, user interrupts
       state = container.read(realtimeCallControllerProvider('sess_rt_01'));
       if (state.speakerState == RealtimeSpeakerState.aiSpeaking) {
         controller.interruptAi();
         expect(
-          container.read(realtimeCallControllerProvider('sess_rt_01')).speakerState,
+          container
+              .read(realtimeCallControllerProvider('sess_rt_01'))
+              .speakerState,
           RealtimeSpeakerState.listening,
         );
       }
 
       // Simulate User Speech
       controller.toggleMute(); // Unmute first
-      controller.simulateUserSpeech('I had a fantastic meeting with my new client today!');
+      controller.simulateUserSpeech(
+          'I had a fantastic meeting with my new client today!');
       state = container.read(realtimeCallControllerProvider('sess_rt_01'));
       expect(state.speakerState, RealtimeSpeakerState.userSpeaking);
       expect(state.captionsHistory.length, 2);
@@ -79,7 +95,8 @@ void main() {
   });
 
   group('Sprint 6 - UI Widget Smoke Tests', () {
-    testWidgets('RealtimeCallScreen renders status bar, avatar, captions, and controls',
+    testWidgets(
+        'RealtimeCallScreen renders status bar, avatar, captions, and controls',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(

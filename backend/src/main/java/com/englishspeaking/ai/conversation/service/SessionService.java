@@ -44,6 +44,9 @@ public class SessionService {
         }
     });
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.englishspeaking.ai.learning.LearningService learning;
+
     private final SessionRepository sessionRepository;
     private final MessageRepository messageRepository;
     private final FeedbackRepository feedbackRepository;
@@ -51,6 +54,8 @@ public class SessionService {
     private final ScenarioRepository scenarioRepository;
     private final ConversationAiService aiService;
     private final ObjectMapper objectMapper;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
+    private final com.englishspeaking.ai.config.AppProperties properties;
 
     public SessionService(
             SessionRepository sessionRepository,
@@ -59,7 +64,9 @@ public class SessionService {
             IdempotencyRepository idempotencyRepository,
             ScenarioRepository scenarioRepository,
             ConversationAiService aiService,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            org.springframework.jdbc.core.JdbcTemplate jdbc,
+            com.englishspeaking.ai.config.AppProperties properties
     ) {
         this.sessionRepository = sessionRepository;
         this.messageRepository = messageRepository;
@@ -68,12 +75,16 @@ public class SessionService {
         this.scenarioRepository = scenarioRepository;
         this.aiService = aiService;
         this.objectMapper = objectMapper;
+        this.jdbc = jdbc;
+        this.properties = properties;
     }
 
     @Transactional
     public SessionResponse createSession(UUID userId, String idempotencyKey, SessionCreateRequest req) {
         validateIdempotencyKey(idempotencyKey);
+        lockUser(userId);
         String reqHash = hashString(req != null ? req.toString() : "");
+        idempotencyKey = hashString("POST:/sessions:" + idempotencyKey);
 
         Optional<IdempotencyRecord> existing = idempotencyRepository.findByUserIdAndKey(userId, idempotencyKey);
         if (existing.isPresent()) {
@@ -84,7 +95,7 @@ public class SessionService {
             try {
                 return objectMapper.readValue(record.getResponseBody(), SessionResponse.class);
             } catch (JsonProcessingException e) {
-                log.warn("Failed to deserialize cached idempotency response: {}", e.getMessage());
+                throw new ApiException("IDEMPOTENCY_STATE_UNAVAILABLE", "Không thể khôi phục kết quả cũ. Không gửi thêm yêu cầu mới.", HttpStatus.SERVICE_UNAVAILABLE);
             }
         }
 
@@ -92,13 +103,20 @@ public class SessionService {
             throw new ApiException("VALIDATION_FAILED", "Mode must be one of: text, guided, realtime", HttpStatus.BAD_REQUEST);
         }
 
+        if (!"text".equalsIgnoreCase(req.mode())) {
+            throw new ApiException("MODE_UNAVAILABLE", "Chế độ âm thanh chưa được tích hợp.", HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        if (req.level() != null && !Set.of("A0", "A1", "A2", "B1", "B2", "C1", "C2").contains(req.level())) {
+            throw new ApiException("VALIDATION_FAILED", "Invalid level", HttpStatus.BAD_REQUEST);
+        }
         Scenario scenario = null;
         if (req.scenarioId() != null) {
             scenario = scenarioRepository.findById(req.scenarioId())
+                    .filter(Scenario::isActive)
                     .orElseThrow(() -> new ApiException("NOT_FOUND", "Scenario not found", HttpStatus.NOT_FOUND));
         }
 
-        SessionEntity session = new SessionEntity(userId, req.scenarioId(), req.mode(), req.level());
+        SessionEntity session = new SessionEntity(userId, req.scenarioId(), req.mode().toLowerCase(java.util.Locale.ROOT), req.level());
         session = sessionRepository.save(session);
 
         List<MessageResponse> messages = new ArrayList<>();
@@ -165,7 +183,9 @@ public class SessionService {
     @Transactional
     public TurnResultResponse sendMessage(UUID userId, UUID sessionId, String idempotencyKey, MessageCreateRequest req) {
         validateIdempotencyKey(idempotencyKey);
+        lockUser(userId);
         String reqHash = hashString(req != null ? req.text() : "");
+        idempotencyKey = hashString("POST:/sessions/" + sessionId + "/messages:" + idempotencyKey);
 
         Optional<IdempotencyRecord> existing = idempotencyRepository.findByUserIdAndKey(userId, idempotencyKey);
         if (existing.isPresent()) {
@@ -176,7 +196,7 @@ public class SessionService {
             try {
                 return objectMapper.readValue(record.getResponseBody(), TurnResultResponse.class);
             } catch (JsonProcessingException e) {
-                log.warn("Failed to deserialize cached turn response: {}", e.getMessage());
+                throw new ApiException("IDEMPOTENCY_STATE_UNAVAILABLE", "Không thể khôi phục lượt hội thoại cũ.", HttpStatus.SERVICE_UNAVAILABLE);
             }
         }
 
@@ -187,10 +207,16 @@ public class SessionService {
             throw new ApiException("CONFLICT", "Cannot add messages to a completed session", HttpStatus.CONFLICT);
         }
 
-        if (req == null || req.text() == null || req.text().isBlank()) {
+        if (req == null || req.text() == null || req.text().isBlank() || req.text().length() > 4000) {
             throw new ApiException("VALIDATION_FAILED", "Message text cannot be blank", HttpStatus.BAD_REQUEST);
         }
 
+        long turnsToday = messageRepository.countUserTurnsSince(userId,
+                Instant.now().atZone(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDate()
+                        .atStartOfDay(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).toInstant());
+        if (turnsToday >= properties.getQuota().getMaxDailyTurns()) {
+            throw new ApiException("QUOTA_EXCEEDED", "Bạn đã dùng hết lượt luyện tập hôm nay.", HttpStatus.TOO_MANY_REQUESTS);
+        }
         int count = messageRepository.countBySessionId(sessionId);
         int userSeq = count + 1;
         MessageEntity userMsg = new MessageEntity(sessionId, "user", req.text().trim(), userSeq, null, null);
@@ -202,7 +228,7 @@ public class SessionService {
         }
 
         List<MessageEntity> history = messageRepository.findBySessionIdOrderBySequenceNoAsc(sessionId);
-        ConversationAiService.AiTurnResult aiTurn = aiService.generateTurn(req.text(), session.getLevel(), scenario, history);
+        ConversationAiService.AiTurnResult aiTurn = aiService.generateTurn(req.text(), session.getLevel(), scenario, history, learning.tutorContext(userId));
 
         int aiSeq = userSeq + 1;
         MessageEntity aiMsg = new MessageEntity(
@@ -231,7 +257,9 @@ public class SessionService {
     @Transactional
     public SessionCompleteResponse completeSession(UUID userId, UUID sessionId, String idempotencyKey) {
         validateIdempotencyKey(idempotencyKey);
+        lockUser(userId);
         String reqHash = hashString("complete:" + sessionId);
+        idempotencyKey = hashString("POST:/sessions/" + sessionId + "/complete:" + idempotencyKey);
 
         Optional<IdempotencyRecord> existing = idempotencyRepository.findByUserIdAndKey(userId, idempotencyKey);
         if (existing.isPresent()) {
@@ -239,7 +267,7 @@ public class SessionService {
             try {
                 return objectMapper.readValue(record.getResponseBody(), SessionCompleteResponse.class);
             } catch (JsonProcessingException e) {
-                log.warn("Failed to deserialize cached complete response: {}", e.getMessage());
+                throw new ApiException("IDEMPOTENCY_STATE_UNAVAILABLE", "Không thể khôi phục trạng thái kết thúc phiên.", HttpStatus.SERVICE_UNAVAILABLE);
             }
         }
 
@@ -274,9 +302,13 @@ public class SessionService {
 
     @Transactional
     public FeedbackResponse getFeedback(UUID userId, UUID sessionId) {
+        lockUser(userId);
         SessionEntity session = sessionRepository.findByIdAndUserId(sessionId, userId)
                 .orElseThrow(() -> new ApiException("NOT_FOUND", "Session not found", HttpStatus.NOT_FOUND));
 
+        if (!"completed".equals(session.getStatus())) {
+            throw new ApiException("ASSESSMENT_NOT_READY", "Phiên chưa hoàn thành.", HttpStatus.CONFLICT);
+        }
         FeedbackEntity feedback = feedbackRepository.findBySessionIdAndUserId(sessionId, userId)
                 .orElseGet(() -> {
                     List<MessageEntity> messages = messageRepository.findBySessionIdOrderBySequenceNoAsc(sessionId);
@@ -298,32 +330,44 @@ public class SessionService {
                 feedback.getRubricVersion(),
                 feedback.getStatus(),
                 feedback.getSummaryVi(),
-                dimensions != null ? dimensions : List.of()
+                dimensions != null ? dimensions : List.of(),
+                null,
+                List.of("Chưa có pipeline chấm điểm được kiểm chứng.", "Không có bằng chứng âm thanh để chấm phát âm."),
+                List.of(), null, "not-run", "textOnly",
+                messageRepository.findBySessionIdOrderBySequenceNoAsc(sessionId).stream().map(MessageEntity::getId).toList()
         );
     }
 
     @Transactional(readOnly = true)
     public ProgressSummaryResponse getProgressSummary(UUID userId) {
         List<SessionEntity> sessions = sessionRepository.findByUserId(userId);
-        int totalSessions = sessions.size();
-        int totalMinutes = sessions.stream().mapToInt(s -> Math.max(1, s.getDurationSeconds() / 60)).sum();
-
-        double avgBand = 6.0;
-        String level = "B1";
-        if (!sessions.isEmpty()) {
-            SessionEntity latest = sessions.get(sessions.size() - 1);
-            if (latest.getLevel() != null) {
-                level = latest.getLevel();
-            }
+        sessions = sessions.stream().filter(s -> "completed".equals(s.getStatus())).toList();
+        int totalMinutes = (int) (sessions.stream().mapToLong(s -> Math.max(0, s.getDurationSeconds())).sum() / 60);
+        String level = sessions.stream().max(java.util.Comparator.comparing(SessionEntity::getStartedAt))
+                .map(SessionEntity::getLevel).orElse(null);
+        var zone = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
+        Set<java.time.LocalDate> days = new HashSet<>();
+        for (var session : sessions) {
+            if (session.getEndedAt() != null) days.add(session.getEndedAt().atZone(zone).toLocalDate());
         }
+        var day = java.time.LocalDate.now(zone);
+        if (!days.contains(day)) day = day.minusDays(1);
+        int streak = 0;
+        while (days.contains(day)) { streak++; day = day.minusDays(1); }
+        return new ProgressSummaryResponse(sessions.size(), totalMinutes, level, streak, null);
+    }
 
-        return new ProgressSummaryResponse(
-                totalSessions,
-                Math.max(15, totalMinutes),
-                level,
-                Math.max(1, Math.min(7, totalSessions)),
-                avgBand
-        );
+    /** PostgreSQL transaction lock covers retries, quota and sequence allocation across JVMs. */
+    private void lockUser(UUID userId) {
+        jdbc.execute((org.springframework.jdbc.core.ConnectionCallback<Void>) connection -> {
+            if ("PostgreSQL".equals(connection.getMetaData().getDatabaseProductName())) {
+                try (var statement = connection.prepareStatement("select pg_advisory_xact_lock(?)")) {
+                    statement.setLong(1, userId.getMostSignificantBits() ^ userId.getLeastSignificantBits());
+                    statement.execute();
+                }
+            }
+            return null;
+        });
     }
 
     private SessionResponse mapSession(SessionEntity entity, List<MessageResponse> messages) {
@@ -355,19 +399,15 @@ public class SessionService {
     }
 
     private void validateIdempotencyKey(String key) {
-        if (key == null || key.length() < 8 || key.length() > 128) {
+        if (key == null || !key.matches("[A-Za-z0-9_-]{8,128}")) {
             throw new ApiException("VALIDATION_FAILED", "Header Idempotency-Key must be between 8 and 128 characters", HttpStatus.BAD_REQUEST);
         }
     }
 
     private void saveIdempotency(UUID userId, String key, String method, String path, String hash, int status, Object body) {
-        try {
-            String json = objectMapper.writeValueAsString(body);
-            IdempotencyRecord record = new IdempotencyRecord(userId, key, method, path, hash, status, json);
-            idempotencyRepository.save(record);
-        } catch (Exception e) {
-            log.warn("Failed to persist idempotency key [{}]: {}", key, e.getMessage());
-        }
+        String json = toJson(body);
+        if (json == null || "[]".equals(json)) throw new IllegalStateException("Cannot serialize idempotency response");
+        idempotencyRepository.saveAndFlush(new IdempotencyRecord(userId, key, method, path, hash, status, json));
     }
 
     private String hashString(String input) {
@@ -400,7 +440,7 @@ public class SessionService {
         try {
             return objectMapper.readValue(json, typeRef);
         } catch (Exception e) {
-            log.warn("Failed to parse JSON: '{}' with error: {}", json, e.getMessage());
+            log.warn("Stored conversation JSON could not be parsed");
             return null;
         }
     }

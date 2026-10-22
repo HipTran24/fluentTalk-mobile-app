@@ -1,3 +1,4 @@
+import '../../../core/widgets/adaptive_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +14,8 @@ class GoalOnboardingScreen extends ConsumerStatefulWidget {
   const GoalOnboardingScreen({super.key});
 
   @override
-  ConsumerState<GoalOnboardingScreen> createState() => _GoalOnboardingScreenState();
+  ConsumerState<GoalOnboardingScreen> createState() =>
+      _GoalOnboardingScreenState();
 }
 
 class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
@@ -75,12 +77,12 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
 
   Future<void> _saveAndContinue() async {
     await ref.read(authControllerProvider.notifier).completeOnboarding(
-      goals: _selectedGoals.toList(),
-      dailyMinutes: _selectedMinutes,
-      topicInterests: _selectedTopics.toList(),
-      preferredVoice: _selectedVoice,
-      feedbackLanguage: _feedbackLanguage,
-    );
+          goals: _selectedGoals.toList(),
+          dailyMinutes: _selectedMinutes,
+          topicInterests: _selectedTopics.toList(),
+          preferredVoice: _selectedVoice,
+          feedbackLanguage: _feedbackLanguage,
+        );
 
     if (mounted) {
       context.push('/onboarding/placement');
@@ -100,7 +102,8 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
         actions: [
           TextButton(
             onPressed: _skipOnboarding,
-            child: const Text('Để sau', style: TextStyle(fontWeight: FontWeight.w600)),
+            child: const Text('Để sau',
+                style: TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -136,8 +139,9 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'AI Coach sẽ ưu tiên tạo kịch bản và phản hồi dựa trên mục tiêu này.',
-                      style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                      'Tom Coach sẽ ưu tiên tạo kịch bản và phản hồi dựa trên mục tiêu này.',
+                      style: TextStyle(
+                          fontSize: 14, color: AppColors.textSecondary),
                     ),
 
                     const SizedBox(height: AppSpacing.lg),
@@ -159,7 +163,7 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: cardColor.withOpacity(0.08),
+                                    color: cardColor.withValues(alpha: 0.08),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -188,15 +192,17 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: cardColor.withOpacity(0.12),
+                                      color: cardColor.withValues(alpha: 0.12),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(g['icon'] as IconData, color: cardColor, size: 24),
+                                    child: Icon(g['icon'] as IconData,
+                                        color: cardColor, size: 24),
                                   ),
                                   const SizedBox(width: AppSpacing.md),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           g['title'] as String,
@@ -209,7 +215,9 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                                         const SizedBox(height: 2),
                                         Text(
                                           g['desc'] as String,
-                                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.textSecondary),
                                         ),
                                       ],
                                     ),
@@ -217,7 +225,8 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                                   Checkbox(
                                     value: isSelected,
                                     activeColor: cardColor,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4)),
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
@@ -241,12 +250,16 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                     // Section: Daily Practice Minutes
                     const Text(
                       'Thời gian bạn có thể dành ra mỗi ngày:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     const Text(
                       'Duy trì đều đặn 15 phút mỗi ngày mang lại hiệu quả cao hơn học dồn cuối tuần.',
-                      style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                      style:
+                          TextStyle(fontSize: 13, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.sm),
 
@@ -267,7 +280,10 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                     // Section: Topic Interests
                     const Text(
                       'Chủ đề bạn yêu thích:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 6),
                     Wrap(
@@ -282,8 +298,11 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                           checkmarkColor: AppColors.primary,
                           labelStyle: TextStyle(
                             fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.textPrimary,
                           ),
                           onSelected: (val) {
                             setState(() {
@@ -300,10 +319,13 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
 
                     const SizedBox(height: AppSpacing.xl),
 
-                    // Section: Preferred AI Coach Voice
+                    // Section: Preferred Tom Coach Voice
                     const Text(
-                      'Giọng gia sư AI ưa thích:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      'Giọng gia sư Tom ưa thích:',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Row(
@@ -311,7 +333,7 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                         Expanded(
                           child: _buildVoiceCard(
                             id: 'en-US-Journey-F',
-                            name: '🇺🇸 Emma',
+                            name: '🇺🇸 Tom',
                             accent: 'Anh - Mỹ (Nữ)',
                             desc: 'Ấm áp, tự nhiên & truyền cảm',
                           ),
@@ -333,30 +355,36 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
                     // Section: Feedback Language
                     const Text(
                       'Ngôn ngữ giải thích lỗi sai:',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: AppSpacing.xs),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RadioListTile<String>(
-                            contentPadding: EdgeInsets.zero,
-                            title: const Text('Tiếng Việt (Khuyến nghị)', style: TextStyle(fontSize: 14)),
-                            value: 'vi',
-                            groupValue: _feedbackLanguage,
-                            onChanged: (val) => setState(() => _feedbackLanguage = val ?? 'vi'),
+                    RadioGroup<String>(
+                      groupValue: _feedbackLanguage,
+                      onChanged: (value) =>
+                          setState(() => _feedbackLanguage = value ?? 'vi'),
+                      child: const Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile<String>(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text('Tiếng Việt (Khuyến nghị)',
+                                  style: TextStyle(fontSize: 14)),
+                              value: 'vi',
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: RadioListTile<String>(
-                            contentPadding: EdgeInsets.zero,
-                            title: const Text('English (100%)', style: TextStyle(fontSize: 14)),
-                            value: 'en',
-                            groupValue: _feedbackLanguage,
-                            onChanged: (val) => setState(() => _feedbackLanguage = val ?? 'en'),
+                          Expanded(
+                            child: RadioListTile<String>(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text('English (100%)',
+                                  style: TextStyle(fontSize: 14)),
+                              value: 'en',
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
 
                     const SizedBox(height: AppSpacing.lg),
@@ -448,21 +476,29 @@ class _GoalOnboardingScreenState extends ConsumerState<GoalOnboardingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            AdaptiveRow(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   name,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 if (isSelected)
-                  const Icon(Icons.check_circle, color: AppColors.primary, size: 18),
+                  const Icon(Icons.check_circle,
+                      color: AppColors.primary, size: 18),
               ],
             ),
             const SizedBox(height: 2),
-            Text(accent, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary)),
+            Text(accent,
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary)),
             const SizedBox(height: 4),
-            Text(desc, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+            Text(desc,
+                style: const TextStyle(
+                    fontSize: 11, color: AppColors.textSecondary)),
           ],
         ),
       ),

@@ -45,7 +45,8 @@ class MockStreamAuthRepository implements AuthRepository {
   Future<UserProfile?> restoreSession() async => mockUser;
 
   @override
-  Future<UserProfile> signIn({required String email, required String password}) async {
+  Future<UserProfile> signIn(
+      {required String email, required String password}) async {
     return mockUser ??
         UserProfile(
           id: 'user-001',
@@ -97,8 +98,8 @@ class FakeFailingAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 
   @override
-  Future<ResponseBody> fetch(
-      RequestOptions options, Stream<dynamic>? requestStream, Future<void>? cancelFuture) async {
+  Future<ResponseBody> fetch(RequestOptions options,
+      Stream<dynamic>? requestStream, Future<void>? cancelFuture) async {
     throw DioException(
       requestOptions: options,
       type: DioExceptionType.cancel,
@@ -115,7 +116,8 @@ void main() {
   });
 
   group('Stage 2 Auth Security & Hardening Tests', () {
-    test('Unconfigured Supabase configuration throws ConfigurationRequiredException and sets unconfigured status',
+    test(
+        'Unconfigured Supabase configuration throws ConfigurationRequiredException and sets unconfigured status',
         () async {
       const emptyConfig = AppConfig(
         apiBaseUrl: '',
@@ -133,10 +135,12 @@ void main() {
       final controller = AuthController(repo, isDemo: false);
       await controller.restoreSession();
       expect(controller.state.status, AuthStatus.unconfigured);
-      expect(controller.state.errorMessage, contains('Dịch vụ xác thực Supabase chưa được cấu hình'));
+      expect(controller.state.errorMessage,
+          contains('Dịch vụ xác thực Supabase chưa được cấu hình'));
     });
 
-    test('Supabase initialization failure sets explicit sanitized unconfigured status with generic message',
+    test(
+        'Supabase initialization failure sets explicit sanitized unconfigured status with generic message',
         () async {
       const dummyConfig = AppConfig(
         apiBaseUrl: 'https://api.fluenttalk.ai/api/v1',
@@ -155,16 +159,19 @@ void main() {
         () => repo.restoreSession(),
         throwsA(predicate((e) =>
             e is ConfigurationRequiredException &&
-            e.message.contains('Không thể khởi tạo dịch vụ xác thực Supabase'))),
+            e.message
+                .contains('Không thể khởi tạo dịch vụ xác thực Supabase'))),
       );
 
       final controller = AuthController(repo, isDemo: false);
       await controller.restoreSession();
       expect(controller.state.status, AuthStatus.unconfigured);
-      expect(controller.state.errorMessage, contains('Không thể khởi tạo dịch vụ xác thực Supabase'));
+      expect(controller.state.errorMessage,
+          contains('Không thể khởi tạo dịch vụ xác thực Supabase'));
     });
 
-    test('MeProfileDto correctly maps camelCase API contract fixture to domain UserProfile',
+    test(
+        'MeProfileDto correctly maps camelCase API contract fixture to domain UserProfile',
         () {
       // Contract-first fixture compliant with docs/API_CONTRACT.yaml #/components/schemas/Profile
       final contractFixture = {
@@ -196,7 +203,8 @@ void main() {
       expect(domain.createdAt.year, 2026);
     });
 
-    test('Logout performs ApiClient.cancelSession, synchronous unauthenticated state, and singleflighted remote signOut',
+    test(
+        'Logout performs ApiClient.cancelSession, synchronous unauthenticated state, and singleflighted remote signOut',
         () async {
       const config = AppConfig(
         apiBaseUrl: 'https://api.fluenttalk.ai/api/v1',
@@ -279,13 +287,16 @@ void main() {
       repo.emitError('Revoked token refresh failure');
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      expect(controller.state.errorMessage, contains('Revoked token refresh failure'));
+      expect(controller.state.errorMessage, contains('Hãy đăng nhập lại'));
+      expect(controller.state.errorMessage,
+          isNot(contains('Revoked token refresh failure')));
 
       repo.dispose();
       controller.dispose();
     });
 
-    test('Cache isolation across Account A -> logout -> Account B in Riverpod container',
+    test(
+        'Cache isolation across Account A -> logout -> Account B in Riverpod container',
         () async {
       final container = ProviderContainer(overrides: [
         appConfigProvider.overrideWithValue(const AppConfig(
@@ -298,7 +309,8 @@ void main() {
       addTearDown(container.dispose);
 
       final authNotifier = container.read(authControllerProvider.notifier);
-      await authNotifier.signIn(email: 'account-a@fluenttalk.com', password: 'Password123');
+      await authNotifier.signIn(
+          email: 'account-a@fluenttalk.com', password: 'Password123');
 
       final stateA = container.read(authControllerProvider);
       expect(stateA.status, AuthStatus.authenticated);
@@ -306,10 +318,12 @@ void main() {
 
       // Logout Account A
       await authNotifier.signOut();
-      expect(container.read(authControllerProvider).status, AuthStatus.unauthenticated);
+      expect(container.read(authControllerProvider).status,
+          AuthStatus.unauthenticated);
 
       // Sign in Account B
-      await authNotifier.signIn(email: 'account-b@fluenttalk.com', password: 'Password123');
+      await authNotifier.signIn(
+          email: 'account-b@fluenttalk.com', password: 'Password123');
       final stateB = container.read(authControllerProvider);
       expect(stateB.status, AuthStatus.authenticated);
       expect(stateB.user?.email, 'account-b@fluenttalk.com');

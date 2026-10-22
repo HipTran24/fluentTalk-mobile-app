@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/guided_repository.dart';
 import '../../domain/models/guided_models.dart';
 
-final guidedSpeakingRepositoryProvider = Provider<GuidedSpeakingRepository>((ref) {
+final guidedSpeakingRepositoryProvider =
+    Provider<GuidedSpeakingRepository>((ref) {
   return MockGuidedSpeakingRepository();
 });
 
@@ -46,7 +47,8 @@ class GuidedSpeakingState {
   }
 
   int get totalTurns => turns.length;
-  double get progressPercentage => turns.isEmpty ? 0.0 : (currentTurnIndex + 1) / turns.length;
+  double get progressPercentage =>
+      turns.isEmpty ? 0.0 : (currentTurnIndex + 1) / turns.length;
 
   GuidedSpeakingState copyWith({
     String? scenarioId,
@@ -74,9 +76,12 @@ class GuidedSpeakingState {
       isAiSpeaking: isAiSpeaking ?? this.isAiSpeaking,
       aiSpeechRate: aiSpeechRate ?? this.aiSpeechRate,
       showAiTranslation: showAiTranslation ?? this.showAiTranslation,
-      recordingDurationSeconds: recordingDurationSeconds ?? this.recordingDurationSeconds,
-      currentTranscriptDraft: currentTranscriptDraft ?? this.currentTranscriptDraft,
-      latestFeedback: clearFeedback ? null : (latestFeedback ?? this.latestFeedback),
+      recordingDurationSeconds:
+          recordingDurationSeconds ?? this.recordingDurationSeconds,
+      currentTranscriptDraft:
+          currentTranscriptDraft ?? this.currentTranscriptDraft,
+      latestFeedback:
+          clearFeedback ? null : (latestFeedback ?? this.latestFeedback),
       errorMessage: errorMessage,
       isCompleted: isCompleted ?? this.isCompleted,
       isLoading: isLoading ?? this.isLoading,
@@ -84,8 +89,8 @@ class GuidedSpeakingState {
   }
 }
 
-final guidedSpeakingControllerProvider = StateNotifierProvider
-    .family<GuidedSpeakingController, GuidedSpeakingState, String>((ref, scenarioId) {
+final guidedSpeakingControllerProvider = StateNotifierProvider.family<
+    GuidedSpeakingController, GuidedSpeakingState, String>((ref, scenarioId) {
   final repo = ref.watch(guidedSpeakingRepositoryProvider);
   return GuidedSpeakingController(repo, scenarioId);
 });
@@ -148,7 +153,8 @@ class GuidedSpeakingController extends StateNotifier<GuidedSpeakingState> {
         timer.cancel();
         return;
       }
-      state = state.copyWith(recordingDurationSeconds: state.recordingDurationSeconds + 1);
+      state = state.copyWith(
+          recordingDurationSeconds: state.recordingDurationSeconds + 1);
 
       // Max turn duration 45s safety auto-stop
       if (state.recordingDurationSeconds >= 45) {
@@ -204,7 +210,8 @@ class GuidedSpeakingController extends StateNotifier<GuidedSpeakingState> {
     final text = state.currentTranscriptDraft.trim();
     if (text.isEmpty) return;
 
-    state = state.copyWith(recordingState: RecordingState.evaluating, errorMessage: null);
+    state = state.copyWith(
+        recordingState: RecordingState.evaluating, errorMessage: null);
 
     try {
       final feedback = await _repository.evaluateTurn(
