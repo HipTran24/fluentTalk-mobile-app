@@ -9,16 +9,7 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  var config = AppConfig.fromEnvironment();
-  if (!config.hasAuth && !config.demoMode) {
-    config = AppConfig(
-      apiBaseUrl: config.apiBaseUrl,
-      supabaseUrl: config.supabaseUrl,
-      supabaseAnonKey: config.supabaseAnonKey,
-      demoMode: true,
-      allowInsecureLocalhost: true,
-    );
-  }
+  final config = AppConfig.fromEnvironment();
 
   String? supabaseInitError;
   if (config.hasAuth) {
