@@ -24,7 +24,8 @@ class VoiceWaveform extends StatefulWidget {
   State<VoiceWaveform> createState() => _VoiceWaveformState();
 }
 
-class _VoiceWaveformState extends State<VoiceWaveform> with SingleTickerProviderStateMixin {
+class _VoiceWaveformState extends State<VoiceWaveform>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -34,21 +35,31 @@ class _VoiceWaveformState extends State<VoiceWaveform> with SingleTickerProvider
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    if (widget.isActive) {
+  }
+
+  void _syncAnimation() {
+    final shouldAnimate = widget.isActive &&
+        !MediaQuery.disableAnimationsOf(context) &&
+        TickerMode.valuesOf(context).enabled;
+    if (shouldAnimate && !_controller.isAnimating) {
       _controller.repeat();
+    } else if (!shouldAnimate) {
+      _controller.stop();
+      _controller.value = 0;
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncAnimation();
   }
 
   @override
   void didUpdateWidget(VoiceWaveform oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isActive != oldWidget.isActive) {
-      if (widget.isActive) {
-        _controller.repeat();
-      } else {
-        _controller.stop();
-        _controller.reset();
-      }
+      _syncAnimation();
     }
   }
 
@@ -78,14 +89,16 @@ class _VoiceWaveformState extends State<VoiceWaveform> with SingleTickerProvider
                 multiplier = (math.sin(phase + animVal).abs() * 0.75) + 0.25;
               }
 
-              final barHeight = (widget.height * multiplier).clamp(4.0, widget.height);
+              final barHeight =
+                  (widget.height * multiplier).clamp(4.0, widget.height);
 
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 width: widget.barWidth,
                 height: barHeight,
                 decoration: BoxDecoration(
-                  color: waveColor.withOpacity(widget.isActive ? 0.9 : 0.3),
+                  color:
+                      waveColor.withValues(alpha: widget.isActive ? 0.9 : 0.3),
                   borderRadius: BorderRadius.circular(widget.barWidth / 2),
                 ),
               );

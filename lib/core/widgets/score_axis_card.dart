@@ -31,7 +31,9 @@ class _ScoreAxisCardState extends State<ScoreAxisCard> {
 
   @override
   Widget build(BuildContext context) {
-    final bandColor = _getBandColor(widget.score.estimatedBand);
+    final bandColor = _getBandColor(
+      widget.score.isAvailable ? widget.score.estimatedBand : null,
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -40,102 +42,125 @@ class _ScoreAxisCardState extends State<ScoreAxisCard> {
         borderRadius: AppRadius.cardRadius,
         border: Border.all(color: AppColors.border),
       ),
-      child: Column(
-        children: [
-          ListTile(
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
-            title: Text(
-              widget.score.dimension.labelEn,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            subtitle: Text(
-              widget.score.dimension.labelVi,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textMuted,
-              ),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: bandColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(AppRadius.round),
-                    border: Border.all(color: bandColor.withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    widget.score.displayBand,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: bandColor,
-                    ),
-                  ),
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: AppRadius.cardRadius,
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            ListTile(
+              onTap: () {
+                setState(() {
+                  _isExpanded = !_isExpanded;
+                });
+              },
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: 4),
+              title: Text(
+                widget.score.dimension.labelEn,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
-                const SizedBox(width: AppSpacing.xs),
-                Icon(
-                  _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              ),
+              subtitle: Text(
+                widget.score.dimension.labelVi,
+                style: const TextStyle(
+                  fontSize: 12,
                   color: AppColors.textMuted,
                 ),
-              ],
-            ),
-          ),
-          if (_isExpanded) ...[
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    widget.score.feedbackVi,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.45,
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: bandColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(AppRadius.round),
+                      border:
+                          Border.all(color: bandColor.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      widget.score.displayBand,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: bandColor,
+                      ),
                     ),
                   ),
-                  if (widget.score.evidenceSnippets.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    const Text(
-                      'Dẫn chứng thực tế:',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    ...widget.score.evidenceSnippets.map(
-                      (snippet) => Padding(
-                        padding: const EdgeInsets.only(bottom: 2),
-                        child: Text(
-                          '• "$snippet"',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontStyle: FontStyle.italic,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  const SizedBox(width: AppSpacing.xs),
+                  Icon(
+                    _isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: AppColors.textMuted,
+                  ),
                 ],
               ),
             ),
+            if (_isExpanded) ...[
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.score.isAvailable
+                          ? 'Độ tin cậy: ${(widget.score.confidence * 100).round()}%'
+                          : 'Chưa đủ bằng chứng để ước lượng điểm.',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      widget.score.isAvailable
+                          ? widget.score.feedbackVi
+                          : 'Cần dữ liệu và bằng chứng hợp lệ trước khi đưa ra nhận xét.',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                        height: 1.45,
+                      ),
+                    ),
+                    if (widget.score.isAvailable &&
+                        widget.score.evidenceSnippets.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      const Text(
+                        'Dẫn chứng thực tế:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      ...widget.score.evidenceSnippets.map(
+                        (snippet) => Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
+                          child: Text(
+                            '• "$snippet"',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontStyle: FontStyle.italic,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

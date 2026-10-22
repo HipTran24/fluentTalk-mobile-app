@@ -45,7 +45,8 @@ class PrimaryButton extends StatelessWidget {
       opacity: enabled || isLoading ? 1 : 0.5,
       child: Container(
         width: width ?? double.infinity,
-        height: AppSpacing.buttonHeightStandard,
+        constraints:
+            const BoxConstraints(minHeight: AppSpacing.buttonHeightStandard),
         decoration: BoxDecoration(
           color: backgroundColor,
           gradient: backgroundColor == null ? AppColors.brandGradient : null,
@@ -78,7 +79,8 @@ class PrimaryButton extends StatelessWidget {
                       ),
                     )
                   : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md, vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -89,8 +91,7 @@ class PrimaryButton extends StatelessWidget {
                           Flexible(
                             child: Text(
                               text,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
