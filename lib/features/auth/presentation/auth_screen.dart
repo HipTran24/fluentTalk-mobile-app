@@ -77,6 +77,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
       return;
     }
 
+    final authState = ref.read(authControllerProvider);
+    if (authState.isLoading) return;
+
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final name = _nameController.text.trim();
@@ -245,6 +248,57 @@ class _AuthScreenState extends ConsumerState<AuthScreen> with SingleTickerProvid
                       : 'Đăng nhập để tiếp tục các phiên luyện cùng AI Coach của bạn.',
                   style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.45),
                 ),
+
+                if (authState.isDemo) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryLight,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.info_outline_rounded, size: 14, color: AppColors.primary),
+                        SizedBox(width: 6),
+                        Text(
+                          'DEMO MODE: Chế độ dùng thử cục bộ (cách ly hoàn toàn)',
+                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.primary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (authState.isUnconfigured || authState.status == AuthStatus.error) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.warningBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.warning.withOpacity(0.4)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.warning_amber_rounded, size: 20, color: AppColors.warning),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            authState.errorMessage ??
+                                'Dịch vụ xác thực Supabase chưa khả dụng. Vui lòng kiểm tra lại cấu hình hoặc kết nối mạng.',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.warning),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => ref.read(authControllerProvider.notifier).restoreSession(),
+                          child: const Text('Thử lại', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: AppSpacing.lg),
 
