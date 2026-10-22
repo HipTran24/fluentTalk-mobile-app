@@ -141,22 +141,25 @@ class CoachScreen extends ConsumerWidget {
         ),
         borderRadius: AppRadius.cardRadius,
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
-        leading: const CircleAvatar(
-          backgroundColor: Colors.white24,
-          child: Icon(Icons.event_note_rounded, color: Colors.white),
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
+          leading: const CircleAvatar(
+            backgroundColor: Colors.white24,
+            child: Icon(Icons.event_note_rounded, color: Colors.white),
+          ),
+          title: const Text(
+            'Lộ trình học cá nhân hóa 7 ngày',
+            style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 14.5),
+          ),
+          subtitle: const Text(
+            'Hôm nay: Thứ Ba • Bài tập sửa thì Quá khứ đơn',
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 14),
+          onTap: () => context.push('/coach/plan'),
         ),
-        title: const Text(
-          'Lộ trình học cá nhân hóa 7 ngày',
-          style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 14.5),
-        ),
-        subtitle: const Text(
-          'Hôm nay: Thứ Ba • Bài tập sửa thì Quá khứ đơn',
-          style: TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 14),
-        onTap: () => context.push('/coach/plan'),
       ),
     );
   }

@@ -1,0 +1,44 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'infra/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'infra/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  backend-build-and-test:
+    name: Build & Test (Java 27 / Spring Boot 4.2 milestone)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 27
+        uses: actions/setup-java@v4
+        with:
+          java-version: '27'
+          distribution: 'oracle'
+          cache: maven
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x backend/mvnw
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          ./mvnw clean test --batch-mode
+
+      - name: Package Backend Jar
+        run: |
+          cd backend
+          ./mvnw package -DskipTests --batch-mode

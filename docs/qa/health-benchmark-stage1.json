@@ -1,0 +1,27 @@
+{
+  "timestampUtc": "2026-10-21T09:43:51.566107+00:00",
+  "endpointPath": "/api/v1/health",
+  "scope": "single endpoint only; excludes AI/audio/provider UAT",
+  "python": "3.14.8",
+  "machine": "arm64",
+  "requests": 100,
+  "concurrency": 4,
+  "warmupRequests": 5,
+  "warmupStatuses": [
+    "200",
+    "200",
+    "200",
+    "200",
+    "200"
+  ],
+  "statuses": {
+    "200": 100
+  },
+  "elapsedSeconds": 0.547,
+  "successfulLatencyMs": {
+    "p50": 13.85,
+    "p95": 45.79,
+    "max": 135.64
+  },
+  "allSucceeded": true
+}

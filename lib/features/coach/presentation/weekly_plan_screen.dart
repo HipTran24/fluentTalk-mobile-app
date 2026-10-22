@@ -73,9 +73,11 @@ class WeeklyPlanScreen extends ConsumerWidget {
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
-        onTap: onTapAction,
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+          onTap: onTapAction,
         leading: Icon(
           item.isCompleted
               ? Icons.check_circle_rounded
@@ -134,6 +136,7 @@ class WeeklyPlanScreen extends ConsumerWidget {
         ),
         trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
       ),
-    );
-  }
+    ),
+  );
+}
 }

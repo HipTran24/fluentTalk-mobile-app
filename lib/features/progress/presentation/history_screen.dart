@@ -128,6 +128,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   }
 
                   return ListView.separated(
+                    cacheExtent: 500,
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.pageHorizontal,
                       vertical: AppSpacing.xs,
@@ -207,9 +208,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
-        onTap: () => context.push('/practice/session/${session.id}/summary'),
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+          onTap: () => context.push('/practice/session/${session.id}/summary'),
         title: Row(
           children: [
             Container(
@@ -288,6 +291,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -46,3 +46,17 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Backend (Spring Boot / Maven / Toolchain)
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.hprof
+
+# Environment and Secrets
+.env
+.env.local
+.env.*.local
+
+# Local runtime configuration; keep only the example files in source control.
+config/mobile.public.json
+config/backend.private.env

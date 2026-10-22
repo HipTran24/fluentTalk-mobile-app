@@ -1,0 +1,66 @@
+{
+  "timestampUtc": "2026-10-21T14:03:49.513210+00:00",
+  "identitySource": "locally signed RSA fixtures and local JWKS; not Supabase cloud",
+  "database": "fresh migrated PostgreSQL17 local development database",
+  "checks": [
+    {
+      "name": "health matches exact schema",
+      "passed": true
+    },
+    {
+      "name": "anonymous profile denied",
+      "passed": true
+    },
+    {
+      "name": "expired token denied",
+      "passed": true
+    },
+    {
+      "name": "wrong issuer denied",
+      "passed": true
+    },
+    {
+      "name": "wrong audience denied",
+      "passed": true
+    },
+    {
+      "name": "tampered signature denied",
+      "passed": true
+    },
+    {
+      "name": "profile A saves",
+      "passed": true
+    },
+    {
+      "name": "profile B saves",
+      "passed": true
+    },
+    {
+      "name": "profile A isolated",
+      "passed": true
+    },
+    {
+      "name": "profile B isolated",
+      "passed": true
+    },
+    {
+      "name": "user-controlled admin metadata denied",
+      "passed": true
+    },
+    {
+      "name": "verified admin claim allowed",
+      "passed": true
+    },
+    {
+      "name": "four topics",
+      "passed": true
+    },
+    {
+      "name": "catalog page matches contract",
+      "passed": true
+    }
+  ],
+  "passed": 14,
+  "total": 14,
+  "allPassed": true
+}

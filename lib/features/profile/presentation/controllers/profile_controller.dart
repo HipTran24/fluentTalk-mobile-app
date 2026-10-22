@@ -25,8 +25,10 @@ class VocabularyNotifier extends StateNotifier<AsyncValue<List<VocabularyItem>>>
     state = const AsyncValue.loading();
     try {
       final words = await _repo.getSavedVocabulary();
+      if (!mounted) return;
       state = AsyncValue.data(words);
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }

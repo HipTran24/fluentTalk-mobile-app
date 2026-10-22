@@ -1,3 +1,5 @@
+import 'package:english_mobile_app/core/config/app_config.dart';
+import 'package:english_mobile_app/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,8 +17,11 @@ void main() {
   });
 
   group('Sprint 4 - HomeDashboardController Tests', () {
-    test('Loads home dashboard state with dynamic greeting and recommendations', () async {
-      final container = ProviderContainer();
+    test('Demo dashboard loads dynamic greeting and sample recommendations',
+        () async {
+      final container = ProviderContainer(overrides: [
+        appConfigProvider.overrideWithValue(const AppConfig(demoMode: true)),
+      ]);
       addTearDown(container.dispose);
 
       final state = container.read(homeDashboardControllerProvider);
@@ -35,7 +40,8 @@ void main() {
   });
 
   group('Sprint 4 - ChatRepository & ChatController Tests', () {
-    test('ChatRepository mock generates AI responses and idempotency check', () async {
+    test('ChatRepository mock generates AI responses and idempotency check',
+        () async {
       final repo = MockChatRepository();
 
       final reply = await repo.sendTextMessage(
@@ -58,7 +64,9 @@ void main() {
       );
     });
 
-    test('ChatController sends message, sets thinking state, and handles speed changes', () async {
+    test(
+        'ChatController sends message, sets thinking state, and handles speed changes',
+        () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
@@ -81,17 +89,23 @@ void main() {
 
       // User message and AI reply should both exist
       expect(state.messages.length, greaterThanOrEqualTo(2));
-      final userMessage = state.messages.firstWhere((m) => m.text == 'Can I have oat milk?');
+      final userMessage =
+          state.messages.firstWhere((m) => m.text == 'Can I have oat milk?');
       expect(userMessage.isUser, isTrue);
       expect(userMessage.deliveryStatus, MessageDeliveryStatus.sent);
     });
   });
 
   group('Sprint 4 - UI Widget Smoke Tests', () {
-    testWidgets('HomeScreen renders user profile, streak card, and recommendations', (WidgetTester tester) async {
+    testWidgets(
+        'Demo HomeScreen renders sample profile, streak, and recommendations',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
+        ProviderScope(
+          overrides: [
+            appConfigProvider.overrideWithValue(const AppConfig(demoMode: true))
+          ],
+          child: const MaterialApp(
             home: Scaffold(
               body: HomeScreen(),
             ),
@@ -107,7 +121,9 @@ void main() {
       expect(find.textContaining('Đề xuất theo điểm yếu'), findsOneWidget);
     });
 
-    testWidgets('TextChatScreen renders conversation interface and useful chips', (WidgetTester tester) async {
+    testWidgets(
+        'TextChatScreen renders conversation interface and useful chips',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(

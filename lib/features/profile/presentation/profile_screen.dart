@@ -266,22 +266,25 @@ class ProfileScreen extends ConsumerWidget {
         borderRadius: AppRadius.cardRadius,
         border: Border.all(color: AppColors.border),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
-        leading: const CircleAvatar(
-          backgroundColor: AppColors.secondaryLight,
-          child: Icon(Icons.bookmark_outline_rounded, color: AppColors.primary),
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+          leading: const CircleAvatar(
+            backgroundColor: AppColors.secondaryLight,
+            child: Icon(Icons.bookmark_outline_rounded, color: AppColors.primary),
+          ),
+          title: const Text(
+            'Sổ tay từ vựng & Mẫu câu',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
+          ),
+          subtitle: const Text(
+            'Xem các biểu đạt bạn đã lưu trong khi giao tiếp',
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
+          onTap: () => context.push('/profile/vocabulary'),
         ),
-        title: const Text(
-          'Sổ tay từ vựng & Mẫu câu',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
-        ),
-        subtitle: const Text(
-          'Xem các biểu đạt bạn đã lưu trong khi giao tiếp',
-          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
-        onTap: () => context.push('/profile/vocabulary'),
       ),
     );
   }
@@ -303,7 +306,10 @@ class ProfileScreen extends ConsumerWidget {
         borderRadius: AppRadius.cardRadius,
         border: Border.all(color: AppColors.border),
       ),
-      child: Column(children: children),
+      child: Material(
+        type: MaterialType.transparency,
+        child: Column(children: children),
+      ),
     );
   }
 }

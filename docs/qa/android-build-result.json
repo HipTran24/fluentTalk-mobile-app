@@ -1,0 +1,23 @@
+{
+  "command": "flutter build apk --debug --no-pub --dart-define=DEMO_MODE=true",
+  "mode": "demo-debug",
+  "exitCode": 1,
+  "elapsedSeconds": 778.2,
+  "apkProduced": false,
+  "failure": "java.io.IOException: No space left on device",
+  "context": "Gradle transform workspace metadata could not be written or directories created",
+  "toolchain": {
+    "androidJdk": "21.0.9",
+    "gradle": "8.14.3",
+    "androidGradlePlugin": "8.11.1",
+    "kotlin": "2.2.20",
+    "gradleHeap": "2G",
+    "kotlinDaemonHeap": "768m",
+    "maxWorkers": 2
+  },
+  "cleanup": "Stopped task-created build daemons and removed downloaded JDK/Gradle archives; extracted toolchains retained",
+  "availableDiskAfterCleanupGiBApprox": 2.7,
+  "deviceUat": "not run; adb had no attached device",
+  "fullLocalLog": "/Users/ProM2/.cache/english-speaking-ai/final-android-build.log",
+  "failureObservedAt": "2026-10-21T21:45:20+07:00"
+}

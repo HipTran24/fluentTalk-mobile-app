@@ -392,22 +392,25 @@ class ProgressScreen extends ConsumerWidget {
         borderRadius: AppRadius.cardRadius,
         border: Border.all(color: AppColors.primaryLight.withOpacity(0.3)),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
-        leading: const CircleAvatar(
-          backgroundColor: AppColors.primary,
-          child: Icon(Icons.history_rounded, color: Colors.white, size: 20),
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+          leading: const CircleAvatar(
+            backgroundColor: AppColors.primary,
+            child: Icon(Icons.history_rounded, color: Colors.white, size: 20),
+          ),
+          title: const Text(
+            'Xem toàn bộ lịch sử luyện nói',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.textPrimary),
+          ),
+          subtitle: const Text(
+            'Nghe lại audio và xem chi tiết điểm số từng phiên',
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.primary),
+          onTap: () => context.push('/progress/history'),
         ),
-        title: const Text(
-          'Xem toàn bộ lịch sử luyện nói',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.textPrimary),
-        ),
-        subtitle: const Text(
-          'Nghe lại audio và xem chi tiết điểm số từng phiên',
-          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.primary),
-        onTap: () => context.push('/progress/history'),
       ),
     );
   }

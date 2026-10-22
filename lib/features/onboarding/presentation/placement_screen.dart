@@ -495,14 +495,16 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                           ]
                         : null,
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(AppSpacing.md),
-                    onTap: () => controller.selectManualLevel(lvl),
-                    leading: LevelChip(level: lvl),
-                    title: Text(
-                      lvl.label,
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                    ),
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(AppSpacing.md),
+                      onTap: () => controller.selectManualLevel(lvl),
+                      leading: LevelChip(level: lvl),
+                      title: Text(
+                        lvl.label,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                      ),
                     subtitle: Text(
                       lvl.description,
                       style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -516,7 +518,8 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
                       },
                     ),
                   ),
-                );
+                ),
+              );
               },
             ),
           ),
