@@ -6,7 +6,7 @@ class AppColors {
   AppColors._();
 
   // Primary Brand Colors
-  static const Color primary = Color(0xFF5048E5); // Indigo (brand)
+  static const Color primary = Color(0xFF4F46E5); // Indigo (brand #4F46E5)
   static const Color primaryDark = Color(0xFF3F37C9);
   static const Color primaryLight = Color(0xFF8B87F7);
   static const Color secondaryLight = Color(0xFFEEEDFF);
@@ -18,13 +18,13 @@ class AppColors {
   static const Color brandAmber = Color(0xFFFBBF24);
 
   // Accent Colors
-  static const Color accent = Color(0xFF0D9488); // Teal
+  static const Color accent = Color(0xFF0D9488); // Teal (#0D9488)
   static const Color accentLight = Color(0xFF14B8A6);
   static const Color accentBg = Color(0xFFECFDF8);
   static const Color purple = Color(0xFF9333EA);
 
   // Surface & Backgrounds (Light Mode)
-  static const Color background = Color(0xFFF5F6FB);
+  static const Color background = Color(0xFFF8FAFC); // Plan surface background (#F8FAFC)
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceVariant = Color(0xFFF0F2F8);
   static const Color border = Color(0xFFE5E7F0);

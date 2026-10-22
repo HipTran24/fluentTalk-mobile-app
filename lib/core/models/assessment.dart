@@ -13,21 +13,32 @@ class DimensionScore {
   const DimensionScore({
     required this.dimension,
     this.estimatedBand,
-    this.confidence = 0.85,
+    this.confidence = 0.0,
     required this.feedbackVi,
     this.evidenceSnippets = const [],
     this.hasAcousticEvidence = false,
   });
 
-  bool get isAvailable => estimatedBand != null;
-  String get displayBand => estimatedBand != null ? estimatedBand!.toStringAsFixed(1) : 'N/A';
+  bool get isAvailable =>
+      estimatedBand != null &&
+      estimatedBand!.isFinite &&
+      estimatedBand! >= 0 &&
+      estimatedBand! <= 9 &&
+      confidence.isFinite &&
+      confidence > 0 &&
+      confidence <= 1 &&
+      evidenceSnippets.any((snippet) => snippet.trim().isNotEmpty) &&
+      (dimension != RubricDimension.pronunciation || hasAcousticEvidence);
+
+  String get displayBand =>
+      isAvailable ? estimatedBand!.toStringAsFixed(1) : 'N/A';
 }
 
 /// Comprehensive Post-Session Assessment Report
 class AssessmentReport {
   final String id;
   final String sessionId;
-  final double? overallEstimatedBand;
+  final double? _overallEstimatedBand;
   final String summaryVi;
   final List<String> strengths;
   final List<String> improvements;
@@ -39,7 +50,7 @@ class AssessmentReport {
   const AssessmentReport({
     required this.id,
     required this.sessionId,
-    this.overallEstimatedBand,
+    double? overallEstimatedBand,
     required this.summaryVi,
     this.strengths = const [],
     this.improvements = const [],
@@ -47,8 +58,21 @@ class AssessmentReport {
     this.corrections = const [],
     this.rubricVersion = 'v1.1.0',
     required this.createdAt,
-  });
+  }) : _overallEstimatedBand = overallEstimatedBand;
 
-  String get displayOverall =>
-      overallEstimatedBand != null ? overallEstimatedBand!.toStringAsFixed(1) : 'Tham khảo';
+  double? get overallEstimatedBand {
+    final band = _overallEstimatedBand;
+    if (band == null || !band.isFinite || band < 0 || band > 9) return null;
+    for (final dimension in RubricDimension.values) {
+      final score = dimensions[dimension];
+      if (score == null || score.dimension != dimension || !score.isAvailable) {
+        return null;
+      }
+    }
+    return band;
+  }
+
+  String get displayOverall => overallEstimatedBand != null
+      ? overallEstimatedBand!.toStringAsFixed(1)
+      : 'N/A';
 }

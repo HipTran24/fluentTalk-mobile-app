@@ -49,7 +49,7 @@ class AppTheme {
           letterSpacing: -0.2,
         ),
       ),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: AppColors.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
@@ -168,7 +168,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.sheetRadius),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -241,7 +241,7 @@ class AppTheme {
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: AppColors.darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(

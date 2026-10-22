@@ -31,17 +31,25 @@ class UserProfile {
     return UserProfile(
       id: json['id'] as String,
       email: json['email'] as String? ?? '',
-      displayName: json['display_name'] as String? ?? 'Learner',
-      avatarUrl: json['avatar_url'] as String?,
+      displayName: (json['display_name'] ?? json['displayName']) as String? ?? 'Learner',
+      avatarUrl: (json['avatar_url'] ?? json['avatarUrl']) as String?,
       level: UserLevel.fromString(json['level'] as String?),
       goal: LearningGoalType.values.firstWhere(
-        (g) => g.name == json['goal'],
+        (g) => g.name == (json['goal'] ?? json['goalType']),
         orElse: () => LearningGoalType.daily,
       ),
-      dailyMinutes: json['daily_minutes'] as int? ?? 15,
-      currentStreak: json['current_streak'] as int? ?? 0,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      dailyMinutes: (json['daily_minutes'] ?? json['dailyMinutes']) as int? ?? 15,
+      currentStreak: (json['current_streak'] ?? json['currentStreak']) as int? ?? 0,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : (json['createdAt'] != null
+              ? DateTime.parse(json['createdAt'] as String)
+              : DateTime.now()),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : (json['updatedAt'] != null
+              ? DateTime.parse(json['updatedAt'] as String)
+              : null),
     );
   }
 
