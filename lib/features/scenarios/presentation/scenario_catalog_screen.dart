@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/error_state.dart';
+import '../../../core/network/api_failure.dart';
 import '../../../core/widgets/level_chip.dart';
 import '../../../core/widgets/shimmer_loading.dart';
 import 'controllers/scenario_controller.dart';
@@ -17,12 +21,15 @@ class ScenarioCatalogScreen extends ConsumerStatefulWidget {
   const ScenarioCatalogScreen({super.key});
 
   @override
-  ConsumerState<ScenarioCatalogScreen> createState() => _ScenarioCatalogScreenState();
+  ConsumerState<ScenarioCatalogScreen> createState() =>
+      _ScenarioCatalogScreenState();
 }
 
-class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> with SingleTickerProviderStateMixin {
+class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
 
   final List<Map<String, String>> _catalogTabs = [
     {'id': 'all', 'label': 'Tất cả'},
@@ -34,17 +41,22 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
   @override
   void initState() {
     super.initState();
+    if (!ref.read(scenarioRepositoryProvider).supportsCuratedTabs) {
+      _catalogTabs.removeWhere((tab) => tab['id'] != 'all');
+    }
     _tabController = TabController(length: _catalogTabs.length, vsync: this);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
   void _clearAllFilters() {
+    _searchDebounce?.cancel();
     _searchController.clear();
     ref.read(searchQueryProvider.notifier).state = '';
     ref.read(selectedTopicIdProvider.notifier).state = 'all';
@@ -56,7 +68,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
   @override
   Widget build(BuildContext context) {
     final topicsAsync = ref.watch(topicsProvider);
-    final scenariosAsync = ref.watch(filteredScenariosProvider);
+    final scenariosAsync = ref.watch(catalogPageProvider);
     final selectedTopicId = ref.watch(selectedTopicIdProvider);
     final selectedLevel = ref.watch(selectedLevelProvider);
     final bookmarkController = ref.read(bookmarkControllerProvider);
@@ -80,24 +92,37 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
               ),
               child: TextField(
                 controller: _searchController,
+                maxLength: 100,
                 onChanged: (val) {
-                  ref.read(searchQueryProvider.notifier).state = val;
+                  setState(() {});
+                  _searchDebounce?.cancel();
+                  _searchDebounce =
+                      Timer(const Duration(milliseconds: 350), () {
+                    if (mounted) {
+                      ref.read(searchQueryProvider.notifier).state = val;
+                    }
+                  });
                 },
                 decoration: InputDecoration(
+                  counterText: '',
                   hintText: 'Tìm theo tên kịch bản, vai trò, từ khóa...',
-                  prefixIcon: const Icon(Icons.search, color: AppColors.textMuted),
+                  prefixIcon:
+                      const Icon(Icons.search, color: AppColors.textMuted),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear, size: 18),
                           onPressed: () {
+                            _searchDebounce?.cancel();
                             _searchController.clear();
                             ref.read(searchQueryProvider.notifier).state = '';
+                            setState(() {});
                           },
                         )
                       : null,
                   filled: true,
                   fillColor: AppColors.surface,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppRadius.input),
                     borderSide: const BorderSide(color: AppColors.border),
@@ -111,13 +136,16 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
               controller: _tabController,
               isScrollable: true,
               tabAlignment: TabAlignment.start,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pageHorizontal),
               indicatorColor: AppColors.primary,
               labelColor: AppColors.primary,
               unselectedLabelColor: AppColors.textMuted,
-              labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              labelStyle:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               onTap: (idx) {
-                ref.read(selectedCatalogTabProvider.notifier).state = _catalogTabs[idx]['id']!;
+                ref.read(selectedCatalogTabProvider.notifier).state =
+                    _catalogTabs[idx]['id']!;
               },
               tabs: _catalogTabs.map((t) => Tab(text: t['label'])).toList(),
             ),
@@ -129,7 +157,8 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
               data: (topics) {
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.pageHorizontal, vertical: 4),
                   child: Row(
                     children: [
                       ChoiceChip(
@@ -138,11 +167,16 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                         selectedColor: AppColors.secondaryLight,
                         labelStyle: TextStyle(
                           fontSize: 12,
-                          fontWeight: selectedTopicId == 'all' ? FontWeight.w700 : FontWeight.w500,
-                          color: selectedTopicId == 'all' ? AppColors.primary : AppColors.textPrimary,
+                          fontWeight: selectedTopicId == 'all'
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: selectedTopicId == 'all'
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
                         onSelected: (_) {
-                          ref.read(selectedTopicIdProvider.notifier).state = 'all';
+                          ref.read(selectedTopicIdProvider.notifier).state =
+                              'all';
                         },
                       ),
                       ...topics.map((tp) {
@@ -155,11 +189,16 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                             selectedColor: AppColors.secondaryLight,
                             labelStyle: TextStyle(
                               fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                              color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.textPrimary,
                             ),
                             onSelected: (_) {
-                              ref.read(selectedTopicIdProvider.notifier).state = tp.id;
+                              ref.read(selectedTopicIdProvider.notifier).state =
+                                  tp.id;
                             },
                           ),
                         );
@@ -169,13 +208,18 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                 );
               },
               loading: () => const SizedBox(height: 40),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, __) => TextButton.icon(
+                onPressed: () => ref.invalidate(topicsProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Chưa tải được chủ đề. Thử lại'),
+              ),
             ),
 
             // 4. Level Filter Chips (A0 - C2)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageHorizontal, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pageHorizontal, vertical: 4),
               child: Row(
                 children: [
                   ChoiceChip(
@@ -184,8 +228,12 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                     selectedColor: AppColors.surfaceVariant,
                     labelStyle: TextStyle(
                       fontSize: 11,
-                      fontWeight: selectedLevel == null ? FontWeight.w700 : FontWeight.w400,
-                      color: selectedLevel == null ? AppColors.primary : AppColors.textPrimary,
+                      fontWeight: selectedLevel == null
+                          ? FontWeight.w700
+                          : FontWeight.w400,
+                      color: selectedLevel == null
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
                     ),
                     onSelected: (_) {
                       ref.read(selectedLevelProvider.notifier).state = null;
@@ -202,11 +250,15 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                         checkmarkColor: AppColors.primary,
                         labelStyle: TextStyle(
                           fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                          color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
                         ),
                         onSelected: (val) {
-                          ref.read(selectedLevelProvider.notifier).state = val ? lvl : null;
+                          ref.read(selectedLevelProvider.notifier).state =
+                              val ? lvl : null;
                         },
                       ),
                     );
@@ -220,27 +272,43 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
             // 5. Scenarios List or Empty State
             Expanded(
               child: scenariosAsync.when(
-                data: (scenarios) {
+                data: (page) {
+                  final scenarios = page.items;
                   if (scenarios.isEmpty) {
                     return EmptyStateWidget(
                       icon: Icons.search_off_rounded,
                       title: 'Không tìm thấy kịch bản phù hợp',
-                      description: 'Thử thay đổi từ khóa tìm kiếm hoặc chọn lại chủ đề / cấp độ khác.',
+                      description:
+                          'Thử thay đổi từ khóa tìm kiếm hoặc chọn lại chủ đề / cấp độ khác.',
                       actionText: 'Xóa toàn bộ bộ lọc',
                       onAction: _clearAllFilters,
                     );
                   }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
-                    itemCount: scenarios.length,
-                    itemBuilder: (ctx, idx) {
-                      final scenario = scenarios[idx];
-                      return _buildScenarioCard(scenario, bookmarkController);
-                    },
-                  );
+                  return RefreshIndicator(
+                      onRefresh: () async {
+                        ref.invalidate(catalogPageProvider);
+                        try {
+                          await ref.read(catalogPageProvider.future);
+                        } catch (_) {
+                          // The provider renders the safe error and retry UI.
+                        }
+                      },
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        cacheExtent: 500,
+                        padding:
+                            const EdgeInsets.all(AppSpacing.pageHorizontal),
+                        itemCount: scenarios.length,
+                        itemBuilder: (ctx, idx) {
+                          final scenario = scenarios[idx];
+                          return _buildScenarioCard(
+                              scenario, bookmarkController);
+                        },
+                      ));
                 },
                 loading: () => ListView.builder(
+                  cacheExtent: 500,
                   padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
                   itemCount: 4,
                   itemBuilder: (_, __) => Padding(
@@ -248,10 +316,53 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                     child: ShimmerLoading.card(height: 130),
                   ),
                 ),
-                error: (err, _) => Center(
-                  child: Text('Lỗi tải kịch bản: $err'),
+                error: (err, _) => SingleChildScrollView(
+                  child: ErrorStateWidget(
+                    message: err is ApiFailure
+                        ? err.message
+                        : 'Không thể tải danh mục. Hãy thử lại.',
+                    onRetry: () => ref.invalidate(catalogPageProvider),
+                  ),
                 ),
               ),
+            ),
+            scenariosAsync.maybeWhen(
+              data: (page) => Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      tooltip: 'Trang trước',
+                      onPressed: page.page > 0
+                          ? () => ref
+                              .read(catalogPageIndexProvider.notifier)
+                              .state--
+                          : null,
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    Flexible(
+                      child: Text(
+                        'Trang ${page.page + 1}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      tooltip: 'Trang sau',
+                      onPressed: page.hasMore
+                          ? () => ref
+                              .read(catalogPageIndexProvider.notifier)
+                              .state++
+                          : null,
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
+                ),
+              ),
+              orElse: () => const SizedBox.shrink(),
             ),
           ],
         ),
@@ -259,7 +370,8 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
     );
   }
 
-  Widget _buildScenarioCard(Scenario scenario, BookmarkController bookmarkController) {
+  Widget _buildScenarioCard(
+      Scenario scenario, BookmarkController bookmarkController) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
@@ -288,38 +400,52 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
+                    Expanded(
+                        child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: AppSpacing.xs,
+                      runSpacing: AppSpacing.xs,
                       children: [
                         LevelChip(level: scenario.level),
-                        const SizedBox(width: AppSpacing.xs),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(AppRadius.round),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.round),
                           ),
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.timer_outlined, size: 12, color: AppColors.textMuted),
+                              const Icon(Icons.timer_outlined,
+                                  size: 12, color: AppColors.textMuted),
                               const SizedBox(width: 4),
                               Text(
                                 '${scenario.estimatedMinutes} phút',
-                                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary),
                               ),
                             ],
                           ),
                         ),
                       ],
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        scenario.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                        color: scenario.isBookmarked ? AppColors.primary : AppColors.textMuted,
-                        size: 22,
+                    )),
+                    if (ref.read(scenarioRepositoryProvider).supportsBookmarks)
+                      IconButton(
+                        icon: Icon(
+                          scenario.isBookmarked
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_border_rounded,
+                          color: scenario.isBookmarked
+                              ? AppColors.primary
+                              : AppColors.textMuted,
+                          size: 22,
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () => bookmarkController.toggle(scenario.id),
                       ),
-                      visualDensity: VisualDensity.compact,
-                      onPressed: () => bookmarkController.toggle(scenario.id),
-                    ),
                   ],
                 ),
 
@@ -364,14 +490,16 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen> w
                 if (scenario.samplePhrases.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.sm),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceVariant,
                       borderRadius: BorderRadius.circular(AppRadius.xs),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.chat_bubble_outline, size: 13, color: AppColors.textMuted),
+                        const Icon(Icons.chat_bubble_outline,
+                            size: 13, color: AppColors.textMuted),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(

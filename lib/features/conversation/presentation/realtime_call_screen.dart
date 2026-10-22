@@ -96,25 +96,28 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
                       borderRadius: AppRadius.cardRadius,
                       border: Border.all(color: Colors.white12),
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                      title: Text(
-                        hint.englishPhrase,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                        title: Text(
+                          hint.englishPhrase,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
+                        subtitle: Text(
+                          '(${hint.vietnameseMeaning})',
+                          style: const TextStyle(color: Colors.white60, fontSize: 12),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white38, size: 14),
+                        onTap: () {
+                          controller.simulateUserSpeech(hint.englishPhrase);
+                          Navigator.of(ctx).pop();
+                        },
                       ),
-                      subtitle: Text(
-                        '(${hint.vietnameseMeaning})',
-                        style: const TextStyle(color: Colors.white60, fontSize: 12),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white38, size: 14),
-                      onTap: () {
-                        controller.simulateUserSpeech(hint.englishPhrase);
-                        Navigator.of(ctx).pop();
-                      },
                     ),
                   )),
               const SizedBox(height: AppSpacing.sm),
@@ -273,8 +276,10 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
                     child: Column(
                       children: [
                         const SizedBox(height: AppSpacing.sm),
-                        // 2. Ripple Rings & Coach Emma Avatar
-                        _buildCenterAvatar(state, controller, isAiSpeaking, isUserSpeaking),
+                        // 2. Ripple Rings & Coach Emma Avatar (Isolated GPU RepaintBoundary)
+                        RepaintBoundary(
+                          child: _buildCenterAvatar(state, controller, isAiSpeaking, isUserSpeaking),
+                        ),
 
                         const SizedBox(height: AppSpacing.md),
 
@@ -283,8 +288,10 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen> with Si
 
                         const SizedBox(height: AppSpacing.md),
 
-                        // 4. DUAL WAVEFORM VISUALIZER
-                        _buildWaveformVisualizer(state, isAiSpeaking, isUserSpeaking),
+                        // 4. DUAL WAVEFORM VISUALIZER (Isolated GPU RepaintBoundary)
+                        RepaintBoundary(
+                          child: _buildWaveformVisualizer(state, isAiSpeaking, isUserSpeaking),
+                        ),
 
                         const SizedBox(height: AppSpacing.md),
 

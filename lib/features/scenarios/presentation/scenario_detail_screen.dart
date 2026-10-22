@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/enums.dart';
 import '../../../core/models/scenario.dart';
+import '../../../core/network/api_failure.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -12,6 +13,7 @@ import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/sheets/permission_rationale_sheet.dart';
 import '../../../core/widgets/shimmer_loading.dart';
 import 'controllers/scenario_controller.dart';
+import '../../auth/presentation/controllers/auth_controller.dart';
 
 /// Screen 09 — Scenario Detail / Session Setup
 /// Compliant with ESP-PLAN-001 Appendix B11
@@ -24,7 +26,8 @@ class ScenarioDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ScenarioDetailScreen> createState() => _ScenarioDetailScreenState();
+  ConsumerState<ScenarioDetailScreen> createState() =>
+      _ScenarioDetailScreenState();
 }
 
 class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
@@ -34,9 +37,12 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
   String _selectedVoice = 'en-US-Journey-F';
 
   Future<void> _startSession(String scenarioId) async {
+    if (!ref.read(appConfigProvider).demoMode) return;
     // Microphone permission check
-    final granted = await PermissionRationaleSheet.show(context);
-    if (!mounted || granted != true) return;
+    if (_selectedMode != SessionMode.text) {
+      final granted = await PermissionRationaleSheet.show(context);
+      if (!mounted || granted != true) return;
+    }
 
     // Navigate to appropriate mode
     switch (_selectedMode) {
@@ -56,25 +62,32 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
   Widget build(BuildContext context) {
     final scenarioAsync = ref.watch(scenarioDetailProvider(widget.scenarioId));
     final bookmarkController = ref.read(bookmarkControllerProvider);
+    final isDemo = ref.watch(appConfigProvider).demoMode;
+    final canBookmark = ref.watch(scenarioRepositoryProvider).supportsBookmarks;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Chi tiết tình huống'),
         actions: [
-          scenarioAsync.when(
-            data: (scenario) => scenario != null
-                ? IconButton(
-                    icon: Icon(
-                      scenario.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                      color: scenario.isBookmarked ? AppColors.primary : AppColors.textPrimary,
-                    ),
-                    onPressed: () => bookmarkController.toggle(scenario.id),
-                  )
-                : const SizedBox.shrink(),
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
+          if (canBookmark)
+            scenarioAsync.when(
+              data: (scenario) => scenario != null
+                  ? IconButton(
+                      icon: Icon(
+                        scenario.isBookmarked
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_border_rounded,
+                        color: scenario.isBookmarked
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
+                      ),
+                      onPressed: () => bookmarkController.toggle(scenario.id),
+                    )
+                  : const SizedBox.shrink(),
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
         ],
       ),
       body: SafeArea(
@@ -84,7 +97,8 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
               return ErrorStateWidget(
                 title: 'Không tìm thấy tình huống',
                 message: 'Kịch bản luyện nói này không tồn tại hoặc đã bị ẩn.',
-                onRetry: () => ref.invalidate(scenarioDetailProvider(widget.scenarioId)),
+                onRetry: () =>
+                    ref.invalidate(scenarioDetailProvider(widget.scenarioId)),
               );
             }
 
@@ -99,24 +113,32 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 1. Meta Badges Row: Level & Duration
-                        Row(
+                        // 1. Metadata wraps at large text sizes.
+                        Wrap(
+                          spacing: AppSpacing.xs,
+                          runSpacing: AppSpacing.xs,
                           children: [
                             LevelChip(level: scenario.level),
-                            const SizedBox(width: AppSpacing.xs),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceVariant,
-                                borderRadius: BorderRadius.circular(AppRadius.round),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.round),
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.timer_outlined, size: 14, color: AppColors.textMuted),
+                                  const Icon(Icons.timer_outlined,
+                                      size: 14, color: AppColors.textMuted),
                                   const SizedBox(width: 4),
                                   Text(
                                     '${scenario.estimatedMinutes} phút',
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textSecondary),
                                   ),
                                 ],
                               ),
@@ -167,7 +189,16 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                         ],
 
                         // 5. Session Setup Controls
-                        _buildSessionSetup(),
+                        if (isDemo)
+                          _buildSessionSetup()
+                        else
+                          const Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text(
+                                  'Bạn đang xem nội dung từ máy chủ. Chế độ hội thoại trực tuyến đang được tích hợp.'),
+                            ),
+                          ),
 
                         const SizedBox(height: AppSpacing.md),
                       ],
@@ -183,9 +214,11 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                     border: Border(top: BorderSide(color: AppColors.border)),
                   ),
                   child: PrimaryButton(
-                    text: 'Bắt đầu hội thoại ngay',
+                    text: isDemo
+                        ? 'Bắt đầu hội thoại ngay'
+                        : 'Hội thoại chưa sẵn sàng',
                     icon: Icons.play_arrow_rounded,
-                    onPressed: () => _startSession(scenario.id),
+                    onPressed: isDemo ? () => _startSession(scenario.id) : null,
                   ),
                 ),
               ],
@@ -203,10 +236,14 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
               ],
             ),
           ),
-          error: (err, _) => ErrorStateWidget(
-            message: 'Không thể tải chi tiết kịch bản: $err',
-            onRetry: () => ref.invalidate(scenarioDetailProvider(widget.scenarioId)),
-          ),
+          error: (err, _) => SingleChildScrollView(
+              child: ErrorStateWidget(
+            message: err is ApiFailure
+                ? err.message
+                : 'Không thể tải chi tiết kịch bản. Hãy thử lại.',
+            onRetry: () =>
+                ref.invalidate(scenarioDetailProvider(widget.scenarioId)),
+          )),
         ),
       ),
     );
@@ -225,7 +262,10 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
         children: [
           const Text(
             'Phân vai giao tiếp:',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textMuted),
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textMuted),
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
@@ -236,17 +276,23 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                   color: AppColors.secondaryLight,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.smart_toy_rounded, color: AppColors.primary, size: 20),
+                child: const Icon(Icons.smart_toy_rounded,
+                    color: AppColors.primary, size: 20),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Gia sư AI đóng vai:', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    const Text('Gia sư AI đóng vai:',
+                        style: TextStyle(
+                            fontSize: 11, color: AppColors.textMuted)),
                     Text(
                       scenario.roleAi,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary),
                     ),
                   ],
                 ),
@@ -265,17 +311,23 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                   color: AppColors.accentBg,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_outline_rounded, color: AppColors.accent, size: 20),
+                child: const Icon(Icons.person_outline_rounded,
+                    color: AppColors.accent, size: 20),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Bạn đóng vai:', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    const Text('Bạn đóng vai:',
+                        style: TextStyle(
+                            fontSize: 11, color: AppColors.textMuted)),
                     Text(
                       scenario.roleUser,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary),
                     ),
                   ],
                 ),
@@ -303,10 +355,14 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
             children: [
               Icon(Icons.flag_rounded, color: AppColors.primary, size: 18),
               SizedBox(width: 8),
-              Text(
+              Expanded(
+                  child: Text(
                 'Mục tiêu đầu ra sau bài học:',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-              ),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary),
+              )),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -325,14 +381,20 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                     ),
                     child: Text(
                       '${entry.key + 1}',
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.primary),
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primary),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       entry.value,
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4),
                     ),
                   ),
                 ],
@@ -360,46 +422,46 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
             children: [
               Icon(Icons.translate_rounded, color: AppColors.accent, size: 18),
               SizedBox(width: 8),
-              Text(
+              Expanded(
+                  child: Text(
                 'Từ vựng & Mẫu câu gợi ý:',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-              ),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary),
+              )),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          ...scenario.vocabularyPreview.map((item) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 6),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.phrase,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                        ),
-                        Text(
-                          item.ipa,
-                          style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    item.meaningVi,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.accent),
-                  ),
-                ],
-              ),
-            );
-          }),
+          ...scenario.vocabularyPreview.map((item) => Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.phrase,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary)),
+                    if (item.ipa.isNotEmpty)
+                      Text(item.ipa,
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: AppColors.textSecondary)),
+                    const SizedBox(height: 4),
+                    Text(item.meaningVi,
+                        style: const TextStyle(
+                            fontSize: 13, color: AppColors.accent)),
+                  ],
+                ),
+              )),
         ],
       ),
     );
@@ -422,25 +484,34 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
               SizedBox(width: 8),
               Text(
                 'Thiết lập phiên hội thoại:',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
 
           // 1. Practice Mode Selection
-          const Text('Chế độ luyện tập:', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          const Text('Chế độ luyện tập:',
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
           const SizedBox(height: 4),
           Row(
             children: [
               Expanded(
                 child: ChoiceChip(
-                  label: const Text('Nói theo lượt (Khuyên dùng)', style: TextStyle(fontSize: 11)),
+                  label: const Text('Nói theo lượt (Khuyên dùng)',
+                      style: TextStyle(fontSize: 11)),
                   selected: _selectedMode == SessionMode.guided,
                   selectedColor: AppColors.secondaryLight,
                   labelStyle: TextStyle(
-                    fontWeight: _selectedMode == SessionMode.guided ? FontWeight.w700 : FontWeight.w400,
-                    color: _selectedMode == SessionMode.guided ? AppColors.primary : AppColors.textPrimary,
+                    fontWeight: _selectedMode == SessionMode.guided
+                        ? FontWeight.w700
+                        : FontWeight.w400,
+                    color: _selectedMode == SessionMode.guided
+                        ? AppColors.primary
+                        : AppColors.textPrimary,
                   ),
                   onSelected: (val) {
                     if (val) setState(() => _selectedMode = SessionMode.guided);
@@ -450,15 +521,22 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
               const SizedBox(width: 6),
               Expanded(
                 child: ChoiceChip(
-                  label: const Text('Gọi thoại 2 chiều', style: TextStyle(fontSize: 11)),
+                  label: const Text('Gọi thoại 2 chiều',
+                      style: TextStyle(fontSize: 11)),
                   selected: _selectedMode == SessionMode.realtime,
                   selectedColor: AppColors.secondaryLight,
                   labelStyle: TextStyle(
-                    fontWeight: _selectedMode == SessionMode.realtime ? FontWeight.w700 : FontWeight.w400,
-                    color: _selectedMode == SessionMode.realtime ? AppColors.primary : AppColors.textPrimary,
+                    fontWeight: _selectedMode == SessionMode.realtime
+                        ? FontWeight.w700
+                        : FontWeight.w400,
+                    color: _selectedMode == SessionMode.realtime
+                        ? AppColors.primary
+                        : AppColors.textPrimary,
                   ),
                   onSelected: (val) {
-                    if (val) setState(() => _selectedMode = SessionMode.realtime);
+                    if (val) {
+                      setState(() => _selectedMode = SessionMode.realtime);
+                    }
                   },
                 ),
               ),
@@ -471,7 +549,9 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Tốc độ phát âm AI:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+              const Text('Tốc độ phát âm AI:',
+                  style:
+                      TextStyle(fontSize: 13, color: AppColors.textSecondary)),
               Row(
                 children: [0.75, 1.0, 1.25].map((speed) {
                   final isSelected = _speakingSpeed == speed;
@@ -481,9 +561,12 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                       onTap: () => setState(() => _speakingSpeed = speed),
                       borderRadius: BorderRadius.circular(AppRadius.round),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.surfaceVariant,
                           borderRadius: BorderRadius.circular(AppRadius.round),
                         ),
                         child: Text(
@@ -491,7 +574,9 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -508,10 +593,12 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Hiển thị phụ đề thời gian thực:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+              const Text('Hiển thị phụ đề thời gian thực:',
+                  style:
+                      TextStyle(fontSize: 13, color: AppColors.textSecondary)),
               Switch(
                 value: _liveCaptions,
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
                 onChanged: (val) => setState(() => _liveCaptions = val),
               ),
             ],
@@ -521,13 +608,19 @@ class _ScenarioDetailScreenState extends ConsumerState<ScenarioDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Giọng AI:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+              const Text('Giọng AI:',
+                  style:
+                      TextStyle(fontSize: 13, color: AppColors.textSecondary)),
               DropdownButton<String>(
                 value: _selectedVoice,
                 underline: const SizedBox.shrink(),
                 items: const [
-                  DropdownMenuItem(value: 'en-US-Journey-F', child: Text('🇺🇸 Emma (Anh-Mỹ)')),
-                  DropdownMenuItem(value: 'en-GB-Journey-M', child: Text('🇬🇧 Arthur (Anh-Anh)')),
+                  DropdownMenuItem(
+                      value: 'en-US-Journey-F',
+                      child: Text('🇺🇸 Emma (Anh-Mỹ)')),
+                  DropdownMenuItem(
+                      value: 'en-GB-Journey-M',
+                      child: Text('🇬🇧 Arthur (Anh-Anh)')),
                 ],
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedVoice = val);

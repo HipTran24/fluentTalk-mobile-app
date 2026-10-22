@@ -755,11 +755,13 @@ class _GuidedSpeakingScreenState extends ConsumerState<GuidedSpeakingScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              const VoiceWaveform(
-                isActive: true,
-                color: AppColors.error,
-                height: 40,
-                barCount: 22,
+              const RepaintBoundary(
+                child: VoiceWaveform(
+                  isActive: true,
+                  color: AppColors.error,
+                  height: 40,
+                  barCount: 22,
+                ),
               ),
               const SizedBox(height: 10),
             ],

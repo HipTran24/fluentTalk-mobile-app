@@ -132,6 +132,7 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
+                cacheExtent: 500,
                 padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
                 itemCount: chatState.messages.length,
                 itemBuilder: (ctx, idx) {
@@ -143,24 +144,26 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
               ),
             ),
 
-            // AI Thinking / Voice Generating Indicator
+            // AI Thinking / Voice Generating Indicator (Isolated GPU RepaintBoundary)
             if (chatState.isAiThinking)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                margin: const EdgeInsets.only(bottom: 8),
-                child: const Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      'Coach Emma đang soạn câu trả lời & phát âm...',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
-                    ),
-                  ],
+              RepaintBoundary(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: const Row(
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Coach Emma đang soạn câu trả lời & phát âm...',
+                        style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
