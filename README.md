@@ -41,6 +41,7 @@ Dự án đang ở giai đoạn **beta chạy local**. Hội thoại thật và 
 | **Cá nhân hóa** | Mục tiêu, trình độ tự chọn, chủ đề ưu tiên; kế hoạch ngày và tình huống kèm lý do đề xuất. |
 | **Ghi nhớ có kiểm soát** | Dùng lịch sử khi bật cá nhân hóa; lưu phụ đề cuộc gọi khi đồng ý riêng, tối đa 30 ngày, có thể xóa. |
 | **Nội dung học** | Danh mục chủ đề, tình huống theo trình độ, lịch sử và thống kê từ dữ liệu đã lưu. |
+| **Quản trị** | Giao diện web/mobile, quản lý học viên, chủ đề, tình huống, nhật ký thao tác và thống kê thật; API giới hạn quyền admin. |
 
 Tom không tạo điểm năng lực, nhận xét phát âm hoặc lịch sử giả. Khi chưa có dữ liệu, đề xuất bắt đầu từ lựa chọn của người học. Phút luyện tập hiện tính theo phiên chat đã hoàn thành; phụ đề Live chưa cộng vào chỉ số thời gian này.
 
@@ -93,7 +94,7 @@ Lệnh `cp -n` giữ nguyên file cấu hình đã tồn tại. Điền thông t
 
 `backend.private.env` được đọc như dữ liệu, không chạy bằng `source` hay `eval`. Không truyền file này vào `--dart-define-from-file`.
 
-Flyway tự chạy các migration **V1–V9** trong schema `english_app`. Các migration tạo bảng/cập nhật dữ liệu; hãy dùng database phát triển phù hợp, không bỏ qua migration để tự tạo bảng bằng tay.
+Flyway tự chạy các migration **V1–V12** trong schema `english_app`. Các migration tạo bảng/cập nhật dữ liệu; hãy dùng database phát triển phù hợp, không bỏ qua migration để tự tạo bảng bằng tay.
 
 ### 2. Chạy backend và web
 
@@ -199,3 +200,7 @@ docs/                  Kế hoạch, hướng dẫn và báo cáo kiểm tra
 Các hạng mục còn lại gồm guided speaking, realtime native, đánh giá kỹ năng có bằng chứng/hiệu chuẩn, ôn từ vựng và bài tập chuyên sâu, full password-recovery/account lifecycle, cùng hosting HTTPS, quyền database tối thiểu, backup/restore, monitoring và release signing.
 
 Có schema, màn hình demo hoặc hợp đồng API không đồng nghĩa tính năng đã hoàn thiện. Trạng thái thực tế được ghi trong hướng dẫn và báo cáo QA tương ứng.
+
+Hướng dẫn vận hành và cấp quyền: [Quản trị FluentTalk](docs/ADMIN_CONSOLE.md).
+
+Đo token thực tế và biểu đồ ngày: [Usage Analytics](docs/USAGE_ANALYTICS.md).

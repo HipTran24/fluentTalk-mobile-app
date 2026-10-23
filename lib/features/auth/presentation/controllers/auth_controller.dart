@@ -117,6 +117,7 @@ class AuthController extends StateNotifier<AuthState> {
     _authSubscription = _repository.authEventStream.listen(
       (event) async {
         if (event == AuthChangeEvent.tokenRefreshed) {
+          state = state.copyWith(isAdmin: _repository.isAdmin);
           if ((state.isAuthenticated || state.needsOnboarding) &&
               state.user != null) {
             await syncProfileFromBackend();

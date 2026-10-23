@@ -7,6 +7,12 @@ import java.util.UUID;
 @Entity
 @Table(name = "profiles")
 public class Profile {
+    @Version @Column(nullable=false) private long revision;
+    @Column(nullable=false) private boolean suspended=false;
+    public long getRevision(){return revision;}
+    public boolean isSuspended(){return suspended;}
+    public void setSuspended(boolean value){suspended=value;}
+
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)

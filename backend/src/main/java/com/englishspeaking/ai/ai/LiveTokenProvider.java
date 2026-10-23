@@ -13,6 +13,8 @@ import java.util.*;
 /** Only short-lived, single-use, configuration-locked credentials leave the server. */
 @Service
 public class LiveTokenProvider {
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private com.englishspeaking.ai.provider.AiRuntimeConfig runtime;
     private final AppProperties properties;
     private final ObjectMapper mapper;
     private final HttpClient client;
@@ -27,19 +29,22 @@ public class LiveTokenProvider {
         this.properties = properties; this.mapper = mapper; this.client = client; this.endpoint = endpoint;
     }
     public boolean configured() {
-        var g = properties.getGemini();
-        return !g.getApiKey().isBlank() && g.getLiveModel().matches("[A-Za-z0-9._-]{1,100}");
+        var c=snapshot();return c.configured()&&c.provider().equals("gemini")&&c.model().matches("[A-Za-z0-9._-]{1,100}");
     }
+    private com.englishspeaking.ai.provider.AiRuntimeConfig.Snapshot snapshot(){var g=properties.getGemini();return runtime==null?new com.englishspeaking.ai.provider.AiRuntimeConfig.Snapshot("gemini",g.getLiveModel(),g.getApiKey()):runtime.current("live");}
     public record Ticket(String token, String model, String voice, String expiresAt, int maxSeconds,
                          Map<String, Object> setup, UUID learningSessionId, boolean saveTranscriptAllowed) {}
     public Ticket issue(String voice,String level) { return issue(voice,level,""); }
     public Ticket issue(String voice, String level, String learnerContext) {
-        if (!configured()) throw error("AI_NOT_CONFIGURED", "Chưa cấu hình Gemini. Hãy điền GEMINI_API_KEY trên máy chủ.", HttpStatus.SERVICE_UNAVAILABLE);
+        return issueConfigured(voice,level,learnerContext,snapshot());
+    }
+    public Ticket issueConfigured(String voice,String level,String learnerContext,com.englishspeaking.ai.provider.AiRuntimeConfig.Snapshot config) {
+        if (!config.configured() || !config.provider().equals("gemini") || !config.model().matches("[A-Za-z0-9._-]{1,100}")) throw error("AI_NOT_CONFIGURED", "Chưa cấu hình Gemini. Hãy điền GEMINI_API_KEY trên máy chủ.", HttpStatus.SERVICE_UNAVAILABLE);
         if (!Set.of("Aoede", "Kore", "Puck", "Charon").contains(voice))
             throw error("VALIDATION_FAILED", "Giọng nói không hợp lệ.", HttpStatus.BAD_REQUEST);
         if (!Set.of("A0", "A1", "A2", "B1", "B2", "C1", "C2").contains(level))
             throw error("VALIDATION_FAILED", "Trình độ không hợp lệ.", HttpStatus.BAD_REQUEST);
-        String model = "models/" + properties.getGemini().getLiveModel();
+        String model = "models/" + config.model();
         var setup = Map.<String, Object>of(
             "model", model,
             "generationConfig", Map.of("responseModalities", List.of("AUDIO"), "maxOutputTokens", 1024,
@@ -62,7 +67,7 @@ public class LiveTokenProvider {
                 "newSessionExpireTime", now.plusSeconds(60).toString(), "bidiGenerateContentSetup", setup);
             var request = HttpRequest.newBuilder(URI.create(endpoint)).timeout(Duration.ofSeconds(15))
                 .header("Content-Type", "application/json")
-                .header("x-goog-api-key", properties.getGemini().getApiKey())
+                .header("x-goog-api-key", config.apiKey())
                 .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body))).build();
             var response = client.send(request,
                 HttpResponse.BodyHandlers.limiting(HttpResponse.BodyHandlers.ofByteArray(), 65536));

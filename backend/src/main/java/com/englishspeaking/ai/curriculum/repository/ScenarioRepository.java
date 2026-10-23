@@ -12,6 +12,9 @@ import java.util.UUID;
 
 @Repository
 public interface ScenarioRepository extends JpaRepository<Scenario, UUID> {
+ @Query("select s from Scenario s where (:q='' or lower(s.title) like concat('%',:q,'%')) and (:topic is null or s.topicId=:topic) and (:active is null or s.active=:active)")
+ Page<Scenario> searchAdmin(@Param("q") String q,@Param("topic") UUID topic,@Param("active") Boolean active,Pageable page);
+
 
     @Query("SELECT s FROM Scenario s WHERE s.active = true " +
            "AND (:topicId IS NULL OR s.topicId = :topicId) " +

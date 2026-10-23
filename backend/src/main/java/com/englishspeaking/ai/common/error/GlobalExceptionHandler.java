@@ -28,6 +28,11 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ExceptionHandler({org.springframework.orm.ObjectOptimisticLockingFailureException.class,org.springframework.dao.DataIntegrityViolationException.class})
+    public ResponseEntity<ApiErrorResponse> handleConflict(RuntimeException ex,HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorResponse("CONFLICT","Dữ liệu vừa thay đổi hoặc bị trùng. Hãy tải lại trước khi lưu.",Map.of(),RequestIdFilter.getRequestId(request)));
+    }
+
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiErrorResponse> handleApiException(ApiException ex, HttpServletRequest request) {
         String requestId = RequestIdFilter.getRequestId(request);

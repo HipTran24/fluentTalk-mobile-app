@@ -7,6 +7,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "scenarios")
 public class Scenario {
+    @Version @Column(nullable=false) private long revision;
+    public long getRevision(){return revision;}
+
 
     @Id
     private UUID id;

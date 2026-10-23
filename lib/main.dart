@@ -45,7 +45,7 @@ class FluentTalkApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final demoMode = ref.watch(appConfigProvider).demoMode;
     return MaterialApp.router(
-      title: 'FluentTalk Tom',
+      title: 'FluentTalk',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

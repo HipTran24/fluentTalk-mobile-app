@@ -129,6 +129,7 @@ public class JwksJwtTokenVerifier implements JwtTokenVerifier {
             if (!roles.contains("ADMIN")) roles.add("ADMIN");
         }
 
+        if (roles.contains("ADMIN")) roles.remove("USER");
         return new AuthenticatedUser(userId, email, roles);
     }
 

@@ -20,6 +20,7 @@ public record AuthenticatedUser(
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
+                .map(r -> r.toUpperCase(java.util.Locale.ROOT))
                 .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
                 .map(SimpleGrantedAuthority::new)
                 .toList();

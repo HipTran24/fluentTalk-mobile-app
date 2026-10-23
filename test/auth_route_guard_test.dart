@@ -73,16 +73,19 @@ void main() {
       container: container,
       child: MaterialApp.router(routerConfig: router),
     ));
-    await tester.pump();
-    for (final path in ['/practice/guided/123', '/admin']) {
+    await tester.pumpAndSettle();
+    for (final path in ['/practice/guided/123']) {
       router.go(path);
-      await tester.pump();
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
       expect(
           router.routerDelegate.currentConfiguration.uri.path, '/unavailable',
           reason: path);
     }
     expect(find.text('Khu vực luyện tập'), findsOneWidget);
+    router.go('/admin');
+    await tester.pumpAndSettle();
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/home');
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 2));
     container.dispose();

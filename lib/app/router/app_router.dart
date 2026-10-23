@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/admin/presentation/admin_screen.dart';
+import '../../features/admin/presentation/admin_console_screen.dart';
 import '../../features/auth/domain/auth_state.dart';
 import '../../features/auth/presentation/auth_screen.dart';
 import '../../features/auth/presentation/email_otp_screen.dart';
@@ -74,6 +75,10 @@ GoRouter _createRouter(AuthState Function() readAuth,
 
         // ADR-010: active catalog metadata is public. Its repository uses
         // unauthenticated HTTP; session/Tom routes below remain protected.
+        // An authenticated admin has a dedicated workspace, including deep links.
+        if ((isAuth || needsOnboarding) && isAdmin) {
+          return isAdminScreen ? null : '/admin';
+        }
         if (isPublicCatalog) return null;
 
         // 1. Initial state -> go to splash
@@ -81,6 +86,10 @@ GoRouter _createRouter(AuthState Function() readAuth,
           if (isSplash || isWelcome || isAuthScreen) return null;
           if (isOnboarding && authState.user != null) return null;
           return '/splash';
+        }
+
+        if (isAdminScreen && (isAuth || needsOnboarding)) {
+          return isAdmin ? null : '/home';
         }
 
         // Text chat has a remote adapter; keep the remaining simulated flows gated.
@@ -176,7 +185,9 @@ GoRouter _createRouter(AuthState Function() readAuth,
         // Executive Admin Console (Responsive for Web & Mobile)
         GoRoute(
           path: '/admin',
-          builder: (context, state) => const AdminScreen(),
+          builder: (context, state) => readAuth().isDemo
+              ? const AdminScreen()
+              : const AdminConsoleScreen(),
         ),
 
         // Immersive Session & Practice Screens (Full-screen overlay)

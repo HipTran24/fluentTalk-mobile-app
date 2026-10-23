@@ -41,7 +41,9 @@ class ApiFailure implements Exception {
                 : status == 401
                     ? 'UNAUTHENTICATED'
                     : status == 403
-                        ? 'FORBIDDEN'
+                        ? serverCode == 'ACCOUNT_SUSPENDED'
+                            ? 'ACCOUNT_SUSPENDED'
+                            : 'FORBIDDEN'
                         : status == 404
                             ? 'NOT_FOUND'
                             : status == 409
@@ -63,6 +65,8 @@ class ApiFailure implements Exception {
         'CANCELLED' => 'Yêu cầu đã dừng.',
         'TIMEOUT' => 'Kết nối quá thời gian. Bạn có thể thử lại.',
         'UNAUTHENTICATED' => 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.',
+        'ACCOUNT_SUSPENDED' =>
+          'Tài khoản đang bị tạm khóa. Vui lòng liên hệ quản trị viên.',
         'FORBIDDEN' => 'Bạn không có quyền thực hiện thao tác này.',
         'NOT_FOUND' => 'Không tìm thấy nội dung này.',
         'CONFLICT' => 'Yêu cầu xung đột. Hãy tải lại trước khi tiếp tục.',

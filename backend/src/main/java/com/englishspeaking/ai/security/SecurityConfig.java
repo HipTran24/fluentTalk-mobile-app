@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -53,10 +55,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/health").permitAll()
-                        .requestMatchers("/api/v1/topics", "/api/v1/scenarios/**").permitAll()
+                        .requestMatchers("/api/v1/topics", "/api/v1/scenarios/**").access(new WebExpressionAuthorizationManager("!hasRole('ADMIN')"))
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        // Identity bootstrap is shared; learner mutations and learning APIs are exclusive.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/me").authenticated()
+                        .anyRequest().access(new WebExpressionAuthorizationManager("hasRole('USER') and !hasRole('ADMIN')"))
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> {

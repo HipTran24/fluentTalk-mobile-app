@@ -264,8 +264,10 @@ class SupabaseAuthRepository implements AuthRepository {
       return const Stream.empty();
     }
     try {
-      return Supabase.instance.client.auth.onAuthStateChange
-          .map((data) => data.event);
+      return Supabase.instance.client.auth.onAuthStateChange.map((data) {
+        _isAdmin = data.session?.user.appMetadata['role'] == 'admin';
+        return data.event;
+      });
     } catch (_) {
       return const Stream.empty();
     }

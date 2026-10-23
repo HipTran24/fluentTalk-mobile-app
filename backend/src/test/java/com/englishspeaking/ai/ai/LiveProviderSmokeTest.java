@@ -22,8 +22,16 @@ class LiveProviderSmokeTest {
         props.getGemini().setModel(System.getenv("GEMINI_MODEL"));
         props.getGemini().setLiveModel(System.getenv("GEMINI_LIVE_MODEL"));
         var mapper = new ObjectMapper();
-        var text = new ConversationAiService(props,mapper).generateTurn("Hello! What is your name? Please ask me one easy question about my day.", "A1", null, List.of());
+        var usageRepository=org.mockito.Mockito.mock(com.englishspeaking.ai.usage.UsageEventRepository.class);
+        var textService=new ConversationAiService(props,mapper);
+        org.springframework.test.util.ReflectionTestUtils.setField(textService,"usageMeter",new com.englishspeaking.ai.usage.UsageMeter(usageRepository));
+        var text = textService.generateTurn("Hello! What is your name? Please ask me one easy question about my day.", "A1", null, List.of());
         assertFalse(text.text().isBlank());
+        var usage=org.mockito.ArgumentCaptor.forClass(com.englishspeaking.ai.usage.UsageEvent.class);
+        org.mockito.Mockito.verify(usageRepository).saveAndFlush(usage.capture());
+        assertNotNull(usage.getValue().totalTokens);assertTrue(usage.getValue().totalTokens>0);
+        System.out.println("Real text metadata: total tokens="+usage.getValue().totalTokens);
+
         assertTrue(text.text().toLowerCase().contains("tom"));
         System.out.println("Real text provider: response received (characters=" + text.text().length()+")");
         var ticket = new LiveTokenProvider(props,mapper).issue("Aoede","A1");

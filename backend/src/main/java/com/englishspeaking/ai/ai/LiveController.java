@@ -9,6 +9,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/ai")
 public class LiveController {
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.englishspeaking.ai.provider.AiRuntimeConfig runtime;
     private final LiveTokenProvider provider;
     private final LiveAccessService access;
     private final AppProperties properties;
@@ -19,7 +21,7 @@ public class LiveController {
     @GetMapping("/status")
     public Map<String, Object> status() {
         var g = properties.getGemini();
-        return Map.of("textConfigured", !g.getApiKey().isBlank() && !g.getModel().isBlank(),
+        return Map.of("textConfigured", runtime.current("text").configured(),
             "liveConfigured", provider.configured());
     }
     @PostMapping("/live-token")
