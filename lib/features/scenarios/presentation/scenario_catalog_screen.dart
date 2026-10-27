@@ -75,7 +75,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
     final bookmarkController = ref.read(bookmarkControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFFF5F7FC),
       appBar: AppBar(
         title: const Text('Kho kịch bản luyện nói'),
         centerTitle: true,
@@ -165,7 +165,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                       ChoiceChip(
                         label: const Text('Tất cả chủ đề'),
                         selected: selectedTopicId == 'all',
-                        selectedColor: AppColors.secondaryLight,
+                        selectedColor: const Color(0xFFDDE8FF),
                         labelStyle: TextStyle(
                           fontSize: 12,
                           fontWeight: selectedTopicId == 'all'
@@ -187,7 +187,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                           child: ChoiceChip(
                             label: Text('${tp.icon} ${tp.title}'),
                             selected: isSelected,
-                            selectedColor: AppColors.secondaryLight,
+                            selectedColor: const Color(0xFFDDE8FF),
                             labelStyle: TextStyle(
                               fontSize: 12,
                               fontWeight: isSelected
@@ -226,7 +226,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                   ChoiceChip(
                     label: const Text('Mọi Level'),
                     selected: selectedLevel == null,
-                    selectedColor: AppColors.surfaceVariant,
+                    selectedColor: const Color(0xFFD8F1EA),
                     labelStyle: TextStyle(
                       fontSize: 11,
                       fontWeight: selectedLevel == null
@@ -247,9 +247,8 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                       child: FilterChip(
                         label: Text(lvl.code),
                         selected: isSelected,
-                        selectedColor:
-                            AppColors.primary.withValues(alpha: 0.12),
-                        checkmarkColor: AppColors.primary,
+                        selectedColor: const Color(0xFFD8F1EA),
+                        checkmarkColor: const Color(0xFF146957),
                         labelStyle: TextStyle(
                           fontSize: 11,
                           fontWeight:
@@ -373,12 +372,22 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
 
   Widget _buildScenarioCard(
       Scenario scenario, BookmarkController bookmarkController) {
+    const levelColors = [
+      Color(0xFF315BB5),
+      Color(0xFF147563),
+      Color(0xFF7B4FA3),
+      Color(0xFFB05A28),
+      Color(0xFF9E426A),
+      Color(0xFF395D99),
+      Color(0xFF39796A)
+    ];
+    final levelColor = levelColors[scenario.level.index % levelColors.length];
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: levelColor.withValues(alpha: 0.28)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -412,7 +421,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
+                            color: levelColor.withValues(alpha: 0.09),
                             borderRadius:
                                 BorderRadius.circular(AppRadius.round),
                           ),
@@ -467,10 +476,10 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                 // Roles Preview
                 Text(
                   'Tom: ${scenario.roleAi} • Bạn: ${scenario.roleUser}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.accent,
+                    fontWeight: FontWeight.w700,
+                    color: levelColor,
                   ),
                 ),
 
@@ -494,7 +503,7 @@ class _ScenarioCatalogScreenState extends ConsumerState<ScenarioCatalogScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: levelColor.withValues(alpha: 0.07),
                       borderRadius: BorderRadius.circular(AppRadius.xs),
                     ),
                     child: Row(
