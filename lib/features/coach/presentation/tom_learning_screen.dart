@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_logo.dart';
 import '../../auth/presentation/controllers/auth_controller.dart';
 import '../../connected/presentation/academic_widgets.dart';
 
@@ -63,9 +64,11 @@ class TomLearningScreen extends ConsumerWidget {
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
+                                  const _TomWelcomeCard(),
+                                  const SizedBox(height: 24),
                                   const AcademicHeading(
-                                      'Mỗi người học, một hành trình',
-                                      'Tom dựa trên lựa chọn và dữ liệu học đã lưu của riêng bạn.'),
+                                      'Thiết lập hành trình của bạn',
+                                      'Chọn những điều phù hợp để Tom đồng hành cùng bạn.'),
                                   _TomPreferences(
                                       key: ValueKey(
                                           '${ref.watch(authControllerProvider).user?.id}-${data['settings']}'),
@@ -80,10 +83,19 @@ class TomLearningScreen extends ConsumerWidget {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
+                                          const Text('THỜI GIAN LUYỆN TẬP',
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  letterSpacing: 0.8,
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                  fontWeight: FontWeight.w700)),
+                                          const SizedBox(height: 8),
                                           Text(
                                               '${data['todayMinutes']} / ${data['dailyMinutes']} phút',
                                               style: const TextStyle(
-                                                  fontSize: 26,
+                                                  color: Color(0xFF253B84),
+                                                  fontSize: 28,
                                                   fontWeight: FontWeight.w800)),
                                           const SizedBox(height: 12),
                                           LinearProgressIndicator(
@@ -230,6 +242,51 @@ class TomLearningScreen extends ConsumerWidget {
                   ])),
             ),
       );
+}
+
+class _TomWelcomeCard extends StatelessWidget {
+  const _TomWelcomeCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF202B73), Color(0xFF395EB8)]),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Row(children: [
+          AppLogo(size: 48, inverted: true, withShadow: false),
+          SizedBox(width: 12),
+          Expanded(
+              child: Text('FLUENTTALK',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1))),
+        ]),
+        const SizedBox(height: 20),
+        const Text('Một hành trình,\ntheo cách của bạn',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                height: 1.25)),
+        const SizedBox(height: 8),
+        Text('Tom dựa trên lựa chọn và dữ liệu học đã lưu của riêng bạn.',
+            style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.88),
+                fontSize: 14,
+                height: 1.5)),
+      ]),
+    );
+  }
 }
 
 class _TomPreferences extends ConsumerStatefulWidget {
