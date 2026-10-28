@@ -233,20 +233,29 @@ class _PracticeCard extends StatelessWidget {
                 style: const TextStyle(
                     color: Color(0xFF61726E), fontSize: 13.5, height: 1.45)),
             const SizedBox(height: 14),
-            Row(children: [
-              const Icon(Icons.schedule_rounded,
-                  color: Color(0xFF7B8C86), size: 16),
-              const SizedBox(width: 5),
-              Text(duration,
-                  style: const TextStyle(
-                      color: Color(0xFF61726E),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600)),
-              const Spacer(),
-              Text('Bắt đầu',
-                  style: TextStyle(
-                      color: color, fontSize: 13, fontWeight: FontWeight.w800)),
-            ]),
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 12,
+              runSpacing: 8,
+              children: [
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.schedule_rounded,
+                      color: Color(0xFF7B8C86), size: 16),
+                  const SizedBox(width: 5),
+                  Text(duration,
+                      style: const TextStyle(
+                          color: Color(0xFF61726E),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600)),
+                ]),
+                Text('Bắt đầu',
+                    style: TextStyle(
+                        color: color,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800)),
+              ],
+            ),
           ]),
         ),
       ),
