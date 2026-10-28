@@ -37,7 +37,7 @@ Dự án đang ở giai đoạn **beta chạy local**. Hội thoại thật và 
 | --- | --- |
 | **Tài khoản** | Đăng ký, đăng nhập, xác thực OTP email qua Supabase; hồ sơ và mục tiêu học. |
 | **Chat cùng Tom** | Phản hồi Gemini thật, lưu phiên hội thoại, mở lại lịch sử và phát giọng đọc. |
-| **Hội thoại giọng nói** | Gemini Live trên **web**: micro, âm thanh trực tiếp, phụ đề, ngắt lời và chọn giọng. |
+| **Hội thoại giọng nói** | Gemini Live trên web, Android và iOS: micro, âm thanh trực tiếp, phụ đề, ngắt lời và chọn giọng. |
 | **Cá nhân hóa** | Mục tiêu, trình độ tự chọn, chủ đề ưu tiên; kế hoạch ngày và tình huống kèm lý do đề xuất. |
 | **Ghi nhớ có kiểm soát** | Dùng lịch sử khi bật cá nhân hóa; lưu phụ đề cuộc gọi khi đồng ý riêng, tối đa 30 ngày, có thể xóa. |
 | **Nội dung học** | Danh mục chủ đề, tình huống theo trình độ, lịch sử và thống kê từ dữ liệu đã lưu. |
@@ -54,10 +54,10 @@ flowchart LR
     API --> DB[("PostgreSQL · private schema")]
     API --> Text["Gemini · text"]
     API -->|Ephemeral token| App
-    App <-->|WebSocket · audio| Live["Gemini Live · web"]
+    App <-->|WebSocket · audio| Live["Gemini Live"]
 ```
 
-API key Gemini và mật khẩu database chỉ được nạp ở backend. Web nhận token Live ngắn hạn, không nhận API key lâu dài.
+API key Gemini và mật khẩu database chỉ được nạp ở backend. Ứng dụng nhận token Live ngắn hạn, không nhận API key lâu dài.
 
 ## Bắt đầu
 
@@ -122,14 +122,16 @@ python3 scripts/check_supabase.py
 - **Tom:** đăng nhập → tab **Tom** → bật cá nhân hóa, chọn mục tiêu/chủ đề/giọng → lưu. Ghi nhớ phụ đề cần bật riêng. Xem [cá nhân hóa Tom](docs/CA_NHAN_HOA_TOM.md).
 - **Gọi thoại:** vào **Luyện tập**, bắt đầu cuộc gọi và cấp quyền micro. Dùng localhost hoặc HTTPS; nên dùng tai nghe. Xem [thiết lập realtime](docs/THIET_LAP_AI_REALTIME.md).
 
-### Android và chế độ demo
+### Android, iOS và chế độ demo
 
 ```bash
 flutter run --dart-define-from-file=config/mobile.public.json
 flutter build apk --debug --dart-define-from-file=config/mobile.public.json
+# macOS with Xcode: launch the iOS simulator or a signed iPhone build
+flutter run -d ios --dart-define-from-file=config/mobile.public.json
 ```
 
-Với Android emulator, đặt API thành `http://10.0.2.2:8080/api/v1` và `ALLOW_INSECURE_LOCALHOST=true`. Thiết bị thật cần backend có thể truy cập; bản phát hành dùng HTTPS. APK debug không phải bản ký phát hành. Realtime hiện được tích hợp cho web, chưa tích hợp transport native Android/iOS.
+Với Android emulator, đặt API thành `http://10.0.2.2:8080/api/v1` và `ALLOW_INSECURE_LOCALHOST=true`. Thiết bị thật cần backend có thể truy cập; bản phát hành dùng HTTPS. Cuộc gọi Live có transport native Android/iOS và cấu hình audio chuyên cho thoại. APK debug không phải bản ký phát hành; chạy trên iPhone thật cần Xcode và cấu hình ký ứng dụng. Chất lượng loa, micro, tai nghe Bluetooth và định tuyến trên từng mẫu máy vẫn cần nghiệm thu thực tế.
 
 Chạy dữ liệu minh họa độc lập:
 
@@ -197,7 +199,7 @@ docs/                  Kế hoạch, hướng dẫn và báo cáo kiểm tra
 
 ## Lộ trình
 
-Các hạng mục còn lại gồm guided speaking, realtime native, đánh giá kỹ năng có bằng chứng/hiệu chuẩn, ôn từ vựng và bài tập chuyên sâu, full password-recovery/account lifecycle, cùng hosting HTTPS, quyền database tối thiểu, backup/restore, monitoring và release signing.
+Các hạng mục còn lại gồm nghiệm thu cuộc gọi trên thiết bị Android/iOS và mạng yếu, guided speaking, đánh giá kỹ năng có bằng chứng/hiệu chuẩn, ôn từ vựng và bài tập chuyên sâu, full password-recovery/account lifecycle, cùng hosting HTTPS, quyền database tối thiểu, backup/restore, monitoring và release signing.
 
 Có schema, màn hình demo hoặc hợp đồng API không đồng nghĩa tính năng đã hoàn thiện. Trạng thái thực tế được ghi trong hướng dẫn và báo cáo QA tương ứng.
 

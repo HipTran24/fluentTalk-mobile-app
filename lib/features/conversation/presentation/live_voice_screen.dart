@@ -17,6 +17,7 @@ class LiveVoiceScreen extends ConsumerStatefulWidget {
 class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
     with WidgetsBindingObserver {
   LiveAudioClient? _audio;
+  Future<void> _audioCleanup = Future<void>.value();
   Timer? _timer;
   ApiClient? _learningApi;
   String? _learningSessionId;
@@ -62,6 +63,8 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
   }
 
   final List<({String role, String text})> _captions = [];
+  final ScrollController _captionScrollController = ScrollController();
+  bool _followCaptions = true;
   bool _connecting = false, _active = false, _muted = false, _speaking = false;
   String _voice = 'Aoede';
   String? _error;
@@ -89,9 +92,16 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
 
   void _cleanup() {
     _generation++;
-    _audio?.close();
+    final audio = _audio;
     _audio = null;
     _timer?.cancel();
+    if (audio != null) {
+      _audioCleanup = _audioCleanup.then<void>((_) async {
+        try {
+          await audio.close();
+        } catch (_) {}
+      });
+    }
   }
 
   void _end([String? message, bool save = true]) {
@@ -114,6 +124,7 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _captionScrollController.dispose();
     _persistVoiceNote();
     _cleanup();
     super.dispose();
@@ -124,9 +135,9 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
     if (type == 'error') {
       _end(switch (text) {
         'permission' =>
-          'Micro chưa được cho phép. Bật quyền micro cho trang này rồi gọi lại.',
+          'Bạn chưa cấp quyền micro. Hãy bật quyền micro cho FluentTalk trong cài đặt thiết bị rồi thử lại.',
         'unsupported' =>
-          'Trình duyệt chưa hỗ trợ. Hãy dùng Chrome/Edge trên localhost hoặc HTTPS.',
+          'Thiết bị hoặc trình duyệt này chưa hỗ trợ hội thoại giọng nói.',
         'microphone' =>
           'Không mở được micro. Kiểm tra thiết bị và đóng ứng dụng đang chiếm micro.',
         'access' ||
@@ -139,29 +150,55 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
       });
       return;
     }
-    setState(() {
-      if (type == 'ready') {
-        _active = true;
-        _connecting = false;
+    var changed = false;
+    var captionsChanged = false;
+    final followCaptions = _followCaptions;
+    if (type == 'ready' && (!_active || _connecting)) {
+      _active = true;
+      _connecting = false;
+      changed = true;
+    }
+    if (type == 'speaking' && !_speaking) {
+      _speaking = true;
+      changed = true;
+    }
+    if (type == 'listening' && _speaking) {
+      _speaking = false;
+      changed = true;
+    }
+    if ((type == 'user' || type == 'ai') && text.isNotEmpty) {
+      if (_captions.isNotEmpty && _captions.last.role == type) {
+        final last = _captions.removeLast();
+        final combined = last.text + text;
+        _captions.add((
+          role: type,
+          text: combined.length > 8000
+              ? combined.substring(combined.length - 8000)
+              : combined
+        ));
+      } else {
+        _captions.add((role: type, text: text));
       }
-      if (type == 'speaking') _speaking = true;
-      if (type == 'listening') _speaking = false;
-      if ((type == 'user' || type == 'ai') && text.isNotEmpty) {
-        if (_captions.isNotEmpty && _captions.last.role == type) {
-          final last = _captions.removeLast();
-          final combined = last.text + text;
-          _captions.add((
-            role: type,
-            text: combined.length > 8000
-                ? combined.substring(combined.length - 8000)
-                : combined
-          ));
-        } else {
-          _captions.add((role: type, text: text));
-        }
-        if (_captions.length > 100) _captions.removeAt(0);
-      }
-    });
+      if (_captions.length > 100) _captions.removeAt(0);
+      changed = true;
+      captionsChanged = true;
+    }
+    if (changed) setState(() {});
+    if (captionsChanged && followCaptions) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_captionScrollController.hasClients) return;
+        _captionScrollController.animateTo(
+          _captionScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+        );
+      });
+    }
+  }
+
+  void _onCaptionScroll() {
+    if (!_captionScrollController.hasClients) return;
+    _followCaptions = _captionScrollController.position.extentAfter < 64;
   }
 
   Future<void> _start() async {
@@ -183,14 +220,17 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
     });
     final generation = ++_generation;
     try {
+      await _audioCleanup;
+      if (!mounted || generation != _generation) return;
       final audio =
           LiveAudioClient((type, text) => _event(generation, type, text));
       _audio = audio;
       if (!audio.supported) {
-        _end('Hội thoại giọng nói hiện hỗ trợ trên bản web.');
+        _end(
+            'Hội thoại giọng nói cần trình duyệt tương thích hoặc app Android/iOS.');
         return;
       }
-      // Open AudioContext directly from the tap before network awaits (autoplay policy).
+      // Initialize audio from the explicit user action before network awaits.
       await audio.prepare();
       if (!mounted || generation != _generation) return;
       final data = await api.post('ai/live-token', data: {
@@ -232,145 +272,180 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
       }
     });
     final engaged = _active || _connecting;
+    final compact = MediaQuery.sizeOf(context).width < 380;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Trò chuyện giọng nói')),
       body: SafeArea(
           child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(compact ? 16 : 24),
         child: Center(
             child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
           child: AcademicPanel(
+              padding: compact ? 20 : 24,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                const Text('FLUENTTALK · SPEAKING STUDIO',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                        color: AppColors.textMuted)),
-                const SizedBox(height: 32),
-                CircleAvatar(
-                    radius: 68,
-                    backgroundColor: _active
-                        ? AppColors.secondaryLight
-                        : const Color(0xFF1E2C57),
-                    child: Icon(
-                        _speaking
-                            ? Icons.graphic_eq
-                            : Icons.headset_mic_outlined,
-                        size: 48,
-                        color: _active
-                            ? AppColors.primary
-                            : const Color(0xFFD1CFFB))),
-                const SizedBox(height: 20),
-                Text(
-                    _connecting
-                        ? 'Đang kết nối…'
-                        : _active
-                            ? (_speaking
-                                ? 'Tom đang trả lời'
-                                : _muted
-                                    ? 'Micro đang tắt'
-                                    : 'Tom đang lắng nghe bạn')
-                            : 'Cùng nói tiếng Anh nhé',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.w800)),
-                const SizedBox(height: 10),
-                Text(
-                    _active
-                        ? '${(_seconds ~/ 60).toString().padLeft(2, '0')}:${(_seconds % 60).toString().padLeft(2, '0')} / 05:00'
-                        : 'Nói tự nhiên, Tom sẽ nghe và trả lời bằng giọng nói. Bạn có thể ngắt lời Tom để hỏi tiếp.',
-                    textAlign: TextAlign.center),
-                const SizedBox(height: 24),
-                DropdownButtonFormField<String>(
-                    initialValue: _voice,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                        labelText: 'Giọng Tom', border: OutlineInputBorder()),
-                    items: const [
-                      DropdownMenuItem(
-                          value: 'Aoede', child: Text('Aoede · Nhẹ nhàng')),
-                      DropdownMenuItem(
-                          value: 'Kore', child: Text('Kore · Rõ ràng')),
-                      DropdownMenuItem(
-                          value: 'Puck', child: Text('Puck · Tươi vui')),
-                      DropdownMenuItem(
-                          value: 'Charon', child: Text('Charon · Điềm tĩnh'))
+                    const Text('FLUENTTALK · SPEAKING STUDIO',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.5,
+                            color: AppColors.textMuted)),
+                    SizedBox(height: compact ? 24 : 32),
+                    CircleAvatar(
+                        radius: compact ? 60 : 68,
+                        backgroundColor: _active
+                            ? AppColors.secondaryLight
+                            : const Color(0xFF1E2C57),
+                        child: Icon(
+                            _speaking
+                                ? Icons.graphic_eq
+                                : Icons.headset_mic_outlined,
+                            size: 48,
+                            color: _active
+                                ? AppColors.primary
+                                : const Color(0xFFD1CFFB))),
+                    const SizedBox(height: 20),
+                    Text(
+                        _connecting
+                            ? 'Đang kết nối…'
+                            : _active
+                                ? (_speaking
+                                    ? 'Tom đang trả lời'
+                                    : _muted
+                                        ? 'Micro đang tắt'
+                                        : 'Tom đang lắng nghe bạn')
+                                : 'Cùng nói tiếng Anh nhé',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 10),
+                    Text(
+                        _active
+                            ? '${(_seconds ~/ 60).toString().padLeft(2, '0')}:${(_seconds % 60).toString().padLeft(2, '0')} / 05:00'
+                            : 'Nói tự nhiên, Tom sẽ nghe và trả lời bằng giọng nói. Bạn có thể ngắt lời Tom để hỏi tiếp.',
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    DropdownButtonFormField<String>(
+                        initialValue: _voice,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                            labelText: 'Giọng Tom',
+                            border: OutlineInputBorder()),
+                        items: const [
+                          DropdownMenuItem(
+                              value: 'Aoede', child: Text('Aoede · Nhẹ nhàng')),
+                          DropdownMenuItem(
+                              value: 'Kore', child: Text('Kore · Rõ ràng')),
+                          DropdownMenuItem(
+                              value: 'Puck', child: Text('Puck · Tươi vui')),
+                          DropdownMenuItem(
+                              value: 'Charon',
+                              child: Text('Charon · Điềm tĩnh'))
+                        ],
+                        onChanged: engaged
+                            ? null
+                            : (value) => setState(() {
+                                  _voiceSelected = true;
+                                  _voice = value ?? 'Aoede';
+                                })),
+                    const SizedBox(height: 16),
+                    if (_error != null)
+                      Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Semantics(
+                              liveRegion: true,
+                              child: Text(_error!,
+                                  style: const TextStyle(
+                                      color: AppColors.error)))),
+                    if (!engaged)
+                      FilledButton.icon(
+                          onPressed: _start,
+                          icon: const Icon(Icons.call),
+                          label: const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text('Bắt đầu nói chuyện'))),
+                    if (engaged)
+                      Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            if (_active)
+                              OutlinedButton.icon(
+                                  onPressed: () {
+                                    setState(() => _muted = !_muted);
+                                    _audio?.mute(_muted);
+                                  },
+                                  icon:
+                                      Icon(_muted ? Icons.mic_off : Icons.mic),
+                                  label:
+                                      Text(_muted ? 'Bật micro' : 'Tắt micro')),
+                            FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                    backgroundColor: AppColors.error),
+                                onPressed: () => _end(),
+                                icon: const Icon(Icons.call_end),
+                                label: Text(
+                                    _connecting ? 'Hủy kết nối' : 'Kết thúc')),
+                          ]),
+                    const SizedBox(height: 20),
+                    const Text(
+                        'Khi bắt đầu, âm thanh micro được gửi đến Google Gemini để Tom trả lời. App không lưu bản ghi âm. Phụ đề chỉ được lưu tối đa 30 ngày nếu bạn bật ghi nhớ trong mục Tom. Mỗi lần cấp phiên tính tối đa 5 phút vào hạn mức gọi trong ngày; dừng sớm vẫn tính một phiên.',
+                        style: TextStyle(
+                            color: AppColors.textSecondary, height: 1.5)),
+                    if (_captions.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Phụ đề trực tiếp',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w700)),
+                            Text('${_captions.length} lượt',
+                                style: const TextStyle(
+                                    color: AppColors.textMuted, fontSize: 12)),
+                          ]),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: compact ? 240 : 280,
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            _onCaptionScroll();
+                            return false;
+                          },
+                          child: ListView.builder(
+                            controller: _captionScrollController,
+                            itemCount: _captions.length,
+                            itemBuilder: (context, index) {
+                              final caption = _captions[index];
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(caption.role == 'ai' ? 'Tom' : 'Bạn',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.primary)),
+                                      const SizedBox(height: 6),
+                                      SelectableText(caption.text),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
                     ],
-                    onChanged: engaged
-                        ? null
-                        : (value) => setState(() {
-                              _voiceSelected = true;
-                              _voice = value ?? 'Aoede';
-                            })),
-                const SizedBox(height: 16),
-                if (_error != null)
-                  Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Semantics(
-                          liveRegion: true,
-                          child: Text(_error!,
-                              style: const TextStyle(color: AppColors.error)))),
-                if (!engaged)
-                  FilledButton.icon(
-                      onPressed: _start,
-                      icon: const Icon(Icons.call),
-                      label: const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text('Bắt đầu nói chuyện'))),
-                if (engaged)
-                  Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        if (_active)
-                          OutlinedButton.icon(
-                              onPressed: () {
-                                setState(() => _muted = !_muted);
-                                _audio?.mute(_muted);
-                              },
-                              icon: Icon(_muted ? Icons.mic_off : Icons.mic),
-                              label: Text(_muted ? 'Bật micro' : 'Tắt micro')),
-                        FilledButton.icon(
-                            style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.error),
-                            onPressed: () => _end(),
-                            icon: const Icon(Icons.call_end),
-                            label:
-                                Text(_connecting ? 'Hủy kết nối' : 'Kết thúc')),
-                      ]),
-                const SizedBox(height: 20),
-                const Text(
-                    'Khi bắt đầu, âm thanh micro được gửi đến Google Gemini để Tom trả lời. App không lưu bản ghi âm. Phụ đề chỉ được lưu tối đa 30 ngày nếu bạn bật ghi nhớ trong mục Tom. Mỗi lần cấp phiên tính tối đa 5 phút vào hạn mức gọi trong ngày; dừng sớm vẫn tính một phiên.',
-                    style:
-                        TextStyle(color: AppColors.textSecondary, height: 1.5)),
-                if (_captions.isNotEmpty) ...[
-                  const SizedBox(height: 24),
-                  const Text('Phụ đề trực tiếp',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  ..._captions.map((caption) => Card(
-                      child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(caption.role == 'ai' ? 'Tom' : 'Bạn',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.primary)),
-                                const SizedBox(height: 6),
-                                SelectableText(caption.text),
-                              ])))),
-                ],
-              ])),
+                  ])),
         )),
       )),
     );

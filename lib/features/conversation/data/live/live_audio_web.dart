@@ -28,5 +28,5 @@ class LiveAudioClient {
   }
 
   void mute(bool value) => _handle.mute(value.toJS);
-  void close() => _handle.close();
+  Future<void> close() async => _handle.close();
 }
