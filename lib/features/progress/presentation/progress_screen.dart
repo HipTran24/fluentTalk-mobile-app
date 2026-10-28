@@ -1,4 +1,5 @@
 import '../../../core/widgets/adaptive_row.dart';
+import '../../../core/widgets/app_logo.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,9 +22,9 @@ class ProgressScreen extends ConsumerWidget {
     final analyticsAsync = ref.watch(progressAnalyticsControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFFF5F7FC),
       appBar: AppBar(
-        title: const Text('Phân tích tiến độ'),
+        title: const Text('Tiến độ học tập'),
         actions: [
           IconButton(
             onPressed: () => context.push('/progress/history'),
@@ -45,48 +46,101 @@ class ProgressScreen extends ConsumerWidget {
               horizontal: AppSpacing.pageHorizontal,
               vertical: AppSpacing.pageVertical,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Time Period Toggle (Tuần này, Tháng này, Tất cả)
-                _buildPeriodToggle(ref, selectedPeriod),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildIntro(),
+                    const SizedBox(height: AppSpacing.xl),
+                    // 1. Time Period Toggle (Tuần này, Tháng này, Tất cả)
+                    _buildPeriodToggle(ref, selectedPeriod),
 
-                const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.lg),
 
-                // 2. Overview 3 Stat Cards
-                _buildStatsGrid(data),
+                    // 2. Overview 3 Stat Cards
+                    const Text('Tổng quan',
+                        style: TextStyle(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary)),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildStatsGrid(data),
 
-                const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.lg),
 
-                // 3. Speaking Minutes Bar Chart Card
-                _buildChartCard(context, data),
+                    // 3. Speaking Minutes Bar Chart Card
+                    _buildChartCard(context, data),
 
-                const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.lg),
 
-                // 4. 4-Axis Rubric Competencies Progress
-                _buildRubricProgress(data),
+                    // 4. 4-Axis Rubric Competencies Progress
+                    _buildRubricProgress(data),
 
-                const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.lg),
 
-                // 5. History Quick Link Card
-                _buildHistoryShortcutCard(context),
+                    // 5. History Quick Link Card
+                    _buildHistoryShortcutCard(context),
 
-                const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.sm),
 
-                // 6. Educational Disclaimer
-                const Center(
-                  child: Text(
-                    '* Thang điểm Band 0.0 - 9.0 mang tính chất tham khảo học thuật nội bộ.',
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                  ),
+                    // 6. Educational Disclaimer
+                    const Center(
+                      child: Text(
+                        '* Thang điểm Band 0.0 - 9.0 mang tính chất tham khảo học thuật nội bộ.',
+                        style:
+                            TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSpacing.huge),
+                  ],
                 ),
-
-                const SizedBox(height: AppSpacing.huge),
-              ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildIntro() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF202B73), Color(0xFF395EB8)]),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Row(children: [
+          AppLogo(size: 48, inverted: true, withShadow: false),
+          SizedBox(width: 12),
+          Expanded(
+              child: Text('FLUENTTALK',
+                  style: TextStyle(
+                      color: Colors.white,
+                      letterSpacing: 1,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800))),
+        ]),
+        const SizedBox(height: 20),
+        const Text('Hành trình của bạn',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 23,
+                fontWeight: FontWeight.w800)),
+        const SizedBox(height: 7),
+        Text('Nhìn lại quá trình luyện tập và tiếp tục tiến bộ cùng Tom.',
+            style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.85),
+                fontSize: 14,
+                height: 1.5)),
+      ]),
     );
   }
 
@@ -193,7 +247,13 @@ class ProgressScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: iconColor, size: 20),
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12)),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
           const SizedBox(height: 8),
           AdaptiveRow(
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -250,13 +310,6 @@ class ProgressScreen extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
-              ),
-              Text(
-                'Mục tiêu: 15p',
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.accent),
               ),
             ],
           ),
@@ -342,7 +395,7 @@ class ProgressScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Tiến bộ theo 4 tiêu chí Rubric',
+            'Các tiêu chí luyện tập',
             style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -355,69 +408,68 @@ class ProgressScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           ...RubricDimension.values.map((dim) {
+            const colors = [
+              Color(0xFF315BB5),
+              Color(0xFF08796A),
+              Color(0xFF8050A4),
+              Color(0xFFB35B29)
+            ];
+            final color = colors[dim.index % colors.length];
             final band = data.currentBands[dim] ?? 5.5;
             final growth = data.bandGrowth[dim] ?? 0.0;
             final percent = (band / 9.0).clamp(0.0, 1.0);
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            return Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.055),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: color.withValues(alpha: 0.16)),
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AdaptiveRow(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        dim.labelVi,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(dim.labelVi,
                         style: const TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary),
-                      ),
-                      AdaptiveRow(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                        spacing: 7,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text(
-                            'Band ${band.toStringAsFixed(1)}',
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary),
-                          ),
-                          if (growth > 0) ...[
-                            const SizedBox(width: 6),
+                          Text('Band ${band.toStringAsFixed(1)}',
+                              style: TextStyle(
+                                  color: color,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800)),
+                          if (growth > 0)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 2),
+                                  horizontal: 7, vertical: 3),
                               decoration: BoxDecoration(
-                                color: AppColors.successBg,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                '+${growth.toStringAsFixed(1)}',
-                                style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.success),
-                              ),
+                                  color: AppColors.successBg,
+                                  borderRadius: BorderRadius.circular(6)),
+                              child: Text('+${growth.toStringAsFixed(1)}',
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.success)),
                             ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: percent,
-                      minHeight: 6,
-                      backgroundColor: AppColors.surfaceVariant,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColors.primary),
-                    ),
-                  ),
-                ],
-              ),
+                        ]),
+                    const SizedBox(height: 9),
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                            value: percent,
+                            minHeight: 8,
+                            backgroundColor: color.withValues(alpha: 0.14),
+                            valueColor: AlwaysStoppedAnimation<Color>(color))),
+                  ]),
             );
           }),
         ],

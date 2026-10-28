@@ -18,7 +18,7 @@ class CoachScreen extends ConsumerWidget {
     final weaknessesAsync = ref.watch(coachWeaknessesProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFFF5F7FC),
       appBar: AppBar(
         title: const Text('Trợ lý Tom'),
         actions: [
@@ -94,44 +94,56 @@ class CoachScreen extends ConsumerWidget {
 
   Widget _buildCoachInsightBubble() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.secondaryLight,
-        borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFF0F3FF), Color(0xFFF8FAFF)]),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFD7DFF8)),
       ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primary,
-            child: Icon(Icons.psychology, color: Colors.white, size: 28),
-          ),
-          SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Coach Tom (Trí nhớ dài hạn)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Tôi nhận thấy bạn đã phản xạ tự tin hơn rất nhiều khi chào hỏi! Tuy nhiên, bạn thường quên chia thì Quá khứ đơn khi kể lại trải nghiệm. Hãy luyện ngay bài tập 3 phút dưới đây nhé.',
-                  style: TextStyle(
-                      fontSize: 13, color: AppColors.textPrimary, height: 1.4),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                      colors: [Color(0xFF4D58D9), Color(0xFF7870E5)]),
+                  borderRadius: BorderRadius.circular(14)),
+              child: const Icon(Icons.psychology_alt_rounded,
+                  color: Colors.white, size: 24)),
+          const SizedBox(width: 12),
+          const Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text('Lời nhắn từ Tom',
+                    style: TextStyle(
+                        color: Color(0xFF263A80),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800)),
+                SizedBox(height: 3),
+                Text('Gợi ý luyện tập dành cho bạn',
+                    style: TextStyle(color: Color(0xFF6B789A), fontSize: 12)),
+              ])),
+        ]),
+        const SizedBox(height: 16),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: const Color(0xFFE4E9FA))),
+          child: const Text(
+              'Tôi nhận thấy bạn đã phản xạ tự tin hơn rất nhiều khi chào hỏi! Tuy nhiên, bạn thường quên chia thì Quá khứ đơn khi kể lại trải nghiệm. Hãy luyện ngay bài tập 3 phút dưới đây nhé.',
+              style: TextStyle(
+                  color: Color(0xFF39465D), fontSize: 13, height: 1.55)),
+        ),
+      ]),
     );
   }
 
@@ -139,7 +151,7 @@ class CoachScreen extends ConsumerWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, Color(0xFF6366F1)],
+          colors: [Color(0xFF202B73), Color(0xFF395EB8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -177,13 +189,13 @@ class CoachScreen extends ConsumerWidget {
     Color priorityColor;
     String priorityText;
     if (item.impact >= 0.8) {
-      priorityColor = AppColors.error;
+      priorityColor = const Color(0xFFAA3944);
       priorityText = 'Ưu tiên cao';
     } else if (item.impact >= 0.65) {
-      priorityColor = AppColors.warning;
+      priorityColor = const Color(0xFF9A5B13);
       priorityText = 'Trung bình';
     } else {
-      priorityColor = AppColors.accent;
+      priorityColor = const Color(0xFF147563);
       priorityText = 'Cải thiện';
     }
 
@@ -200,9 +212,10 @@ class CoachScreen extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Color.alphaBlend(
+            priorityColor.withValues(alpha: 0.055), Colors.white),
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: priorityColor.withValues(alpha: 0.24)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -247,8 +260,8 @@ class CoachScreen extends ConsumerWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(6),
+              color: Colors.white.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,7 +287,7 @@ class CoachScreen extends ConsumerWidget {
             child: ElevatedButton.icon(
               onPressed: () => context.push('/coach/drill/$drillId'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: priorityColor,
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -296,9 +309,9 @@ class CoachScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: const Color(0xFFEAF5F1),
         borderRadius: AppRadius.cardRadius,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: const Color(0xFFC7E4D9)),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -38,48 +38,57 @@ class HomeScreen extends ConsumerWidget {
                       horizontal: AppSpacing.pageHorizontal,
                       vertical: AppSpacing.pageVertical,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 1. Top Header: Greeting, User Avatar & Level Badge & Bell
-                        _buildHeader(context, state),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 720),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1. Top Header: Greeting, User Avatar & Level Badge & Bell
+                            _buildHeader(context, state),
 
-                        const SizedBox(height: AppSpacing.xl),
+                            const SizedBox(height: AppSpacing.xl),
 
-                        // 2. Daily Metrics: Streak & Minutes Goal & Weekly Progress
-                        _buildDailyMetrics(state),
+                            // 2. Daily Metrics: Streak & Minutes Goal & Weekly Progress
+                            _sectionTitle('Tiến độ hôm nay'),
+                            const SizedBox(height: AppSpacing.md),
+                            _buildDailyMetrics(state),
 
-                        const SizedBox(height: AppSpacing.xl),
+                            const SizedBox(height: AppSpacing.xl),
 
-                        // 3. Hero Card: "Your Next Best Lesson" based on weakness
-                        RecommendationCard(
-                          tag: 'Đề xuất theo điểm yếu',
-                          title: state.nextLessonTitle,
-                          description: state.nextLessonDesc,
-                          timeEstimate: '5 phút',
-                          whyRecommended: state.nextLessonWhy,
-                          onStart: () => context.push(
-                              '/practice/scenario/${state.nextLessonScenarioId}'),
+                            // 3. Hero Card: "Your Next Best Lesson" based on weakness
+                            _sectionTitle('Bài học dành cho bạn'),
+                            const SizedBox(height: AppSpacing.md),
+                            RecommendationCard(
+                              tag: 'Đề xuất theo điểm yếu',
+                              title: state.nextLessonTitle,
+                              description: state.nextLessonDesc,
+                              timeEstimate: '5 phút',
+                              whyRecommended: state.nextLessonWhy,
+                              onStart: () => context.push(
+                                  '/practice/scenario/${state.nextLessonScenarioId}'),
+                            ),
+
+                            const SizedBox(height: AppSpacing.xxl),
+
+                            // 4. Quick Practice Modes (3 Core Modes: Text, Guided, Realtime)
+                            _buildQuickActions(context),
+
+                            const SizedBox(height: AppSpacing.xl),
+
+                            // 5. Micro Insight Card with Evidence (Appendix B8)
+                            _buildMicroInsightCard(state),
+
+                            const SizedBox(height: AppSpacing.xxl),
+
+                            // 6. Recommended Scenarios Horizontal Carousel
+                            _buildScenarioSection(
+                                context, state.recommendedScenarios),
+
+                            const SizedBox(height: AppSpacing.huge),
+                          ],
                         ),
-
-                        const SizedBox(height: AppSpacing.xxl),
-
-                        // 4. Quick Practice Modes (3 Core Modes: Text, Guided, Realtime)
-                        _buildQuickActions(context),
-
-                        const SizedBox(height: AppSpacing.xl),
-
-                        // 5. Micro Insight Card with Evidence (Appendix B8)
-                        _buildMicroInsightCard(state),
-
-                        const SizedBox(height: AppSpacing.xxl),
-
-                        // 6. Recommended Scenarios Horizontal Carousel
-                        _buildScenarioSection(
-                            context, state.recommendedScenarios),
-
-                        const SizedBox(height: AppSpacing.huge),
-                      ],
+                      ),
                     ),
                   ),
           ),
@@ -393,112 +402,79 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildQuickActions(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionTitle('Luyện tập nhanh'),
-        const SizedBox(height: AppSpacing.md),
-        Row(
-          children: [
-            _buildActionItem(
-              context: context,
-              icon: Icons.chat_bubble_outline_rounded,
-              title: 'Hỏi Tom Text',
-              subtitle: 'Nghe Tom đọc',
-              gradient: AppColors.brandGradient,
-              onTap: () => context.push('/practice/text'),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            _buildActionItem(
-              context: context,
-              icon: Icons.mic_none_rounded,
-              title: 'Nói theo lượt',
-              subtitle: 'Có kịch bản',
-              gradient: AppColors.accentGradient,
-              onTap: () => context.push('/practice/scenarios'),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            _buildActionItem(
-              context: context,
-              icon: Icons.phone_in_talk_rounded,
-              title: 'Gọi thoại',
-              subtitle: 'Realtime 2 chiều',
-              gradient: AppColors.purpleGradient,
-              onTap: () => context.push('/practice/realtime/quick_call'),
-            ),
-          ],
-        ),
-      ],
-    );
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _sectionTitle('Luyện tập nhanh'),
+      const SizedBox(height: 6),
+      const Text('Chọn cách học phù hợp với bạn',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+      const SizedBox(height: AppSpacing.md),
+      _buildActionItem(
+          icon: Icons.chat_bubble_outline_rounded,
+          title: 'Trò chuyện cùng Tom',
+          subtitle: 'Luyện viết và nghe Tom đọc',
+          gradient: AppColors.brandGradient,
+          onTap: () => context.push('/practice/text')),
+      const SizedBox(height: 10),
+      _buildActionItem(
+          icon: Icons.mic_none_rounded,
+          title: 'Nói theo lượt',
+          subtitle: 'Luyện tập theo tình huống',
+          gradient: AppColors.accentGradient,
+          onTap: () => context.push('/practice/scenarios')),
+      const SizedBox(height: 10),
+      _buildActionItem(
+          icon: Icons.phone_in_talk_rounded,
+          title: 'Gọi thoại',
+          subtitle: 'Trò chuyện bằng giọng nói',
+          gradient: AppColors.purpleGradient,
+          onTap: () => context.push('/practice/realtime/quick_call')),
+    ]);
   }
 
-  Widget _buildActionItem({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required LinearGradient gradient,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildActionItem(
+      {required IconData icon,
+      required String title,
+      required String subtitle,
+      required LinearGradient gradient,
+      required VoidCallback onTap}) {
     final color = gradient.colors.first;
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppRadius.cardRadius,
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
-          boxShadow: AppColors.softShadow,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: AppRadius.cardRadius,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-              child: Column(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient: gradient,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: color.withValues(alpha: 0.35),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Icon(icon, color: Colors.white, size: 23),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.border)),
+          child: Row(children: [
+            Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(14)),
+                child: Icon(icon, color: color, size: 24)),
+            const SizedBox(width: 14),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(title,
+                      style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 3),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          color: AppColors.textSecondary, fontSize: 12.5)),
+                ])),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+          ]),
         ),
       ),
     );
