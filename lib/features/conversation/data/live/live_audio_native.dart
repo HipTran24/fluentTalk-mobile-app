@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_pcm_sound/flutter_pcm_sound.dart';
-import 'package:record/record.dart';
+import 'package:record/record.dart' hide IosAudioCategory;
 
 /// Native Android/iOS transport for Gemini Live.
 ///
@@ -45,8 +45,9 @@ class LiveAudioClient {
   bool get supported => Platform.isAndroid || Platform.isIOS;
 
   Future<void> prepare() async {
-    if (!supported)
+    if (!supported) {
       throw UnsupportedError('Native realtime requires Android or iOS.');
+    }
     try {
       if (!await _recorder.hasPermission()) {
         _emitError('permission');
@@ -335,10 +336,11 @@ class LiveAudioClient {
 
   void mute(bool value) {
     _muted = value;
-    if (value)
+    if (value) {
       _send({
         'realtimeInput': {'audioStreamEnd': true}
       });
+    }
   }
 
   void _send(Map<String, Object?> message) {
