@@ -27,6 +27,48 @@ class RealtimeCallScreen extends ConsumerStatefulWidget {
 class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _rippleController;
+  bool _endingCall = false;
+
+  Color _speakerColor(RealtimeSpeakerState speaker) {
+    switch (speaker) {
+      case RealtimeSpeakerState.aiSpeaking:
+        return const Color(0xFFB6A8FF);
+      case RealtimeSpeakerState.userSpeaking:
+        return const Color(0xFF71E0C4);
+      case RealtimeSpeakerState.aiThinking:
+        return const Color(0xFFFFD18B);
+      case RealtimeSpeakerState.connecting:
+        return const Color(0xFF9ACBFF);
+      case RealtimeSpeakerState.listening:
+        return const Color(0xFFB5C5DA);
+      case RealtimeSpeakerState.ended:
+        return const Color(0xFFFFA3AE);
+    }
+  }
+
+  Future<void> _confirmEndCall(RealtimeCallController controller) async {
+    if (_endingCall) return;
+    setState(() => _endingCall = true);
+    try {
+      final confirmed = await ConfirmSheet.show(
+        context,
+        title: 'Kết thúc cuộc gọi?',
+        message: 'Bạn sẽ kết thúc phiên hiện tại và chuyển đến trang tổng kết.',
+        confirmText: 'Kết thúc cuộc gọi',
+        cancelText: 'Tiếp tục gọi',
+        isDestructive: true,
+      );
+      if (!mounted || confirmed != true) return;
+      await controller.endCall();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Chưa kết thúc được phiên. Vui lòng thử lại.')));
+      }
+    } finally {
+      if (mounted) setState(() => _endingCall = false);
+    }
+  }
 
   @override
   void initState() {
@@ -181,56 +223,79 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
               ),
               const SizedBox(height: AppSpacing.md),
               Expanded(
-                child: ListView.separated(
-                  controller: scrollController,
-                  itemCount: history.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (_, index) {
-                    final item = history[index];
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundColor: item.isAi
-                              ? AppColors.primaryLight
-                              : AppColors.userWaveform,
-                          child: Icon(
-                            item.isAi ? Icons.psychology : Icons.person,
-                            size: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
+                child: history.isEmpty
+                    ? const Center(
+                        child: Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.forum_outlined,
+                                      color: Colors.white54, size: 38),
+                                  SizedBox(height: 12),
+                                  Text('Chưa có hội thoại',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700)),
+                                  SizedBox(height: 8),
+                                  Text(
+                                      'Nội dung hội thoại sẽ xuất hiện tại đây khi phiên bắt đầu.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.white60, height: 1.5)),
+                                ])))
+                    : ListView.separated(
+                        controller: scrollController,
+                        itemCount: history.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (_, index) {
+                          final item = history[index];
+                          return Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                item.isAi ? 'Coach Tom' : 'Bạn',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: item.isAi
-                                      ? AppColors.primaryLight
-                                      : AppColors.userWaveform,
+                              CircleAvatar(
+                                radius: 12,
+                                backgroundColor: item.isAi
+                                    ? AppColors.primaryLight
+                                    : AppColors.userWaveform,
+                                child: Icon(
+                                  item.isAi ? Icons.psychology : Icons.person,
+                                  size: 14,
+                                  color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                item.text,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13.5,
-                                    height: 1.35),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.isAi ? 'Coach Tom' : 'Bạn',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: item.isAi
+                                            ? AppColors.primaryLight
+                                            : AppColors.userWaveform,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      item.text,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13.5,
+                                          height: 1.35),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -264,18 +329,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        final confirmed = await ConfirmSheet.show(
-          context,
-          title: 'Kết thúc cuộc gọi?',
-          message:
-              'Hệ thống sẽ dừng ghi âm và tạo báo cáo đánh giá toàn diện (Rubric) cho phiên nói của bạn.',
-          confirmText: 'Kết thúc & Nhận điểm',
-          cancelText: 'Tiếp tục gọi',
-          isDestructive: true,
-        );
-        if (context.mounted && confirmed == true) {
-          controller.endCall();
-        }
+        await _confirmEndCall(controller);
       },
       child: Scaffold(
         backgroundColor: AppColors.callSurface,
@@ -342,85 +396,62 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
     );
   }
 
-  Widget _buildTopBar(
-    BuildContext context,
-    RealtimeCallState state,
-    RealtimeCallController controller,
-  ) {
-    return AdaptiveRow(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Live status & latency
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppRadius.round),
-            border: Border.all(color: Colors.white12),
-          ),
-          child: AdaptiveRow(
-            children: [
-              Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                  color: AppColors.success,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              const Text(
-                'Trực tiếp',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '• ${state.latencyMs}ms',
-                style: const TextStyle(color: Colors.white60, fontSize: 11),
-              ),
-            ],
-          ),
-        ),
-
-        // Monospaced Call Timer
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppRadius.round),
-            border: Border.all(color: Colors.white12),
-          ),
-          child: Text(
-            state.formattedDuration,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontFamily: 'monospace',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-
-        // Topic Hints Button
-        IconButton(
-          tooltip: 'Gợi ý chủ đề khi bí ý tưởng',
-          icon: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppColors.accent.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.lightbulb_outline_rounded,
-                color: AppColors.accentLight, size: 20),
-          ),
-          onPressed: () =>
-              _showTopicHintsSheet(context, state.topicHints, controller),
-        ),
-      ],
-    );
+  Widget _buildTopBar(BuildContext context, RealtimeCallState state,
+      RealtimeCallController controller) {
+    final color = _speakerColor(state.speakerState);
+    final connecting = state.speakerState == RealtimeSpeakerState.connecting;
+    final ended = state.speakerState == RealtimeSpeakerState.ended;
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      IconButton(
+        tooltip: 'Quay lại · kết thúc cuộc gọi',
+        onPressed: _endingCall ? null : () => _confirmEndCall(controller),
+        icon: Icon(Icons.arrow_back_rounded,
+            color: _endingCall ? Colors.white38 : Colors.white),
+      ),
+      const SizedBox(width: 4),
+      Expanded(
+          child: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Wrap(spacing: 8, runSpacing: 8, children: [
+                Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                    decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(18),
+                        border:
+                            Border.all(color: color.withValues(alpha: 0.3))),
+                    child: Text(
+                        connecting
+                            ? 'Đang kết nối'
+                            : ended
+                                ? 'Đã kết thúc'
+                                : 'Cuộc gọi demo',
+                        style: TextStyle(
+                            color: color,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700))),
+                Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                    decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(18)),
+                    child: Text(state.formattedDuration,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontFamily: 'monospace'))),
+              ]))),
+      IconButton(
+          tooltip: 'Gợi ý chủ đề',
+          onPressed: _endingCall
+              ? null
+              : () =>
+                  _showTopicHintsSheet(context, state.topicHints, controller),
+          icon: const Icon(Icons.lightbulb_outline_rounded,
+              color: Color(0xFFFFD18B))),
+    ]);
   }
 
   Widget _buildCenterAvatar(
@@ -429,9 +460,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
     bool isAiSpeaking,
     bool isUserSpeaking,
   ) {
-    final activeColor = isAiSpeaking
-        ? AppColors.primaryLight
-        : (isUserSpeaking ? AppColors.userWaveform : Colors.white24);
+    final activeColor = _speakerColor(state.speakerState);
 
     return AnimatedBuilder(
       animation: _rippleController,
@@ -486,98 +515,69 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
   }
 
   Widget _buildSpeakerStatusBadge(
-    RealtimeCallState state,
-    RealtimeCallController controller,
-  ) {
-    if (state.speakerState == RealtimeSpeakerState.aiSpeaking) {
-      return GestureDetector(
-        onTap: controller.interruptAi,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: AppColors.primaryLight.withValues(alpha: 0.5)),
-          ),
-          child: const AdaptiveRow(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.volume_up_rounded,
-                  color: AppColors.primaryLight, size: 16),
-              SizedBox(width: 6),
-              Text(
-                'Coach Tom đang nói • Chạm để ngắt lời',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else if (state.speakerState == RealtimeSpeakerState.userSpeaking) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.accent.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(20),
-          border:
-              Border.all(color: AppColors.accentLight.withValues(alpha: 0.5)),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.mic_rounded, color: AppColors.accentLight, size: 16),
-            SizedBox(width: 6),
-            Text(
-              'Đang thu âm giọng của bạn...',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      );
-    } else if (state.speakerState == RealtimeSpeakerState.aiThinking) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white10,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 12,
-              height: 12,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: Colors.white70),
-            ),
-            SizedBox(width: 8),
-            Text(
-              'Tom đang phản xạ câu trả lời...',
-              style: TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white10,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Text(
-          'Tom đang lắng nghe bạn nói...',
-          style: TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-      );
+      RealtimeCallState state, RealtimeCallController controller) {
+    final color = _speakerColor(state.speakerState);
+    final speaking = state.speakerState == RealtimeSpeakerState.aiSpeaking;
+    final busy = state.speakerState == RealtimeSpeakerState.connecting ||
+        state.speakerState == RealtimeSpeakerState.aiThinking;
+    late final String label;
+    late final IconData icon;
+    switch (state.speakerState) {
+      case RealtimeSpeakerState.connecting:
+        label = 'Đang thiết lập cuộc gọi…';
+        icon = Icons.wifi_rounded;
+        break;
+      case RealtimeSpeakerState.aiSpeaking:
+        label = 'Tom đang nói · Chạm để ngắt lời';
+        icon = Icons.volume_up_rounded;
+        break;
+      case RealtimeSpeakerState.userSpeaking:
+        label = state.isMuted ? 'Micro đang tắt' : 'Đến lượt bạn nói';
+        icon = state.isMuted ? Icons.mic_off_rounded : Icons.mic_rounded;
+        break;
+      case RealtimeSpeakerState.aiThinking:
+        label = 'Tom đang chuẩn bị câu trả lời…';
+        icon = Icons.auto_awesome_rounded;
+        break;
+      case RealtimeSpeakerState.listening:
+        label = state.isMuted ? 'Micro đang tắt' : 'Tom đang lắng nghe';
+        icon = state.isMuted ? Icons.mic_off_rounded : Icons.hearing_rounded;
+        break;
+      case RealtimeSpeakerState.ended:
+        label = 'Cuộc gọi đã kết thúc';
+        icon = Icons.call_end_rounded;
+        break;
     }
+    return Semantics(
+        liveRegion: true,
+        child: Material(
+          color: color.withValues(alpha: 0.13),
+          borderRadius: BorderRadius.circular(18),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: speaking && !_endingCall ? controller.interruptAi : null,
+            child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  if (busy)
+                    SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: color))
+                  else
+                    Icon(icon, color: color, size: 18),
+                  const SizedBox(width: 8),
+                  Flexible(
+                      child: Text(label,
+                          style: TextStyle(
+                              color: color,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600))),
+                ])),
+          ),
+        ));
   }
 
   Widget _buildWaveformVisualizer(
@@ -589,9 +589,7 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
       children: [
         VoiceWaveform(
           isActive: isAiSpeaking || isUserSpeaking,
-          color: isAiSpeaking
-              ? AppColors.aiWaveform
-              : (isUserSpeaking ? AppColors.userWaveform : Colors.white24),
+          color: _speakerColor(state.speakerState),
           height: 48,
           barCount: 26,
         ),
@@ -680,90 +678,86 @@ class _RealtimeCallScreenState extends ConsumerState<RealtimeCallScreen>
     );
   }
 
-  Widget _buildCallControls(
-    BuildContext context,
-    RealtimeCallState state,
-    RealtimeCallController controller,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        // 1. Mute Toggle
-        IconButton.filledTonal(
-          tooltip: state.isMuted ? 'Bật micro' : 'Tắt tiếng (Mute)',
-          style: IconButton.styleFrom(
-            backgroundColor: state.isMuted ? Colors.white30 : Colors.white12,
-            padding: const EdgeInsets.all(16),
-          ),
-          icon: Icon(
-            state.isMuted ? Icons.mic_off_rounded : Icons.mic_rounded,
-            color: state.isMuted ? AppColors.error : Colors.white,
-            size: 26,
-          ),
-          onPressed: controller.toggleMute,
-        ),
-
-        // 2. Speakerphone Toggle
-        IconButton.filledTonal(
-          tooltip: state.isSpeakerPhoneOn ? 'Loa ngoài' : 'Tai nghe/Loa trong',
-          style: IconButton.styleFrom(
-            backgroundColor:
-                state.isSpeakerPhoneOn ? Colors.white30 : Colors.white12,
-            padding: const EdgeInsets.all(16),
-          ),
-          icon: Icon(
-            state.isSpeakerPhoneOn
-                ? Icons.volume_up_rounded
-                : Icons.phone_in_talk_rounded,
-            color: Colors.white,
-            size: 26,
-          ),
-          onPressed: controller.toggleSpeakerPhone,
-        ),
-
-        // 3. Captions Toggle
-        IconButton.filledTonal(
-          tooltip: state.showCaptions ? 'Ẩn phụ đề' : 'Bật phụ đề trực tiếp',
-          style: IconButton.styleFrom(
-            backgroundColor:
-                state.showCaptions ? Colors.white30 : Colors.white12,
-            padding: const EdgeInsets.all(16),
-          ),
-          icon: Icon(
-            state.showCaptions
-                ? Icons.subtitles_rounded
-                : Icons.subtitles_off_rounded,
-            color: Colors.white,
-            size: 26,
-          ),
-          onPressed: controller.toggleCaptions,
-        ),
-
-        // 4. End Call Button (Big Red)
-        IconButton.filled(
-          tooltip: 'Kết thúc cuộc gọi',
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.error,
-            padding: const EdgeInsets.all(20),
-          ),
-          icon:
-              const Icon(Icons.call_end_rounded, color: Colors.white, size: 30),
-          onPressed: () async {
-            final confirmed = await ConfirmSheet.show(
-              context,
-              title: 'Kết thúc cuộc gọi?',
-              message:
-                  'Hệ thống sẽ dừng ghi âm và tạo báo cáo đánh giá toàn diện (Rubric) cho phiên nói của bạn.',
-              confirmText: 'Kết thúc & Nhận điểm',
-              cancelText: 'Tiếp tục gọi',
-              isDestructive: true,
-            );
-            if (context.mounted && confirmed == true) {
-              controller.endCall();
-            }
-          },
-        ),
-      ],
+  Widget _buildCallControls(BuildContext context, RealtimeCallState state,
+      RealtimeCallController controller) {
+    final disabled = _endingCall ||
+        state.isCallEnded ||
+        state.speakerState == RealtimeSpeakerState.ended;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 12,
+          runSpacing: 14,
+          children: [
+            _control(
+                label: 'Micro',
+                hint: state.isMuted ? 'Bật micro' : 'Tắt micro',
+                icon: state.isMuted ? Icons.mic_off_rounded : Icons.mic_rounded,
+                color: state.isMuted ? const Color(0xFFFFA3AE) : Colors.white,
+                selected: state.isMuted,
+                onPressed: disabled ? null : controller.toggleMute),
+            _control(
+                label: 'Loa',
+                hint: state.isSpeakerPhoneOn
+                    ? 'Chuyển sang loa trong'
+                    : 'Bật loa ngoài',
+                icon: state.isSpeakerPhoneOn
+                    ? Icons.volume_up_rounded
+                    : Icons.volume_down_rounded,
+                selected: state.isSpeakerPhoneOn,
+                onPressed: disabled ? null : controller.toggleSpeakerPhone),
+            _control(
+                label: 'Phụ đề',
+                hint: state.showCaptions ? 'Ẩn phụ đề' : 'Hiện phụ đề',
+                icon: state.showCaptions
+                    ? Icons.subtitles_rounded
+                    : Icons.subtitles_off_rounded,
+                selected: state.showCaptions,
+                onPressed: disabled ? null : controller.toggleCaptions),
+            _control(
+                label: 'Kết thúc',
+                hint: 'Kết thúc cuộc gọi',
+                icon: Icons.call_end_rounded,
+                destructive: true,
+                onPressed: disabled ? null : () => _confirmEndCall(controller)),
+          ]),
     );
+  }
+
+  Widget _control(
+      {required String label,
+      required String hint,
+      required IconData icon,
+      required VoidCallback? onPressed,
+      Color color = Colors.white,
+      bool selected = false,
+      bool destructive = false}) {
+    return SizedBox(
+        width: 66,
+        child: Column(children: [
+          IconButton.filledTonal(
+              tooltip: hint,
+              isSelected: selected,
+              onPressed: onPressed,
+              style: IconButton.styleFrom(
+                backgroundColor: destructive
+                    ? const Color(0xFFC63F54)
+                    : selected
+                        ? const Color(0xFF364962)
+                        : const Color(0xFF233247),
+                disabledBackgroundColor: const Color(0xFF263141),
+                minimumSize: const Size(54, 54),
+              ),
+              icon: Icon(icon,
+                  size: 25, color: onPressed == null ? Colors.white38 : color)),
+          const SizedBox(height: 7),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600)),
+        ]));
   }
 }
