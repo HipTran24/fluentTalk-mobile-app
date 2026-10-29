@@ -27,6 +27,7 @@ class LiveAudioClient {
     await _handle.connect(jsonEncode(ticket).toJS).toDart;
   }
 
+  void sendUserText(String text) {}
   void mute(bool value) => _handle.mute(value.toJS);
   void close() => _handle.close();
 }

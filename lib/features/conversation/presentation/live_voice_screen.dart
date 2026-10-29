@@ -22,6 +22,8 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
   String? _learningSessionId;
   bool _saveTranscriptAllowed = false;
   bool _voiceSelected = false;
+  final TextEditingController _replyController = TextEditingController();
+
   Future<void> _loadDefaults() async {
     try {
       final data = await ref.read(apiClientProvider)?.get('me/learning');
@@ -114,9 +116,17 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _replyController.dispose();
     _persistVoiceNote();
     _cleanup();
     super.dispose();
+  }
+
+  void _sendReply(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty || !_active) return;
+    _audio?.sendUserText(trimmed);
+    _replyController.clear();
   }
 
   void _event(int generation, String type, String text) {
@@ -124,9 +134,9 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
     if (type == 'error') {
       _end(switch (text) {
         'permission' =>
-          'Micro chưa được cho phép. Bật quyền micro cho trang này rồi gọi lại.',
+          'Micro chưa được cho phép. Bật quyền micro cho FluentTalk trong cài đặt ứng dụng rồi gọi lại.',
         'unsupported' =>
-          'Trình duyệt chưa hỗ trợ. Hãy dùng Chrome/Edge trên localhost hoặc HTTPS.',
+          'Thiết bị chưa hỗ trợ kết nối âm thanh. Vui lòng kiểm tra lại cấu hình.',
         'microphone' =>
           'Không mở được micro. Kiểm tra thiết bị và đóng ứng dụng đang chiếm micro.',
         'access' ||
@@ -187,10 +197,10 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
           LiveAudioClient((type, text) => _event(generation, type, text));
       _audio = audio;
       if (!audio.supported) {
-        _end('Hội thoại giọng nói hiện hỗ trợ trên bản web.');
+        _end('Hội thoại giọng nói hiện hỗ trợ trên Android và web.');
         return;
       }
-      // Open AudioContext directly from the tap before network awaits (autoplay policy).
+      // Prepare audio engine
       await audio.prepare();
       if (!mounted || generation != _generation) return;
       final data = await api.post('ai/live-token', data: {
@@ -219,7 +229,7 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
       if (!mounted || generation != _generation) return;
       _end(error is ApiFailure
           ? error.message
-          : 'Chưa thể mở cuộc gọi. Kiểm tra micro, kết nối và cấu hình Gemini.');
+          : 'Chưa thể mở cuộc gọi. Kiểm tra kết nối và cấu hình Gemini.');
     }
   }
 
@@ -248,34 +258,40 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
                 const Text('FLUENTTALK · SPEAKING STUDIO',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                        color: AppColors.textMuted)),
-                const SizedBox(height: 32),
-                CircleAvatar(
-                    radius: 68,
-                    backgroundColor: _active
-                        ? AppColors.secondaryLight
-                        : const Color(0xFF1E2C57),
-                    child: Icon(
-                        _speaking
-                            ? Icons.graphic_eq
-                            : Icons.headset_mic_outlined,
-                        size: 48,
-                        color: _active
-                            ? AppColors.primary
-                            : const Color(0xFFD1CFFB))),
+                        fontSize: 11,
+                        letterSpacing: 2,
+                        color: AppColors.textMuted,
+                        fontWeight: FontWeight.w700)),
                 const SizedBox(height: 20),
+                Center(
+                    child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _active
+                                ? (_speaking
+                                    ? AppColors.primary
+                                    : AppColors.accent)
+                                : const Color(0xFF1E293B)),
+                        child: Icon(
+                            _active
+                                ? (_speaking
+                                    ? Icons.volume_up_rounded
+                                    : Icons.hearing_rounded)
+                                : Icons.headset_mic_rounded,
+                            size: 56,
+                            color: Colors.white))),
+                const SizedBox(height: 24),
                 Text(
                     _connecting
                         ? 'Đang kết nối…'
                         : _active
                             ? (_speaking
-                                ? 'Tom đang trả lời'
+                                ? 'Tom đang trả lời…'
                                 : _muted
                                     ? 'Micro đang tắt'
-                                    : 'Tom đang lắng nghe bạn')
+                                    : 'Tom đang lắng nghe bạn…')
                             : 'Cùng nói tiếng Anh nhé',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
@@ -284,7 +300,7 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
                 Text(
                     _active
                         ? '${(_seconds ~/ 60).toString().padLeft(2, '0')}:${(_seconds % 60).toString().padLeft(2, '0')} / 05:00'
-                        : 'Nói tự nhiên, Tom sẽ nghe và trả lời bằng giọng nói. Bạn có thể ngắt lời Tom để hỏi tiếp.',
+                        : 'Nói tự nhiên, Tom sẽ nghe và trả lời bằng giọng nói. Bạn có thể trò chuyện hoặc phản hồi câu hỏi của Tom.',
                     textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 DropdownButtonFormField<String>(
@@ -345,9 +361,86 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
                             label:
                                 Text(_connecting ? 'Hủy kết nối' : 'Kết thúc')),
                       ]),
+                if (_active) ...[
+                  const SizedBox(height: 24),
+                  // Quick Response suggestions
+                  const Text('Gợi ý phản hồi nhanh:',
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ActionChip(
+                        avatar: const Icon(Icons.forum_outlined, size: 16),
+                        label: const Text("I'm doing well, thank you!"),
+                        onPressed: () =>
+                            _sendReply("I'm doing well, thank you!"),
+                      ),
+                      ActionChip(
+                        avatar: const Icon(Icons.help_outline, size: 16),
+                        label: const Text(
+                            "Could you tell me an interesting fact?"),
+                        onPressed: () => _sendReply(
+                            "Could you tell me an interesting fact?"),
+                      ),
+                      ActionChip(
+                        avatar: const Icon(Icons.lightbulb_outline, size: 16),
+                        label: const Text("How can I improve my fluency?"),
+                        onPressed: () =>
+                            _sendReply("How can I improve my fluency?"),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Interactive Reply Bar
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                      border:
+                          Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _replyController,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: _sendReply,
+                            decoration: const InputDecoration(
+                              hintText: 'Nhập tin nhắn nếu bạn không tiện nói…',
+                              hintStyle: TextStyle(
+                                  fontSize: 13, color: AppColors.textMuted),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.send_rounded,
+                              color: AppColors.primary),
+                          onPressed: () => _sendReply(_replyController.text),
+                          tooltip: 'Gửi cho Tom',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 const Text(
-                    'Khi bắt đầu, âm thanh micro được gửi đến Google Gemini để Tom trả lời. App không lưu bản ghi âm. Phụ đề chỉ được lưu tối đa 30 ngày nếu bạn bật ghi nhớ trong mục Tom. Mỗi lần cấp phiên tính tối đa 5 phút vào hạn mức gọi trong ngày; dừng sớm vẫn tính một phiên.',
+                    'Khi bắt đầu, âm thanh micro được gửi đến Google Gemini để Tom nghe và phản hồi trực tiếp bằng giọng nói. Phụ đề được lưu tối đa 30 ngày nếu bạn bật ghi nhớ trong mục Tom. Mỗi lần cấp phiên tính tối đa 5 phút vào hạn mức gọi trong ngày.',
                     style:
                         TextStyle(color: AppColors.textSecondary, height: 1.5)),
                 if (_captions.isNotEmpty) ...[

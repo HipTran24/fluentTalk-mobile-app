@@ -128,7 +128,7 @@ public class ConversationAiService {
             }
             attempted=true;
             HttpResponse<byte[]> response = client.send(request,
-                    HttpResponse.BodyHandlers.limiting(HttpResponse.BodyHandlers.ofByteArray(), 262144));
+                    HttpResponse.BodyHandlers.ofByteArray());
             upstreamStatus=response.statusCode();
             byte[] bytes = response.body();
             if(response.statusCode()==200)tokens=com.englishspeaking.ai.usage.UsageMeter.parse(config.provider(),mapper.readTree(bytes));

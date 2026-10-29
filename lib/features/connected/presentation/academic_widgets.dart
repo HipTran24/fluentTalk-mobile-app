@@ -9,9 +9,7 @@ class AcademicPanel extends StatelessWidget {
   Widget build(BuildContext context) => Container(
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFE7EAF2)),
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF131B2E) : Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFE7EAF2)),
           boxShadow: const [
             BoxShadow(
                 color: Color(0x040F172A), blurRadius: 24, offset: Offset(0, 8))
@@ -28,15 +26,12 @@ class AcademicHeading extends StatelessWidget {
       padding: const EdgeInsets.only(top: 28, bottom: 18),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title,
-            style: const TextStyle(
-                fontSize: 21,
+            style: TextStyle(fontSize: 21,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-                letterSpacing: -.5)),
+                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFF8FAFC) : AppColors.textPrimary, letterSpacing: -.5)),
         const SizedBox(height: 6),
         Text(subtitle,
-            style:
-                const TextStyle(color: AppColors.textSecondary, height: 1.5)),
+            style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : AppColors.textSecondary, height: 1.5)),
         if (action != null) action!,
       ]));
 }

@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "FluentTalk (Chạy thật - Chrome)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "chrome",
+            "args": [
+                "--dart-define-from-file=config/mobile.public.json"
+            ]
+        },
+        {
+            "name": "FluentTalk (Chạy thật - Android)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define-from-file=config/mobile.android.json",
+                "--no-enable-impeller"
+            ]
+        },
+        {
+            "name": "FluentTalk (Chế độ Demo)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=DEMO_MODE=true"
+            ]
+        }
+    ]
+}

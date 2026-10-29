@@ -37,7 +37,7 @@ Dự án đang ở giai đoạn **beta chạy local**. Hội thoại thật và 
 | --- | --- |
 | **Tài khoản** | Đăng ký, đăng nhập, xác thực OTP email qua Supabase; hồ sơ và mục tiêu học. |
 | **Chat cùng Tom** | Phản hồi Gemini thật, lưu phiên hội thoại, mở lại lịch sử và phát giọng đọc. |
-| **Hội thoại giọng nói** | Gemini Live trên **web**: micro, âm thanh trực tiếp, phụ đề, ngắt lời và chọn giọng. |
+| **Hội thoại giọng nói** | Gemini Live trên **Android và web**: micro, âm thanh trực tiếp, phụ đề, ngắt lời và chọn giọng. |
 | **Cá nhân hóa** | Mục tiêu, trình độ tự chọn, chủ đề ưu tiên; kế hoạch ngày và tình huống kèm lý do đề xuất. |
 | **Ghi nhớ có kiểm soát** | Dùng lịch sử khi bật cá nhân hóa; lưu phụ đề cuộc gọi khi đồng ý riêng, tối đa 30 ngày, có thể xóa. |
 | **Nội dung học** | Danh mục chủ đề, tình huống theo trình độ, lịch sử và thống kê từ dữ liệu đã lưu. |
@@ -129,7 +129,7 @@ flutter run --dart-define-from-file=config/mobile.public.json
 flutter build apk --debug --dart-define-from-file=config/mobile.public.json
 ```
 
-Với Android emulator, đặt API thành `http://10.0.2.2:8080/api/v1` và `ALLOW_INSECURE_LOCALHOST=true`. Thiết bị thật cần backend có thể truy cập; bản phát hành dùng HTTPS. APK debug không phải bản ký phát hành. Realtime hiện được tích hợp cho web, chưa tích hợp transport native Android/iOS.
+Với Android emulator, đặt API thành `http://10.0.2.2:8080/api/v1` và `ALLOW_INSECURE_LOCALHOST=true`. Thiết bị thật cần backend có thể truy cập; bản phát hành dùng HTTPS. APK debug không phải bản ký phát hành. Realtime đã tích hợp âm thanh trực tiếp trên Android và web; iOS chưa tích hợp transport native.
 
 Chạy dữ liệu minh họa độc lập:
 
