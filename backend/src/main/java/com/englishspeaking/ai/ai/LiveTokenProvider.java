@@ -70,7 +70,7 @@ public class LiveTokenProvider {
                 .header("x-goog-api-key", config.apiKey())
                 .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body))).build();
             var response = client.send(request,
-                HttpResponse.BodyHandlers.limiting(HttpResponse.BodyHandlers.ofByteArray(), 65536));
+                HttpResponse.BodyHandlers.ofByteArray());
             if (response.statusCode() == 429) throw error("AI_RATE_LIMITED", "Gemini hết hạn mức hoặc đang quá tải. Kiểm tra quota/billing rồi thử lại.", HttpStatus.TOO_MANY_REQUESTS);
             if (response.statusCode() == 400 || response.statusCode() == 401 || response.statusCode() == 403)
                 throw error("AI_ACCESS_DENIED", "Key hoặc quyền truy cập Gemini Live chưa hợp lệ. Kiểm tra key, model và billing.", HttpStatus.SERVICE_UNAVAILABLE);

@@ -6,6 +6,7 @@ external _LiveHandle _create(JSFunction callback);
 extension type _LiveHandle(JSObject _) implements JSObject {
   external JSPromise<JSAny?> prepare();
   external JSPromise<JSAny?> connect(JSString ticket);
+  external void sendUserText(JSString text);
   external void mute(JSBoolean value);
   external void close();
 }
@@ -27,6 +28,7 @@ class LiveAudioClient {
     await _handle.connect(jsonEncode(ticket).toJS).toDart;
   }
 
+  void sendUserText(String text) => _handle.sendUserText(text.toJS);
   void mute(bool value) => _handle.mute(value.toJS);
   Future<void> close() async => _handle.close();
 }

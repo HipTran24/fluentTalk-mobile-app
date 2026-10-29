@@ -45,7 +45,8 @@ def main():
     jar = ROOT / 'backend/target/backend-0.1.0-SNAPSHOT.jar'
     if not jar.exists():
         raise SystemExit('Build first: cd backend && ./mvnw verify (Java 27 required).')
-    java = str(Path(env['JAVA_HOME']) / 'bin/java') if env.get('JAVA_HOME') else 'java'
+    java_binary = 'bin/java.exe' if os.name == 'nt' else 'bin/java'
+    java = str(Path(env['JAVA_HOME']) / java_binary) if env.get('JAVA_HOME') else 'java'
     try:
         process = subprocess.Popen([java, '-Xmx512m', '-jar', str(jar)], cwd=ROOT, env=env)
         process.wait()

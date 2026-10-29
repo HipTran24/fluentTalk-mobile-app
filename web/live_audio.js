@@ -90,6 +90,13 @@
       });
     }
     send(message) { if (!this.closed && this.socket?.readyState === WebSocket.OPEN) this.socket.send(JSON.stringify(message)); }
+    sendUserText(text) {
+      const value = String(text ?? '').trim();
+      if (!this.ready || this.closed || !value) return;
+      this.stopPlayback();
+      this.emit('user', value);
+      this.send({realtimeInput: {text: value}});
+    }
     play(part) {
       const raw = atob(part.data), bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
       const view = new DataView(bytes.buffer);

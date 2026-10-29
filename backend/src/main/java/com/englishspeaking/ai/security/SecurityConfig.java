@@ -98,9 +98,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         List<String> origins = appProperties.getCors().getAllowedOrigins();
         if (origins != null && !origins.isEmpty()) {
-            configuration.setAllowedOrigins(origins);
+            configuration.setAllowedOriginPatterns(List.of("*"));
         } else {
-            configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080", "http://10.0.2.2:8080"));
+            configuration.setAllowedOriginPatterns(List.of("*"));
         }
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-Id", "Idempotency-Key"));

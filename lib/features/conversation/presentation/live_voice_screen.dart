@@ -23,6 +23,7 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
   String? _learningSessionId;
   bool _saveTranscriptAllowed = false;
   bool _voiceSelected = false;
+  final TextEditingController _replyController = TextEditingController();
   Future<void> _loadDefaults() async {
     try {
       final data = await ref.read(apiClientProvider)?.get('me/learning');
@@ -125,9 +126,17 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _captionScrollController.dispose();
+    _replyController.dispose();
     _persistVoiceNote();
     _cleanup();
     super.dispose();
+  }
+
+  void _sendReply(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty || !_active) return;
+    _audio?.sendUserText(trimmed);
+    _replyController.clear();
   }
 
   void _event(int generation, String type, String text) {
@@ -392,6 +401,82 @@ class _LiveVoiceScreenState extends ConsumerState<LiveVoiceScreen>
                                 label: Text(
                                     _connecting ? 'Hủy kết nối' : 'Kết thúc')),
                           ]),
+                    if (_active) ...[
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Gợi ý phản hồi nhanh:',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ActionChip(
+                            avatar: const Icon(Icons.forum_outlined, size: 16),
+                            label: const Text("I'm doing well, thank you!"),
+                            onPressed: () =>
+                                _sendReply("I'm doing well, thank you!"),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.help_outline, size: 16),
+                            label: const Text(
+                                'Could you tell me an interesting fact?'),
+                            onPressed: () => _sendReply(
+                                'Could you tell me an interesting fact?'),
+                          ),
+                          ActionChip(
+                            avatar:
+                                const Icon(Icons.lightbulb_outline, size: 16),
+                            label: const Text('How can I improve my fluency?'),
+                            onPressed: () =>
+                                _sendReply('How can I improve my fluency?'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _replyController,
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: _sendReply,
+                                decoration: const InputDecoration(
+                                  hintText:
+                                      'Nhập tin nhắn nếu bạn không tiện nói…',
+                                  hintStyle: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textMuted,
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.send_rounded,
+                                  color: AppColors.primary),
+                              onPressed: () =>
+                                  _sendReply(_replyController.text),
+                              tooltip: 'Gửi cho Tom',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     const Text(
                         'Khi bắt đầu, âm thanh micro được gửi đến Google Gemini để Tom trả lời. App không lưu bản ghi âm. Phụ đề chỉ được lưu tối đa 30 ngày nếu bạn bật ghi nhớ trong mục Tom. Mỗi lần cấp phiên tính tối đa 5 phút vào hạn mức gọi trong ngày; dừng sớm vẫn tính một phiên.',

@@ -5,14 +5,15 @@ import 'dart:typed_data';
 
 import 'package:flutter_pcm_sound/flutter_pcm_sound.dart';
 import 'package:record/record.dart' hide IosAudioCategory;
+import 'live_audio_transport.dart';
 
 /// Native Android/iOS transport for Gemini Live.
 ///
 /// The app sends microphone PCM16 at 16 kHz and plays Gemini's PCM16 response
 /// at 24 kHz. The Gemini API key stays on the backend; this client only gets
 /// the short-lived token returned by `POST /api/v1/ai/live-token`.
-class LiveAudioClient {
-  LiveAudioClient(this._onEvent);
+class PluginNativeLiveAudioClient implements LiveAudioTransport {
+  PluginNativeLiveAudioClient(this._onEvent);
 
   static const _liveEndpoint =
       'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained';
@@ -42,8 +43,10 @@ class LiveAudioClient {
   bool _playerInitialized = false;
   bool _turnComplete = false;
 
-  bool get supported => Platform.isAndroid || Platform.isIOS;
+  @override
+  bool get supported => Platform.isIOS;
 
+  @override
   Future<void> prepare() async {
     if (!supported) {
       throw UnsupportedError('Native realtime requires Android or iOS.');
@@ -101,6 +104,7 @@ class LiveAudioClient {
     }
   }
 
+  @override
   Future<void> connect(Map<String, dynamic> ticket) async {
     if (_closed || _microphoneSubscription == null) {
       throw StateError('Prepare microphone before connecting');
@@ -334,6 +338,24 @@ class LiveAudioClient {
     await _playerTail;
   }
 
+  @override
+  void sendUserText(String text) {
+    final normalized = text.trim();
+    if (_closed || !_ready || normalized.isEmpty) return;
+    _turnComplete = false;
+    _emit('user', normalized);
+    unawaited(_stopPlayback().then((_) {
+      if (!_closed) {
+        _send({
+          'realtimeInput': {'text': normalized}
+        });
+      }
+    }).catchError((Object _) {
+      if (!_closed) _fail('microphone');
+    }));
+  }
+
+  @override
   void mute(bool value) {
     _muted = value;
     if (value) {
@@ -359,6 +381,7 @@ class LiveAudioClient {
     unawaited(close());
   }
 
+  @override
   Future<void> close() {
     if (_closeFuture != null) return _closeFuture!;
     if (_closed) return Future<void>.value();

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/router/app_router.dart';
 import 'core/config/app_config.dart';
+import 'core/network/http_overrides_stub.dart'
+    if (dart.library.io) 'core/network/http_overrides_io.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/responsive_content_wrapper.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -10,6 +12,7 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = AppConfig.fromEnvironment();
+  setupDevHttpOverrides(config.allowInsecureLocalhost);
 
   String? supabaseInitError;
   if (config.hasAuth) {
